@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación de Tramificación - Eje Este AV</title>
+    <style>
+        /* Estilos base */
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f0f4f8;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            color: #004080;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 48%;
+            padding: 8px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        input[type="text"].error {
+            border-color: red;
+        }
+        .btn {
+            background-color: #004080;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #003366;
+        }
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: #0073e6;
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background-color: #005bb5;
+        }
+        .history {
+            margin-top: 20px;
+            background-color: #e6f2ff;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .history p {
+            margin: 5px 0;
+        }
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #004080;
+        }
+
+        /* Modo oscuro */
+        .dark-mode {
+            background-color: #1c1c1c;
+            color: #e6e6e6;
+        }
+        .dark-mode .container {
+            background-color: #2c2c2c;
+        }
+        .dark-mode input[type="text"] {
+            background-color: #444;
+            color: #e6e6e6;
+            border-color: #666;
+        }
+        .dark-mode .btn, .dark-mode .copy-btn {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-container">
+        <img src="adif.png" alt="Logo Adif" width="100">
+        <h2 class="header">Aplicación de Tramificación - Eje Este AV</h2>
+        <img src="ineco.png" alt="Logo Ineco" width="100">
+    </div>
+
+    <div class="input-group">
+        <input type="text" id="pkMiles" placeholder="PK Millares" maxlength="3">
+        <input type="text" id="pkCentenas" placeholder="PK Centenas" maxlength="3">
+    </div>
+    <button class="btn" onclick="calcularTramo()">Calcular Tramo</button>
+    
+    <p id="resultado"></p>
+    <div id="copySection"></div>
+    
+    <div class="history" id="history">
+        <h3>Historial de Consultas</h3>
+    </div>
+    
+    <span class="mode-toggle" onclick="toggleMode()">Modo Oscuro</span>
+</div>
+
+<script>
+    let history = [];
+    let darkMode = false;
+
+    function calcularTramo() {
+        const pkMiles = document.getElementById("pkMiles").value;
+        const pkCentenas = document.getElementById("pkCentenas").value;
+        const resultado = document.getElementById("resultado");
+        const historyDiv = document.getElementById("history");
+
+        if (!pkMiles || !pkCentenas || isNaN(pkMiles) || isNaN(pkCentenas)) {
+            alert("Introduce valores válidos en PK");
+            return;
+        }
+
+        const pk = parseInt(pkMiles) * 1000 + parseInt(pkCentenas);
+        let tramo;
+
+        // Validación de PK en tiempo real y asignación de tramo
+        if (pk >= 35000 && pk <= 42000) tramo = "130400050";
+        else if (pk >= 43000 && pk <= 104000) tramo = "130400060";
+        else if (pk >= 103000 && pk <= 195000) tramo = "130400070";
+        else if (pk >= 196000 && pk <= 247000) tramo = "130400080";
+        else if (pk >= 248000 && pk <= 289000) tramo = "130400090";
+        else if (pk >= 290000 && pk <= 327000) tramo = "130400100";
+        else if (pk >= 328000 && pk <= 392000) tramo = "130400110";
+        else if (pk >= 393000 && pk <= 396000) tramo = "130400120";
+        else if (pk >= 397000 && pk <= 398000) tramo = "130400130";
+        else if (pk >= 248000 && pk <= 285000) tramo = "130420010";
+        else if (pk >= 286000 && pk <= 322000) tramo = "130420020";
+        else tramo = "Fuera de Rango";
+
+        resultado.innerText = `Tramo: ${tramo}`;
+
+        // Botón de copiar
+        const copySection = document.getElementById("copySection");
+        copySection.innerHTML = `<div class="copy-btn" onclick="copiarTramo('${tramo}')">📋 <span style="margin-left: 5px;">Copiar</span></div>`;
+
+        // Agregar al historial
+        history.push({ linea: pk >= 248000 ? "42" : "40", pk: `${pkMiles}+${pkCentenas}`, tramo });
+        if (history.length > 6) history.shift();  // Limitar a las últimas 5 consultas
+
+        historyDiv.innerHTML = "<h3>Historial de Consultas</h3>";
+        history.forEach(item => {
+            historyDiv.innerHTML += `<p>Línea: ${item.linea}, PK: ${item.pk}, Tramo: ${item.tramo}</p>`;
+        });
+    }
+
+    function copiarTramo(tramo) {
+        navigator.clipboard.writeText(tramo);
+        alert("¡Tramo copiado!");
+    }
+
+    function toggleMode() {
+        darkMode = !darkMode;
+        document.body.classList.toggle("dark-mode", darkMode);
+    }
+</script>
+</body>
+</html>
