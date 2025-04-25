@@ -60,8 +60,8 @@ body {
      }
      /* *** MODIFICADO: Ajuste del tamaño y posición de los logos en pantallas medianas *** */
     .logo-container img {
-        height: 35px; /* Altura fija reducida */
-        width: 56px; /* Ancho fijo reducido */
+        height: 70px; /* Altura fija reducida */
+        width: 112px; /* Ancho fijo reducido */
     }
     .logo-adif {
         left: 10px; /* Alineado con el nuevo padding izquierdo */
