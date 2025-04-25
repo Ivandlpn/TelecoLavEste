@@ -13,7 +13,7 @@
     },
     {
         "fecha": "2021-01-09",
-        "evento": "Temporal Filomena"
+        "evento": "Temporal"
       },
       {
       "fecha": "2022-12-20",
@@ -24,7 +24,11 @@
       "evento": "Inicio circulaciones trenes AVLO"
     },
     {
-        "fecha": "2023-03-27",
+        "fecha": "2023-04-27",
         "evento": "Inicio circulaciones trenes OUIGO"
+      },
+      {
+        "fecha": "2023-06-02",
+        "evento": "Inicio circulaciones trenes IRYO"
       }
   ]
