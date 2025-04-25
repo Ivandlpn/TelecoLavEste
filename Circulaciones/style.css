@@ -1,158 +1,562 @@
+/* General body and container styles */
 body {
-    font-family: sans-serif;
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f8f8f8;
+    background-color: #f4f7f6;
     color: #333;
+    line-height: 1.6;
+    min-width: 320px;
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 15px;
 }
 
 h1 {
     text-align: center;
-    color: #0056b3;
+    color: #1a5276;
+    margin-bottom: 10px;
+    font-size: 2em;
 }
+@media (max-width: 768px) {
+    h1 { font-size: 1.6em; }
+}
+
 
 p {
     text-align: center;
-    margin-bottom: 30px;
-    color: #555;
+    /* Ajustado el margen inferior para dar espacio a los logos */
+    margin-bottom: 20px;
+    color: #5a6268;
+    font-size: 1.1em;
 }
 
-#visualization-container {
-    margin-top: 20px;
-    /* Permitir scroll horizontal si los años son muy anchos, o vertical si son altos */
-    /* En este caso, el diseño vertical con scroll nativo es el plan */
+/* *** NUEVO: Estilos para el contenedor de logos *** */
+.logo-container {
+    text-align: center; /* Centrar los logos si no usan flex */
+    margin-bottom: 30px; /* Espacio debajo de los logos */
+    display: flex; /* Usar flexbox para alinear */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Alinear verticalmente */
+    gap: 30px; /* Espacio entre los logos */
+    flex-wrap: wrap; /* Permitir que los logos se apilen en pantallas pequeñas */
 }
+
+.logo-container img {
+    height: 50px; /* Altura fija para los logos */
+    /* width: 100px; Ancho fijo, se puede omitir para dejarlo proporcional */
+    object-fit: contain; /* Asegura que la imagen se ajuste dentro de las dimensiones sin distorsión */
+    display: block; /* Para asegurar que width y height se aplican correctamente */
+    max-width: 100px; /* Asegurar que no se desborden en pantallas pequeñas */
+}
+@media (max-width: 480px) {
+    .logo-container img {
+        height: 35px; /* Altura fija en móviles */
+        max-width: 70px; /* Ancho fijo en móviles */
+    }
+    .logo-container {
+         gap: 20px; /* Reducir espacio */
+    }
+}
+
+
+/* Controls area (e.g., year selector, toggle button) */
+.controls {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+     flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.controls label {
+    font-size: 1em;
+    margin-right: 0; /* El gap ya maneja el espacio */
+    color: #495057;
+    font-weight: bold;
+}
+
+.controls select {
+    padding: 8px 12px;
+    font-size: 1em;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.controls select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#toggle-view-btn {
+    padding: 8px 15px;
+    font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    outline: none;
+}
+
+#toggle-view-btn:hover {
+    background-color: #0056b3;
+}
+
+#toggle-view-btn:active {
+     background-color: #004085;
+}
+
+/* Clases para mostrar/ocultar vistas */
+.visualization-view {
+    /* Se puede usar opacidad si se quiere una transición visual,
+       pero `display: none` la interrumpe. Mantener solo para consistencia con JS. */
+    transition: opacity 0.3s ease-in-out;
+}
+
+.visualization-view.hidden {
+    display: none;
+    opacity: 0;
+}
+
+/* Estilos para el contenedor de gráficas */
+#charts-container {
+    margin-top: 20px;
+}
+
+#charts-container h2 {
+    text-align: center;
+    color: #1a5276;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    font-size: 1.8em;
+}
+
+#charts-container div {
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilo para mensaje de "No hay datos" */
+.no-data {
+    text-align: center;
+    color: #777;
+    font-style: italic;
+}
+
 
 /* Estilos para cada bloque de año contractual */
 .contractual-year {
-    margin-bottom: 40px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
+    margin-bottom: 50px;
+    padding: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    scroll-margin-top: 80px; /* Para que el selector de año haga scroll correctamente */
+}
+/* Ajuste para scroll-margin-top si no hay header fijo u otros elementos */
+body:not(.has-fixed-header) .contractual-year {
+    scroll-margin-top: 20px;
 }
 
+
 .year-title {
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    color: #0056b3;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #1a5276;
     text-align: center;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
 }
+@media (max-width: 768px) {
+    .year-title { font-size: 1.5em; }
+}
+
+
+.year-total {
+    font-size: 1.4em;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    color: #1a5276;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.year-details {
+    font-size: 0.95em;
+    text-align: center;
+    color: #5a6268;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+/* *** NUEVO: Contenedor de cuadrícula para los meses *** */
+.month-grid-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 columnas de igual ancho */
+    gap: 20px; /* Espacio entre los meses */
+    justify-items: center; /* Centrar los meses dentro de sus celdas */
+    align-items: start; /* Alinear los meses al inicio de sus celdas */
+}
+
+/* Media queries para ajustar el número de columnas en pantallas más pequeñas */
+@media (max-width: 1100px) { /* Ajustar según el ancho de 6 meses */
+     .month-grid-container {
+         grid-template-columns: repeat(4, 1fr); /* 4 columnas */
+     }
+}
+
+@media (max-width: 768px) {
+     .month-grid-container {
+         grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+     }
+}
+
+@media (max-width: 480px) {
+     .month-grid-container {
+         grid-template-columns: repeat(1, 1fr); /* 1 columna (apilados) */
+     }
+}
+
 
 /* Estilos para cada bloque mensual */
 .month {
-    display: inline-block; /* Opcional: si quieres que los meses floten */
-    vertical-align: top;
-    margin: 0 10px 20px 10px; /* Espacio entre meses */
+    /* display: inline-block; Eliminado, la cuadrícula maneja el layout */
+    /* vertical-align: top; Eliminado */
+    /* margin: 0 15px 30px 15px; Eliminado, el gap de la cuadrícula maneja el espacio */
+    width: fit-content; /* Ajustar ancho al contenido */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    padding: 10px; /* Espacio interno */
+    background-color: #fdfdfd;
+    /* max-width: calc(7 * var(--cell-size) + 6 * var(--grid-gap) + 20px); Mantenido para el caso de 1 columna en móviles */
 }
+/* Ajuste para el caso de 1 columna en móviles */
+@media (max-width: 480px) { /* Usar el mismo breakpoint que el grid de 1 columna */
+     .month {
+         display: block; /* Asegurar que ocupa todo el ancho de la celda de 1fr */
+         margin: 0 auto; /* Centrar si la celda es más ancha que el contenido */
+         max-width: calc(7 * var(--cell-size) + 6 * var(--grid-gap) + 20px + 2px); /* Ajustar al contenido + padding + border */
+     }
+ }
+
 
 .month-title {
-    font-size: 1.1em;
+    font-size: 1.2em;
     margin-bottom: 5px;
     text-align: center;
-    color: #555;
+    color: #34495e;
+    font-weight: bold;
 }
 
+.month-total {
+    font-size: 0.95em;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    color: #5a6268;
+    font-weight: bold;
+}
+
+.month-details {
+    font-size: 0.9em;
+    text-align: center;
+    color: #5a6268;
+    margin-bottom: 10px;
+}
+
+
+/* Grid de días del mes */
 .day-grid {
     display: grid;
-    /* 7 columnas para los días de la semana */
     grid-template-columns: repeat(7, var(--cell-size));
-    gap: 1px; /* Espacio pequeño entre celdas */
-    border: 1px solid #eee;
-    padding: 2px;
-    background-color: #eee;
+    gap: var(--grid-gap);
+    margin: 0 auto; /* Centrar la cuadrícula de días dentro del bloque del mes */
+    width: fit-content; /* Asegurar que la cuadrícula no se estira más allá de su contenido */
 }
+
+/* Etiquetas de días de la semana */
+.weekday-labels {
+    display: grid;
+    grid-template-columns: repeat(7, var(--cell-size));
+    gap: var(--grid-gap);
+    margin: 0 auto var(--grid-gap) auto; /* Centrar y añadir margen inferior */
+    width: fit-content; /* Asegurar que ocupa el mismo ancho que la cuadrícula de días */
+    font-size: 0.8em;
+    color: #777;
+    text-align: center;
+    font-weight: bold;
+}
+
+.weekday-label {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
 /* Define el tamaño de celda CSS variable */
 :root {
-    --cell-size: 16px; /* Tamaño por defecto */
+    --cell-size: 20px;
+    --grid-gap: 2px;
+    --legend-scale-width: 250px; /* Ancho por defecto */
+}
+@media (max-width: 992px) {
+    :root {
+        --cell-size: 18px;
+        --grid-gap: 1.5px;
+    }
+}
+@media (max-width: 768px) {
+    :root {
+        --cell-size: 16px;
+        --grid-gap: 1px;
+    }
+    .day-cell span {
+         font-size: 0.65em;
+    }
+    .weekday-labels {
+         font-size: 0.7em;
+    }
+}
+@media (max-width: 480px) {
+    :root {
+         --cell-size: 14px; /* Reducir tamaño en móviles muy pequeños */
+         --grid-gap: 0.5px;
+    }
+     .day-cell span {
+         font-size: 0.6em;
+    }
 }
 
+
+/* Estilos para cada celda individual del día */
 .day-cell {
     width: var(--cell-size);
     height: var(--cell-size);
-    background-color: #eee; /* Color por defecto para días sin datos/0 circulaciones */
-    position: relative; /* Necesario para el indicador de fecha destacada */
+    background-color: #e0e0e0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+    color: rgba(0, 0, 0, 0.8); /* Ajustar color para mejor contraste */
+    border-radius: 3px;
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+    cursor: pointer;
 }
 
-/* Indicador visual para fechas destacadas */
-.day-cell.highlighted::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.5); /* Borde sutil */
-    box-sizing: border-box; /* Asegura que el borde no aumente el tamaño */
-    pointer-events: none; /* No interfiere con eventos del ratón en la celda */
+.day-cell.empty {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: default;
+}
+
+/* Indicador visual para fechas destacadas más visible */
+.day-cell.highlighted {
+    border: 2px solid #e74c3c;
+    box-sizing: border-box; /* Asegura que el borde se incluya en el tamaño */
 }
 
 
-/* Tooltip */
+/* Efecto hover en las celdas de datos */
+.day-cell:hover:not(.empty) {
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    z-index: 1; /* Asegura que el tooltip se muestre por encima de otras celdas */
+}
+.day-cell.highlighted:hover:not(.empty) {
+    border-color: #c0392b;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);
+}
+
+
+/* Tooltip mejorado */
 .tooltip {
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 4px;
-    pointer-events: none; /* El tooltip no debe bloquear el ratón */
-    z-index: 10; /* Asegura que esté por encima de otros elementos */
-    font-size: 0.9em;
-    line-height: 1.4;
+    background-color: #34495e;
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 1000;
+    font-size: 0.95em;
+    line-height: 1.5;
+    opacity: 0.98;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 250px;
 }
 
 .tooltip strong {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+    color: #aed6f1;
 }
 
 .tooltip .event-info {
-    margin-top: 5px;
+    margin-top: 8px;
     font-style: italic;
-    color: #ccc;
+    color: #bdc3c7;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 5px;
 }
 
 
 /* Leyenda de color */
 .legend {
-    margin-top: 30px;
-    margin-bottom: 30px;
+    margin-top: 40px;
+    margin-bottom: 40px;
     text-align: center;
+    padding: 15px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.color-scale {
-    display: inline-block;
-    width: 200px; /* Ancho de la barra de color */
-    height: 20px;
-    background: linear-gradient(to right, green, yellow, orange, red); /* Degradado ejemplo */
+.legend-scale-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-scale-container svg {
+     display: inline-block;
+     vertical-align: middle;
+     margin: 0 15px;
+     border-radius: 3px;
+ }
+
+.legend-scale-container span {
     vertical-align: middle;
-    margin: 0 10px;
-}
-
-.legend span {
-    vertical-align: middle;
-    font-size: 0.9em;
-}
-
-/* Estilos para los totales (opcional, podemos añadir más detalles) */
-.month-total {
-    font-size: 0.9em;
-    text-align: center;
-    margin-top: 5px;
+    font-size: 1em;
     color: #555;
 }
 
-.year-total {
-    font-size: 1.3em;
-    font-weight: bold;
-    text-align: center;
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+     width: var(--legend-scale-width, 250px);
+     margin: 0 auto;
+}
+
+.legend-labels span {
+    font-size: 0.8em;
+    color: #555;
+}
+
+.legend-zero-info {
     margin-top: 15px;
+    font-size: 0.9em;
+    color: #555;
+    text-align: center;
+}
+
+.legend-zero-info span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #e0e0e0;
+    vertical-align: middle;
+    margin-right: 8px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+
+/* Estilos para la sección de fechas destacadas */
+#special-dates-section {
+    margin-top: 60px;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+#special-dates-section h2 {
+    text-align: center;
+    color: #1a5276;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    font-size: 1.8em;
+}
+
+.special-dates-year {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.special-dates-year h3 {
+    font-size: 1.3em;
+    color: #34495e;
+    margin-top: 0;
     margin-bottom: 15px;
-    color: #007bff;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+}
+
+.special-dates-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.special-date-item {
+    margin-bottom: 10px;
+    padding-left: 25px;
+    position: relative;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.special-date-item::before {
+    content: '📅';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #e74c3c;
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+.special-date-item strong {
+    color: #5a6268;
+    margin-right: 8px;
+}
+
+.special-date-item span {
+    color: #777;
 }

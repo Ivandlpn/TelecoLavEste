@@ -4,19 +4,27 @@
       "evento": "Inauguración línea de alta velocidad Albacete-Alicante."
     },
     {
-      "fecha": "2020-03-15",
-      "evento": "Inicio del primer estado de alarma por COVID-19, impacto en la circulación."
+      "fecha": "2020-03-14",
+      "evento": "Inicio del primer estado de alarma por COVID-19"
     },
     {
       "fecha": "2020-06-21",
       "evento": "Fin del estado de alarma y reanudación gradual de servicios."
     },
+    {
+        "fecha": "2021-01-09",
+        "evento": "Temporal Filomena"
+      },
       {
-      "fecha": "2022-09-01",
-      "evento": "Inicio de nuevos abonos de transporte o cambios tarifarios."
+      "fecha": "2022-12-20",
+      "evento": "Inicio circulaciones trenes AVANT (Murcia-Alicante)"
     },
       {
-      "fecha": "2023-06-17",
-      "evento": "10º Aniversario de la puesta en servicio de la línea."
-    }
+      "fecha": "2023-03-27",
+      "evento": "Inicio circulaciones trenes AVLO"
+    },
+    {
+        "fecha": "2023-03-27",
+        "evento": "Inicio circulaciones trenes OUIGO"
+      }
   ]

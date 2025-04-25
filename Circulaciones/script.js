@@ -1,385 +1,491 @@
 // Definición de constantes y dimensiones
-const CELL_SIZE = 16; // Tamaño de cada celda del día en px
-const MONTH_PADDING_X = 10; // Espacio horizontal entre meses
-const MONTH_PADDING_Y = 20; // Espacio vertical entre meses
-const YEAR_PADDING_Y = 40; // Espacio vertical entre años contractuales
-const MONTH_TITLE_HEIGHT = 20; // Altura reservada para el título del mes
-const DAY_GRID_GAP = 1; // Espacio entre celdas del grid
-const EMPTY_COLOR = '#eee'; // Color para 0 circulaciones o días sin datos
+const CELL_SIZE = 20;
+const GRID_GAP = 2;
+const EMPTY_COLOR = '#e0e0e0';
+const LEGEND_SCALE_WIDTH = 250;
 
-// Configuración para el mapa de nombres de meses abreviados a índices (0-basado)
+const weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
 const monthMap = {
     'ene': 0, 'feb': 1, 'mar': 2, 'abr': 3, 'may': 4, 'jun': 5,
     'jul': 6, 'ago': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dic': 11
 };
 
-// Selección de los contenedores principales
+// Selección de los contenedores principales y el selector
 const visualizationContainer = d3.select('#visualization-container');
+const chartsContainer = d3.select('#charts-container');
 const tooltip = d3.select('#tooltip');
+const yearSelector = d3.select('#year-selector');
+const specialDatesSection = d3.select('#special-dates-section');
+const toggleViewButton = d3.select('#toggle-view-btn');
+
+
+// Configurar variables CSS en el elemento raíz
+d3.select('body').style('--cell-size', `${CELL_SIZE}px`);
+d3.select('body').style('--grid-gap', `${GRID_GAP}px`);
+d3.select('body').style('--legend-scale-width', `${LEGEND_SCALE_WIDTH}px`);
+
+
+// Definición de la localización en español para D3
+const localeEs = {
+  "dateTime": "%A, %e de %B de %Y, %X",
+  "date": "%d/%m/%Y",
+  "time": "%H:%M:%S",
+  "periods": ["AM", "PM"],
+  "days": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+  "shortDays": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+  "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+  "shortMonths": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+};
+
+const esLocale = d3.timeFormatDefaultLocale(localeEs);
+
+// Sobrescribir los formateadores de fecha
+const fullDateFormatter = esLocale.format('%A, %d de %B de %Y');
+const monthNameFormatter = esLocale.format('%B %Y');
+const summaryDateFormatter = esLocale.format('%d %B');
+const dateFormatter = d3.timeFormat('%Y-%m-%d');
+const dateOnlyParser = d3.timeParse('%Y-%m-%d');
+const monthYearFormatter = d3.timeFormat('%b %Y');
+const weekdayFormatter = esLocale.format('%A');
+const monthFormatter = esLocale.format('%B');
+const monthStartFormatter = d3.timeFormat('%Y-%m-01');
+
+
+// Variables para almacenar datos agregados para las gráficas
+let monthlyTotalData = [];
+let dailyAvgByWeekday = [];
+let monthlyAvgByMonth = [];
+let monthlySpecialDates = [];
+
 
 // Función principal asíncrona para cargar y procesar los datos
 async function initializeVisualization() {
     try {
-        // Cargar ambos archivos JSON simultáneamente
         const [rawData, specialDatesData] = await Promise.all([
             d3.json('datos.json'),
             d3.json('fechas_destacadas.json')
         ]);
 
-        console.log("Datos crudos cargados:", rawData);
-        console.log("Fechas destacadas cargadas:", specialDatesData);
+        console.log("Datos cargados y listos para procesamiento.");
 
-        // 1. Procesar los datos crudos a una lista plana diaria
         const dailyData = processRawData(rawData);
-        console.log("Datos diarios transformados:", dailyData);
+        console.log("Datos diarios transformados:", dailyData.length, "entradas.");
 
-        // 2. Procesar las fechas destacadas a un mapa para búsqueda rápida
-        const specialDatesMap = processSpecialDates(specialDatesData);
-        console.log("Mapa de fechas destacadas:", specialDatesMap);
+        monthlyTotalData = aggregateMonthlyTotals(dailyData);
+        dailyAvgByWeekday = aggregateDailyAvgByWeekday(dailyData);
+        monthlyAvgByMonth = aggregateMonthlyAvgByMonth(dailyData);
+        console.log("Datos agregados para gráficas calculados.");
 
-        // 3. Calcular el dominio de circulaciones para la escala de color
-        const allCirculations = dailyData.map(d => d.circulaciones).filter(c => c > 0); // Excluir 0 para la escala
-        const minCirc = d3.min(allCirculations) || 1; // Mínimo debe ser al menos 1 si hay datos > 0
-        const maxCirc = d3.max(allCirculations) || 1; // Máximo debe ser al menos 1
+        const specialDatesMap = processSpecialDates(specialDatesData, dateOnlyParser);
+        const sortedSpecialDates = specialDatesData.sort((a, b) => dateOnlyParser(a.fecha) - dateOnlyParser(b.fecha));
+        console.log("Mapa de fechas destacadas:", specialDatesMap.size, "entradas.");
+
+        monthlySpecialDates = mapSpecialDatesToMonths(sortedSpecialDates, monthlyTotalData);
+        console.log("Fechas destacadas mapeadas a meses:", monthlySpecialDates.length, "puntos con eventos.");
+
+
+        const allCirculations = dailyData.map(d => d.circulaciones).filter(c => c > 0);
+        const minCirc = d3.min(allCirculations) || 1;
+        const maxCirc = d3.max(allCirculations) || 1;
 
         console.log("Min circulaciones (excl. 0):", minCirc);
         console.log("Max circulaciones:", maxCirc);
 
-        // 4. Crear la escala de color
-        const colorScale = d3.scaleSequential()
-            .domain([minCirc, maxCirc])
-            .interpolator(d3.interpolateRgb('green', 'red')); // Escala de verde a rojo
+        const colorScale = d3.scaleLinear()
+            .domain([minCirc, (minCirc + maxCirc) / 2, maxCirc])
+            .range(['#a5d8b5', '#ffeb84', '#d73027'])
+            .clamp(true);
 
-        // Asignar color específico para 0 circulaciones
         colorScale.unknown(EMPTY_COLOR);
 
-
-        // 5. Agrupar los datos por "Año Contractual" (Junio a Mayo)
         const dataByContractualYear = groupDataByContractualYear(dailyData);
-        console.log("Datos agrupados por año contractual:", dataByContractualYear);
+        console.log("Datos agrupados por año contractual:", dataByContractualYear.length, "años.");
 
-        // 6. Renderizar la visualización del calendario
+        const specialDatesByContractualYear = groupSpecialDatesByContractualYear(sortedSpecialDates, dateOnlyParser);
+        console.log("Fechas destacadas agrupadas por año contractual:", Object.keys(specialDatesByContractualYear).length, "años.");
+
         renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap);
 
-        // 7. Renderizar la leyenda de color
         renderLegend(d3.select('#legend'), colorScale, minCirc, maxCirc);
+
+        setupYearSelector(yearSelector, dataByContractualYear, toggleViewButton, visualizationContainer, chartsContainer);
+
+        renderSpecialDatesSection(specialDatesSection, specialDatesByContractualYear, dataByContractualYear, dateOnlyParser, summaryDateFormatter);
+
+        setupViewToggle(toggleViewButton, visualizationContainer, chartsContainer, {
+            calendar: () => renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap),
+            charts: () => renderCharts(chartsContainer, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates)
+        });
+
+         renderCharts(chartsContainer, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates);
+
 
     } catch (error) {
         console.error("Error al cargar o procesar los datos:", error);
-        visualizationContainer.html("<p>Error al cargar los datos. Por favor, verifica los archivos JSON.</p>");
+        visualizationContainer.html("<p>Error al cargar los datos. Por favor, verifica los archivos JSON y el servidor local.</p>");
+         d3.select('.controls').style('display', 'none');
+         specialDatesSection.select('h2').style('display', 'none');
     }
 }
 
 // --- Funciones de Procesamiento de Datos ---
-
 function processRawData(data) {
-    const dailyData = [];
-    const dateFormatter = d3.timeFormat('%Y-%m-%d'); // Formato estándar para las fechas
-
-    data.forEach(monthEntry => {
-        const monthYearStr = monthEntry[""]; // Ej: "jun-13"
-        if (!monthYearStr) {
-            console.warn("Mes sin identificador encontrado, saltando:", monthEntry);
-            return; // Saltar si no hay identificador de mes/año
-        }
-
-        const parts = monthYearStr.split('-');
-        if (parts.length !== 2) {
-             console.warn("Formato de mes/año incorrecto:", monthYearStr, ", saltando.");
-             return;
-        }
-
-        const monthAbbr = parts[0];
-        const yearTwoDigits = parts[1];
-
-        const monthIndex = monthMap[monthAbbr];
-        if (monthIndex === undefined) {
-             console.warn("Nombre de mes desconocido:", monthAbbr, ", saltando.");
-             return;
-        }
-
-        // Convertir año de dos dígitos a cuatro dígitos (asumiendo 20xx)
-        const fullYear = 2000 + parseInt(yearTwoDigits, 10);
-
-        // Iterar sobre los posibles días del mes (1 a 31)
-        for (let day = 1; day <= 31; day++) {
-            const dayKey = day.toString();
-            const circulacionesStr = monthEntry[dayKey];
-
-            // Solo procesar si hay una clave para el día (incluso si el valor es "")
-            if (monthEntry.hasOwnProperty(dayKey)) {
-                let circulaciones = 0;
-                if (circulacionesStr !== "" && !isNaN(parseInt(circulacionesStr, 10))) {
-                    circulaciones = parseInt(circulacionesStr, 10);
-                }
-
-                // Crear un objeto Date. D3 helpers son útiles aquí.
-                // d3.timeParse ya maneja meses abreviados y años. Pero la estructura de datos es rara.
-                // Crearemos el objeto Date directamente y validaremos si es necesario.
-                const date = new Date(fullYear, monthIndex, day);
-
-                // Opcional: Verificar si la fecha construida es válida para ese mes (ej: no 31 de abril)
-                // Aunque si el dato original es "", ya lo interpretamos como 0,
-                // la fecha debe existir en el calendario para posicionar la celda.
-                // Un Date object con un día inválido (ej: new Date(2023, 3, 31) para abril)
-                // automáticamente ajusta el día y mes (ej: a May 1). Esto NO es lo que queremos.
-                // Queremos la fecha exacta que *debería* ser esa celda.
-                // La validación es si monthEntry[dayKey] existe y no es "".
-                // Si monthEntry[dayKey] ES "", significa que ese día en ese mes no tenía datos O no existía.
-                // En ambos casos, 0 circulaciones es correcto. La fecha se construye con fullYear, monthIndex, day.
-
-                 // Simple check: si el día es > 28, verificar que la fecha creada realmente cae en el mes esperado
-                 // D3.timeDays(start, end) es mejor para generar los días reales de un mes/rango.
-                 // Vamos a rehacer esto usando d3.timeDays para obtener las fechas válidas directamente.
-
-            }
-        }
-    });
-
-     // RE-IMPLEMENTACIÓN DEL PROCESAMIENTO USANDO D3.timeDays
      const flatData = [];
-     const circulationsLookup = new Map(); // Mapa para buscar circulaciones por fecha 'YYYY-MM-DD'
+     const dateFormatter = d3.timeFormat('%Y-%m-%d');
 
-     data.forEach(monthEntry => {
-        const monthYearStr = monthEntry[""];
-        if (!monthYearStr) return;
-        const parts = monthYearStr.split('-');
-        if (parts.length !== 2) return;
-
-        const monthAbbr = parts[0];
-        const yearTwoDigits = parts[1];
-        const monthIndex = monthMap[monthAbbr];
-        const fullYear = 2000 + parseInt(yearTwoDigits, 10);
-
-        // Iterar sobre los posibles días 1 a 31 para crear el lookup
-         for (let day = 1; day <= 31; day++) {
-             const dayKey = day.toString();
-             // Verificar si la clave numérica existe en el objeto del mes
-             if (monthEntry.hasOwnProperty(dayKey)) {
-                 const circulacionesStr = monthEntry[dayKey];
-                 let circulaciones = 0;
-                  if (circulacionesStr !== "" && !isNaN(parseInt(circulacionesStr, 10))) {
-                     circulaciones = parseInt(circulacionesStr, 10);
-                  }
-                 // Usar un formato consistente para la clave (ej: 2013-06-01)
-                 // Aunque la fecha puede ser inválida (ej. 31 de abril), guardamos el valor asociado a esa clave
-                 // La validación real de la fecha para el calendario la hará D3.timeDays después.
-                 const dateCandidate = new Date(fullYear, monthIndex, day);
-                 const dateString = dateFormatter(dateCandidate); // Esto puede dar una fecha *incorrecta* si day es inválido
-                 // Alternativa más robusta: generar todas las fechas *válidas* del mes y luego buscar el valor
-             }
-         }
-     });
-
-    // Nueva estrategia: Iterar sobre los meses del archivo y generar las fechas *válidas* para esos meses
-    // Luego, para cada fecha válida, buscar su valor en el objeto original del mes.
      data.forEach(monthEntry => {
          const monthYearStr = monthEntry[""];
-         if (!monthYearStr) return;
+         if (!monthYearStr) { console.warn("Mes sin identificador encontrado, saltando:", JSON.stringify(monthEntry)); return; }
          const parts = monthYearStr.split('-');
-         if (parts.length !== 2) return;
+         if (parts.length !== 2) { console.warn("Formato de mes/año incorrecto:", monthYearStr, ", saltando."); return; }
 
          const monthAbbr = parts[0];
-         const yearTwoDigits = parts[1];
          const monthIndex = monthMap[monthAbbr];
+         if (monthIndex === undefined) { console.warn("Nombre de mes desconocido:", monthAbbr, ", saltando."); return; }
+
+         const yearTwoDigits = parts[1];
          const fullYear = 2000 + parseInt(yearTwoDigits, 10);
 
-         // Obtener el primer día y el último día del mes real
          const firstDayOfMonth = new Date(fullYear, monthIndex, 1);
-         const lastDayOfMonth = new Date(fullYear, monthIndex + 1, 0); // Día 0 del siguiente mes es el último del actual
+         const lastDayOfMonth = new Date(fullYear, monthIndex + 1, 0);
+         const allDaysOfMonth = d3.timeDays(firstDayOfMonth, d3.timeDay.offset(lastDayOfMonth, 1));
 
-         // Generar todas las fechas válidas para este mes usando d3.timeDays
-         const daysInMonth = d3.timeDays(firstDayOfMonth, d3.timeDay.offset(lastDayOfMonth, 1)); // Incluye el último día
-
-         daysInMonth.forEach(date => {
-             const day = date.getDate(); // Obtener el día del mes (1-31)
+         allDaysOfMonth.forEach(date => {
+             const day = date.getDate();
              const dayKey = day.toString();
-             let circulaciones = 0; // Valor por defecto
+             let circulaciones = 0;
 
-             // Buscar el valor en el objeto original usando la clave del día
              if (monthEntry.hasOwnProperty(dayKey)) {
                  const circulacionesStr = monthEntry[dayKey];
                   if (circulacionesStr !== "" && !isNaN(parseInt(circulacionesStr, 10))) {
                      circulaciones = parseInt(circulacionesStr, 10);
                   }
              }
-             // Si la clave no existe, o el valor es "", circulaciones sigue siendo 0.
 
-             flatData.push({
-                 date: date, // Objeto Date
-                 circulaciones: circulaciones
-             });
+             flatData.push({ date: date, circulaciones: circulaciones });
          });
      });
 
-     // Asegurarse de que los datos están ordenados por fecha
      flatData.sort((a, b) => a.date - b.date);
-
-
     return flatData;
 }
 
-
-function processSpecialDates(data) {
-    const specialDatesMap = new Map(); // Usar Map para mejor rendimiento en búsquedas
+function processSpecialDates(data, dateOnlyParser) {
+    const specialDatesMap = new Map();
     data.forEach(entry => {
-        // Asegurarse de que la fecha esté en un formato consistente (YYYY-MM-DD)
-        const dateStr = entry.fecha; // Ya vienen en YYYY-MM-DD del JSON
-        specialDatesMap.set(dateStr, entry.evento);
+        const dateStr = entry.fecha;
+        const dateObj = dateOnlyParser(dateStr);
+        if (dateObj && entry.evento) {
+             specialDatesMap.set(dateStr, entry.evento);
+        } else {
+             console.warn("Fecha destacada con formato incorrecto o sin evento:", entry);
+        }
     });
     return specialDatesMap;
 }
 
 function groupDataByContractualYear(dailyData) {
-    const years = new Map(); // Usar Map para mantener el orden de inserción si es necesario, o un objeto simple
-    const yearFormatter = d3.timeFormat('%Y');
-    const monthFormatter = d3.timeFormat('%m'); // 01-12
+    const years = new Map();
 
     dailyData.forEach(d => {
         const year = d.date.getFullYear();
-        const month = d.date.getMonth(); // 0-11
+        const month = d.date.getMonth();
 
-        // Determinar el año contractual:
-        // Si el mes es Junio (5) o posterior (hasta Mayo, 4), el año contractual es el año actual + el siguiente.
-        // Si el mes es anterior a Junio (Enero a Mayo, 0-4), el año contractual es el año anterior + el actual.
         let contractualYearKey;
-        if (month >= 5) { // Junio a Diciembre
-            contractualYearKey = `${year}-${year + 1}`;
-        } else { // Enero a Mayo
-            contractualYearKey = `${year - 1}-${year}`;
-        }
+        let startYear, endYear;
+        // Año contractual va de Junio (Mes 5) a Mayo (Mes 4) del año siguiente
+        if (month >= 5) { startYear = year; endYear = year + 1; }
+        else { startYear = year - 1; endYear = year; }
+        contractualYearKey = `${startYear}-${endYear}`;
 
-        if (!years.has(contractualYearKey)) {
-            years.set(contractualYearKey, []);
-        }
+        if (!years.has(contractualYearKey)) { years.set(contractualYearKey, []); }
         years.get(contractualYearKey).push(d);
     });
 
-     // Convertir el mapa a un array de objetos para facilitar la iteración en D3
      const sortedYears = Array.from(years.entries())
          .map(([key, values]) => ({ key, values }))
-     // Ordenar los años contractuales (ej: "2013-2014" antes que "2014-2015")
          .sort((a, b) => parseInt(a.key.split('-')[0], 10) - parseInt(b.key.split('-')[0], 10));
-
 
     return sortedYears;
 }
 
+function findMaxCirculationDay(dataArray) {
+    if (!dataArray || dataArray.length === 0) { return null; }
+    const maxCirc = d3.max(dataArray, d => d.circulaciones);
+     if (maxCirc === undefined || maxCirc === 0) { // Manejar caso de 0 circulaciones o array vacío/solo 0s
+          const firstDay = dataArray[0]?.date || null;
+          // Si el array es vacío, devuelve null. Si tiene datos pero todos son 0, devuelve el primer día con 0.
+          return (dataArray.length > 0) ? { circulaciones: 0, date: firstDay } : null;
+     }
+    const maxDay = dataArray.find(d => d.circulaciones === maxCirc);
+    return maxDay;
+}
 
-// --- Funciones de Renderizado ---
+
+function groupSpecialDatesByContractualYear(specialDates, dateOnlyParser) {
+    const years = new Map();
+
+    specialDates.forEach(d => {
+         const date = dateOnlyParser(d.fecha);
+         if (!date) return;
+
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        let contractualYearKey;
+        let startYear, endYear;
+        if (month >= 5) { startYear = year; endYear = year + 1; }
+        else { startYear = year - 1; endYear = year; }
+        contractualYearKey = `${startYear}-${endYear}`;
+
+        if (!years.has(contractualYearKey)) { years.set(contractualYearKey, []); }
+        years.get(contractualYearKey).push(d);
+    });
+
+     const sortedYears = {};
+     Array.from(years.entries())
+        .sort((a, b) => parseInt(a[0].split('-')[0], 10) - parseInt(b[0].split('-')[0], 10))
+        .forEach(([key, values]) => {
+            values.sort((a, b) => dateOnlyParser(a.fecha) - dateOnlyParser(b.fecha));
+            sortedYears[key] = values;
+        });
+
+    return sortedYears;
+}
+
+function mapSpecialDatesToMonths(specialDates, monthlyTotalData) {
+    const monthlyEvents = [];
+    const monthlyDataLookup = new Map(monthlyTotalData.map(d => [monthStartFormatter(d.date), d]));
+
+    specialDates.forEach(event => {
+        const eventDate = dateOnlyParser(event.fecha);
+        if (!eventDate) return;
+
+        const eventMonthStart = d3.timeMonth(eventDate);
+        const eventMonthStartString = monthStartFormatter(eventMonthStart);
+
+        const correspondingMonthData = monthlyDataLookup.get(eventMonthStartString);
+
+        if (correspondingMonthData) {
+             // Agregar el evento al dato mensual correspondiente (opcional, si se necesita)
+             if (!correspondingMonthData.events) {
+                 correspondingMonthData.events = [];
+             }
+             correspondingMonthData.events.push(event);
+
+             // Guardar el evento con la información del mes agregado para las gráficas
+             monthlyEvents.push({
+                  date: correspondingMonthData.date, // Fecha de inicio del mes
+                  total: correspondingMonthData.total, // Total del mes
+                  eventInfo: event.evento,
+                  originalDate: eventDate // Fecha exacta del evento
+             });
+        } else {
+             console.warn(`No se encontró punto de datos mensual agregado para la fecha destacada: ${event.fecha}. Es posible que esta fecha esté fuera del rango de datos mensuales totales calculados.`);
+        }
+    });
+
+     // Ordenar los eventos por fecha original para mostrarlos cronológicamente
+     monthlyEvents.sort((a, b) => a.originalDate - b.originalDate);
+
+    return monthlyEvents;
+}
+
+
+// --- Funciones de Agregación para Gráficas ---
+
+function aggregateMonthlyTotals(dailyData) {
+    const monthlyTotals = d3.rollup(dailyData,
+        v => d3.sum(v, d => d.circulaciones),
+        d => d3.timeMonth(d.date)
+    );
+
+    const sortedTotals = Array.from(monthlyTotals, ([date, total]) => ({ date, total }))
+        .sort((a, b) => a.date - b.date);
+
+    return sortedTotals;
+}
+
+function aggregateDailyAvgByWeekday(dailyData) {
+     // D3's getDay() returns 0 for Sunday, 1 for Monday...
+     // Map to 0 for Monday, 1 for Tuesday... 6 for Sunday
+     const dayOfWeekIndex = d => (d.date.getDay() === 0) ? 6 : d.date.getDay() - 1;
+
+    const weekdayAgg = d3.rollup(dailyData,
+        v => ({ total: d3.sum(v, d => d.circulaciones), count: v.length }),
+        dayOfWeekIndex
+    );
+
+    const sortedAvg = Array.from(weekdayAgg, ([dayIndex, { total, count }]) => ({
+        dayIndex: dayIndex,
+        average: total / count,
+        // Create a dummy date to get the locale-specific weekday name
+        weekdayName: esLocale.format('%A')(d3.timeDay.offset(new Date(2023, 0, 2), dayIndex)) // Monday is Jan 2, 2023
+    }))
+    .sort((a, b) => a.dayIndex - b.dayIndex);
+
+    return sortedAvg;
+}
+
+function aggregateMonthlyAvgByMonth(dailyData) {
+    const monthOfYearAgg = d3.rollup(dailyData,
+        v => ({ total: d3.sum(v, d => d.circulaciones), count: v.length }),
+        d => d.date.getMonth()
+    );
+
+    const sortedAvg = Array.from(monthOfYearAgg, ([monthIndex, { total, count }]) => ({
+        monthIndex: monthIndex,
+        average: total / count,
+        monthName: esLocale.format('%B')(new Date(2000, monthIndex, 1)) // Create a dummy date for the month name
+    }))
+    .sort((a, b) => a.monthIndex - b.monthIndex);
+
+    return sortedAvg;
+}
+
+
+// --- Funciones de Renderizado (Calendario y Gráficas) ---
 
 function renderCalendar(container, dataByContractualYear, colorScale, specialDatesMap) {
-     // Limpiar contenedor previo
-     container.selectAll('*').remove();
+     container.selectAll('*').remove(); // Limpiar contenedor antes de renderizar
 
-    const fullDateFormatter = d3.timeFormat('%A, %d de %B de %Y');
-    const monthNameFormatter = d3.timeFormat('%B %Y');
-    const dayOfWeekFormatter = d3.timeFormat('%w'); // Día de la semana, 0=Domingo, 6=Sábado
-    const dateFormatter = d3.timeFormat('%Y-%m-%d'); // Para buscar en el mapa de fechas destacadas
+    const fullDateFormatter = esLocale.format('%A, %d de %B de %Y');
+    const monthNameFormatter = esLocale.format('%B %Y');
+     const summaryDateFormatter = esLocale.format('%d %B');
+    const dateFormatter = d3.timeFormat('%Y-%m-%d');
+    const weekdayFormatter = esLocale.format('%a'); // Formato corto para las etiquetas de día
 
 
-     dataByContractualYear.forEach(yearData => {
-         const yearKey = yearData.key; // Ej: "2013-2014"
-         const yearValues = yearData.values; // Array de datos diarios para este año contractual
+     dataByContractualYear.forEach((yearData, i) => {
+         const yearKey = yearData.key;
+         const yearValues = yearData.values;
+         const contractualYearNumber = i + 1;
 
-         // Crear un contenedor para este año contractual
          const yearDiv = container.append('div')
-             .attr('class', 'contractual-year');
+             .attr('class', 'contractual-year')
+             .attr('id', `year-${yearKey.replace('-', '_')}`); // ID para el scroll
 
          yearDiv.append('h2')
              .attr('class', 'year-title')
-             .text(`Año Contractual ${yearKey}`);
+             .text(`Año Contrato (${contractualYearNumber}) ${yearKey}`);
 
-         // Calcular el total anual para este año contractual
          const yearTotal = d3.sum(yearValues, d => d.circulaciones);
           yearDiv.append('div')
               .attr('class', 'year-total')
-              .text(`Total Año Contractual: ${yearTotal} circulaciones`);
+              .text(`Total Circulaciones: ${yearTotal}`);
 
-         // Agrupar los datos de este año por mes (para el rendering interno)
-         const dataByMonth = d3.group(yearValues, d => d.date.getMonth()); // Group by month index (0-11)
+         const maxYearDay = findMaxCirculationDay(yearValues);
+         if (maxYearDay && maxYearDay.date) { // Verificar que maxYearDay y su fecha existen
+              yearDiv.append('div')
+                  .attr('class', 'year-details')
+                  .text(`Máx. circulaciones: ${maxYearDay.circulaciones} (${summaryDateFormatter(maxYearDay.date)})`);
+         } else {
+             yearDiv.append('div')
+                 .attr('class', 'year-details')
+                 .text('Sin datos de máximos para este año.');
+         }
 
-         // Renderizar meses en orden (Junio a Mayo)
-         // Los meses del año contractual 2013-2014 son Jun 2013 (5) a Dic 2013 (11), y Ene 2014 (0) a May 2014 (4)
+
+         const dataByMonth = d3.group(yearValues, d => d.date.getMonth());
+         // Meses en orden contractual (Junio a Mayo)
          const monthOrder = [5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4];
 
+         // *** NUEVO: Contenedor para la cuadrícula de meses ***
+         const monthGridContainer = yearDiv.append('div')
+             .attr('class', 'month-grid-container');
+
+
          monthOrder.forEach(monthIndex => {
-             // Si no hay datos para este mes en este año contractual, saltar
-             if (!dataByMonth.has(monthIndex)) {
-                 // Opcional: renderizar un mes vacío si se desea consistencia visual
-                 return;
+             const monthValues = dataByMonth.has(monthIndex) ? dataByMonth.get(monthIndex) : [];
+
+             let yearOfThisMonth;
+             const [startYearContractual, endYearContractual] = yearKey.split('-').map(Number);
+
+              // Determinar el año correcto para crear el objeto Date del primer día del mes
+              if (monthIndex >= 5) { yearOfThisMonth = startYearContractual; } // Meses de Junio a Diciembre usan el año de inicio del contrato
+             else { yearOfThisMonth = endYearContractual; } // Meses de Enero a Mayo usan el año de fin del contrato
+
+
+             const firstDayOfMonth = new Date(yearOfThisMonth, monthIndex, 1);
+             // Asegurarse de que la fecha es válida antes de usarla
+             if (isNaN(firstDayOfMonth.getTime())) {
+                 console.error("Fecha no válida generada para el mes:", monthIndex, "Año:", yearOfThisMonth);
+                 return; // Saltar este mes si la fecha no es válida
              }
 
-             const monthValues = dataByMonth.get(monthIndex);
-             // monthValues contiene todos los días con datos para este mes.
-             // Necesitamos generar *todos* los días del mes real para la cuadrícula.
-             const anyDateInMonth = monthValues[0].date; // Usar cualquier fecha para obtener el año y mes
-             const yearOfThisMonth = anyDateInMonth.getFullYear(); // Año real del mes (ej: 2013 o 2014)
-             const firstDayOfMonth = new Date(yearOfThisMonth, monthIndex, 1);
              const lastDayOfMonth = new Date(yearOfThisMonth, monthIndex + 1, 0);
-
-             // Generar todas las fechas válidas del mes
              const allDaysOfMonth = d3.timeDays(firstDayOfMonth, d3.timeDay.offset(lastDayOfMonth, 1));
 
-             // Crear un mapa de datos para buscar rápidamente las circulaciones por fecha YYYY-MM-DD
              const monthDataLookup = new Map(monthValues.map(d => [dateFormatter(d.date), d.circulaciones]));
-
-             // Calcular el total mensual
              const monthTotal = d3.sum(monthValues, d => d.circulaciones);
 
-             // Crear contenedor para el mes
-             const monthDiv = yearDiv.append('div')
+             const monthDiv = monthGridContainer.append('div') // Añadir el mes al nuevo contenedor de cuadrícula
                  .attr('class', 'month');
 
              monthDiv.append('div')
                  .attr('class', 'month-title')
-                 .text(monthNameFormatter(firstDayOfMonth)); // Muestra "Junio 2013", "Julio 2013", etc.
+                 .text(monthNameFormatter(firstDayOfMonth));
 
               monthDiv.append('div')
                    .attr('class', 'month-total')
                    .text(`Total: ${monthTotal}`);
 
-
-             const dayGrid = monthDiv.append('div')
-                 .attr('class', 'day-grid')
-                 // Establecer el tamaño de celda CSS variable para este grid
-                 .style('--cell-size', `${CELL_SIZE}px`);
-
-
-             // Determinar cuántos días "vacíos" hay al principio para alinear el primer día del mes con el día de la semana correcto
-             const firstDayOfWeek = firstDayOfMonth.getDay(); // 0=Domingo, 1=Lunes ... 6=Sábado
-             // En CSS Grid, queremos que Lunes sea la primera columna (índice 0), Domingo la última (índice 6)
-             // getDay() devuelve 0 para Domingo. Si queremos Lunes=0, Martes=1, ..., Domingo=6:
-             const jsDayOfWeek = firstDayOfWeek; // 0 (Dom) to 6 (Sab)
-             const gridDayOfWeek = (jsDayOfWeek === 0) ? 6 : jsDayOfWeek - 1; // Convertir: Lun=0..Sab=5, Dom=6
-
-             // Añadir celdas vacías para rellenar hasta el primer día de la semana
-             for (let i = 0; i < gridDayOfWeek; i++) {
-                 dayGrid.append('div').attr('class', 'day-cell empty'); // Celda vacía
+             const maxMonthDay = findMaxCirculationDay(monthValues);
+              if (maxMonthDay && maxMonthDay.date) { // Verificar que maxMonthDay y su fecha existen
+                  monthDiv.append('div')
+                      .attr('class', 'month-details')
+                      .text(`Máx: ${maxMonthDay.circulaciones} (${maxMonthDay.date.getDate()})`);
+             } else {
+                 monthDiv.append('div')
+                     .attr('class', 'month-details')
+                     .text('Máx: 0'); // Mostrar 0 si no hay datos o solo 0s
              }
 
 
-             // Añadir las celdas de los días reales del mes
-             const dayCells = dayGrid.selectAll('.day-cell.data')
-                 .data(allDaysOfMonth) // Bind con todas las fechas del mes
+             const weekdayLabelsDiv = monthDiv.append('div')
+                 .attr('class', 'weekday-labels');
+
+              weekdayLabelsDiv.selectAll('.weekday-label')
+                 .data(weekdayLabels) // Usar las etiquetas cortas definidas
                  .enter()
                  .append('div')
-                 .attr('class', 'day-cell data'); // Clase para celdas con potencial data
+                 .attr('class', 'weekday-label')
+                 .text(d => d);
 
-             // Configurar el color y la clase de resaltado
+             const dayGrid = monthDiv.append('div')
+                 .attr('class', 'day-grid');
+
+             const firstDayOfWeek = firstDayOfMonth.getDay();
+              // Ajustar el índice para que Lunes sea 0 y Domingo sea 6
+             const gridDayOfWeek = (firstDayOfWeek === 0) ? 6 : firstDayOfWeek - 1;
+
+             // Añadir celdas vacías al principio para alinear el primer día correctamente
+             for (let i = 0; i < gridDayOfWeek; i++) {
+                 dayGrid.append('div').attr('class', 'day-cell empty');
+             }
+
+             const dayCells = dayGrid.selectAll('.day-cell.data')
+                 .data(allDaysOfMonth)
+                 .enter()
+                 .append('div')
+                 .attr('class', 'day-cell data');
+
+             dayCells.append('span')
+                 .text(d => d.getDate());
+
              dayCells
                  .style('background-color', d => {
-                      const circ = monthDataLookup.get(dateFormatter(d)) || 0; // Buscar circulaciones o usar 0
+                      const circ = monthDataLookup.get(dateFormatter(d)) || 0; // Usa 0 si no hay datos
                       return colorScale(circ);
                   })
-                 .classed('highlighted', d => specialDatesMap.has(dateFormatter(d))); // Añadir clase si es fecha destacada
+                 .classed('highlighted', d => specialDatesMap.has(dateFormatter(d)));
 
 
-             // Añadir interactividad (tooltips)
              dayCells
                  .on('mouseover', function(event, d) {
                      const dateStr = dateFormatter(d);
-                     const circulaciones = monthDataLookup.get(dateStr) || 0; // Buscar circulaciones o usar 0
+                     const circulaciones = monthDataLookup.get(dateStr) || 0;
                      const eventInfo = specialDatesMap.get(dateStr);
 
                      let tooltipHtml = `<strong>${fullDateFormatter(d)}</strong><br>Circulaciones: ${circulaciones}`;
@@ -388,91 +494,586 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
                      }
 
                      tooltip.html(tooltipHtml)
-                         .style('display', 'block'); // Mostrar tooltip
+                         .style('display', 'block');
 
-                     // Posicionar el tooltip (intento básico para evitar que se salga de pantalla)
-                      const tooltipWidth = tooltip.node().offsetWidth;
-                      const tooltipHeight = tooltip.node().offsetHeight;
-                      const containerRect = container.node().getBoundingClientRect();
-                      const cellRect = this.getBoundingClientRect(); // Rectángulo de la celda actual
+                     // Posicionar el tooltip
+                     const tooltipNode = tooltip.node();
+                     const tooltipWidth = tooltipNode.offsetWidth;
+                     const tooltipHeight = tooltipNode.offsetHeight;
+                     const cellRect = this.getBoundingClientRect(); // Posición relativa a la ventana
 
-                      let top = cellRect.top + cellRect.height + 5; // Debajo de la celda + pequeño margen
-                      let left = cellRect.left + cellRect.width / 2 - tooltipWidth / 2; // Centrado horizontalmente sobre la celda
+                     let top = cellRect.bottom + window.scrollY + 8;
+                     let left = cellRect.left + window.scrollX + cellRect.width / 2 - tooltipWidth / 2;
 
-                      // Ajustar si se sale por la derecha
-                      if (left + tooltipWidth > containerRect.right) {
-                          left = containerRect.right - tooltipWidth - 5;
-                      }
-                       // Ajustar si se sale por la izquierda
-                       if (left < containerRect.left) {
-                           left = containerRect.left + 5;
-                       }
-                        // Ajustar si se sale por abajo (ponerlo encima)
-                       if (top + tooltipHeight > window.innerHeight + window.scrollY) {
-                           top = cellRect.top - tooltipHeight - 5;
-                       }
-                       // Asegurarse de que no se salga por arriba
-                       if (top < 0) {
-                           top = 5; // O posicionar debajo si cabe mejor
-                       }
+                     // Ajustar posición si sale por los bordes
+                     if (left + tooltipWidth > window.innerWidth + window.scrollX - 10) { left = window.innerWidth + window.scrollX - tooltipWidth - 10; }
+                     if (left < window.scrollX + 10) { left = window.scrollX + 10; }
+                      // Si el tooltip sale por abajo, posicionarlo encima de la celda
+                     if (top + tooltipHeight > window.innerHeight + window.scrollY - 10) { top = cellRect.top + window.scrollY - tooltipHeight - 8; }
+                      // Si incluso arriba sale por arriba (ventana pequeña), posicionarlo arriba a la izquierda
+                     if (top < window.scrollY + 10) {
+                          top = window.scrollY + 10;
+                          left = window.scrollX + 10;
+                     }
 
 
-                      tooltip
-                           .style('left', `${left}px`)
-                           .style('top', `${top}px`);
+                    tooltip
+                        .style('left', `${left}px`)
+                        .style('top', `${top}px`);
 
-                 })
-                 .on('mouseout', function() {
-                     tooltip.style('display', 'none'); // Ocultar tooltip
-                 });
-         }); // Fin del loop de meses
-     }); // Fin del loop de años contractuales
+                })
+                .on('mouseout', function() {
+                    tooltip.style('display', 'none');
+                });
+         });
+     });
+}
+
+
+function renderCharts(container, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates) {
+    container.select('#chart-trend').selectAll('*').remove();
+    container.select('#chart-weekday').selectAll('*').remove();
+    container.select('#chart-month').selectAll('*').remove();
+
+    const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+    const containerNode = container.node();
+    const containerWidth = containerNode ? parseInt(containerNode.getBoundingClientRect().width) : 960;
+    const width = containerWidth - margin.left - margin.right;
+    let height = 300;
+
+    // Renderizar solo si hay datos
+    if (monthlyTotalData && monthlyTotalData.length > 0) {
+        renderMonthlyTrendChart(container.select('#chart-trend'), monthlyTotalData, monthlySpecialDates, margin, width, height);
+    } else {
+         container.select('#chart-trend').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de tendencia mensual.</p>');
+    }
+
+    if (dailyAvgByWeekday && dailyAvgByWeekday.length > 0) {
+        renderWeekdayAvgChart(container.select('#chart-weekday'), dailyAvgByWeekday, margin, width, height);
+    } else {
+         container.select('#chart-weekday').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por día de la semana.</p>');
+    }
+
+    if (monthlyAvgByMonth && monthlyAvgByMonth.length > 0) {
+       renderMonthAvgChart(container.select('#chart-month'), monthlyAvgByMonth, margin, width, height);
+    } else {
+        container.select('#chart-month').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por mes del año.</p>');
+    }
+
+
+}
+
+function renderMonthlyTrendChart(container, data, monthlySpecialDates, margin, width, height) {
+    container.append('h3').text('Total de Circulaciones por Mes');
+
+    const svg = container.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(data, d => d.date))
+        .range([0, width]);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.total)]).nice()
+        .range([height, 0]);
+
+    const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b %Y'));
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxis)
+         .selectAll("text")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end");
+
+    svg.append("g")
+        .call(yAxis);
+
+     svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 10)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Total Circulaciones Mensuales");
+
+      svg.append("text")
+         .attr("x", width / 2)
+         .attr("y", height + margin.bottom - 5)
+         .style("text-anchor", "middle")
+         .text("Fecha");
+
+    const line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.total));
+
+    svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", line);
+
+     svg.selectAll(".data-point")
+         .data(data)
+         .enter().append("circle")
+         .attr("class", "data-point")
+         .attr("cx", d => xScale(d.date))
+         .attr("cy", d => yScale(d.total))
+         .attr("r", 3)
+         .attr("fill", "steelblue");
+
+     svg.selectAll(".event-marker")
+         .data(monthlySpecialDates)
+         .enter().append("circle")
+         .attr("class", "event-marker")
+         .attr("cx", d => xScale(d.date)) // Usar la fecha de inicio del mes para posicionar el marcador
+         .attr("cy", d => yScale(d.total)) // Usar el total del mes para la posición Y
+         .attr("r", 6)
+         .attr("fill", "#e74c3c")
+         .attr("stroke", "#fff")
+         .attr("stroke-width", 1.5)
+         .style("cursor", "pointer")
+         .on('mouseover', function(event, d) {
+              const formattedOriginalDate = fullDateFormatter(d.originalDate); // Mostrar la fecha exacta del evento
+              let tooltipHtml = `<strong>${formattedOriginalDate}</strong><br>Total Circulaciones Mes (${monthYearFormatter(d.date)}): ${d.total}`;
+              if(d.eventInfo) { // Asegurarse de que eventInfo existe
+                 tooltipHtml += `<div class="event-info">${d.eventInfo}</div>`;
+              }
+
+
+              tooltip.html(tooltipHtml)
+                  .style('display', 'block');
+
+              // Posicionar el tooltip
+              const tooltipNode = tooltip.node();
+              const tooltipWidth = tooltipNode.offsetWidth;
+              const tooltipHeight = tooltipNode.offsetHeight;
+              const mouseX = event.clientX + window.scrollX;
+              const mouseY = event.clientY + window.scrollY;
+
+               let top = event.clientY + window.scrollY + 10;
+               let left = event.clientX + window.scrollX + 10;
+
+               if (left + tooltipWidth > window.innerWidth + window.scrollX - 10) { left = event.clientX + window.scrollX - tooltipWidth - 10; }
+               if (left < window.scrollX + 10) { left = window.scrollX + 10; }
+               if (top + tooltipHeight > window.innerHeight + window.scrollY - 10) { top = event.clientY + window.scrollY - tooltipHeight - 10; }
+                if (top < window.scrollY + 10) { top = window.scrollY + 10; }
+
+
+              tooltip
+                  .style('left', `${left}px`)
+                  .style('top', `${top}px`);
+
+         })
+         .on('mouseout', function() {
+             tooltip.style('display', 'none');
+         });
+
+
+}
+
+function renderWeekdayAvgChart(container, data, margin, width, height) {
+    container.append('h3').text('Promedio de Circulaciones por Día de la Semana');
+
+     const adjustedHeight = height;
+      const adjustedMarginBottom = margin.bottom + 20; // Espacio extra para las etiquetas del eje X si rotan
+
+
+    const svg = container.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", adjustedHeight + margin.top + adjustedMarginBottom)
+      .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const xScale = d3.scaleBand()
+        .domain(data.map(d => d.weekdayName))
+        .range([0, width])
+        .padding(0.1);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.average)]).nice()
+        .range([adjustedHeight, 0]);
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${adjustedHeight})`)
+        .call(xAxis);
+
+    svg.append("g")
+        .call(yAxis);
+
+      svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 10)
+        .attr("x", 0 - (adjustedHeight / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Promedio Diario de Circulaciones");
+
+      svg.append("text")
+         .attr("x", width / 2)
+         .attr("y", adjustedHeight + adjustedMarginBottom - 5)
+         .style("text-anchor", "middle")
+         .text("Día de la Semana");
+
+
+    svg.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => xScale(d.weekdayName))
+        .attr("y", d => yScale(d.average))
+        .attr("width", xScale.bandwidth())
+        .attr("height", d => adjustedHeight - yScale(d.average))
+        .attr("fill", "steelblue");
+
+     // Etiquetas sobre las barras
+     svg.selectAll(".bar-label")
+         .data(data)
+         .enter().append("text")
+         .attr("class", "bar-label")
+         .attr("x", d => xScale(d.weekdayName) + xScale.bandwidth() / 2)
+         .attr("y", d => yScale(d.average) - 5) // Ligeramente por encima de la barra
+         .attr("text-anchor", "middle")
+         .style("font-size", "0.8em")
+         .style("fill", "#555") // Color oscuro para contraste
+         .text(d => Math.round(d.average)); // Redondear el promedio
+}
+
+function renderMonthAvgChart(container, data, margin, width, height) {
+    container.append('h3').text('Promedio de Circulaciones por Mes del Año');
+
+     const adjustedHeight = height;
+      const adjustedMarginBottom = margin.bottom + 20; // Espacio extra para las etiquetas del eje X
+
+
+    const svg = container.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", adjustedHeight + margin.top + adjustedMarginBottom)
+      .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const xScale = d3.scaleBand()
+        .domain(data.map(d => d.monthName))
+        .range([0, width])
+        .padding(0.1);
+
+    const yScale = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.average)]).nice()
+        .range([adjustedHeight, 0]);
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${adjustedHeight})`)
+        .call(xAxis)
+        .selectAll("text")
+            .attr("transform", "rotate(-45)") // Rotar etiquetas para que no se superpongan
+            .style("text-anchor", "end");
+
+
+    svg.append("g")
+        .call(yAxis);
+
+      svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left + 10)
+        .attr("x", 0 - (adjustedHeight / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Promedio Diario de Circulaciones");
+
+      svg.append("text")
+         .attr("x", width / 2)
+         .attr("y", adjustedHeight + adjustedMarginBottom - 5)
+         .style("text-anchor", "middle")
+         .text("Mes del Año");
+
+
+    svg.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", d => xScale(d.monthName))
+        .attr("y", d => yScale(d.average))
+        .attr("width", xScale.bandwidth())
+        .attr("height", d => adjustedHeight - yScale(d.average))
+        .attr("fill", "steelblue");
+
+     // Etiquetas sobre las barras
+     svg.selectAll(".bar-label")
+         .data(data)
+         .enter().append("text")
+         .attr("class", "bar-label")
+         .attr("x", d => xScale(d.monthName) + xScale.bandwidth() / 2)
+         .attr("y", d => yScale(d.average) - 5) // Ligeramente por encima de la barra
+         .attr("text-anchor", "middle")
+         .style("font-size", "0.8em")
+         .style("fill", "#555") // Color oscuro para contraste
+         .text(d => Math.round(d.average)); // Redondear el promedio
 }
 
 
 function renderLegend(container, colorScale, minCirc, maxCirc) {
-     // Limpiar contenedor previo
-     container.selectAll('*').remove();
+     container.selectAll('*').remove(); // Limpiar contenedor antes de renderizar
 
-    // Crear SVG para el degradado
-    const legendWidth = 200;
-    const legendHeight = 20;
+    const legendWidth = LEGEND_SCALE_WIDTH;
+    const legendHeight = 25;
+    const numTicks = 5; // Número sugerido de ticks
 
-    const svg = container.append('svg')
-        .attr('width', legendWidth)
-        .attr('height', legendHeight + 20); // Espacio para las etiquetas
+    const scaleContainer = container.append('div')
+        .attr('class', 'legend-scale-container');
 
-    // Definir el degradado
+    scaleContainer.append('span').text(minCirc > 0 ? minCirc : 1); // Mostrar el mínimo real o 1
+
+    const svg = scaleContainer.append('svg')
+        .attr("width", legendWidth)
+        .attr("height", legendHeight);
+
     const linearGradient = svg.append("defs")
         .append("linearGradient")
-        .attr("id", "linear-gradient")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%");
+        .attr("id", "gradient-scale")
+        .attr("x1", "0%").attr("y1", "0%")
+        .attr("x2", "100%").attr("y2", "0%");
 
-    linearGradient.selectAll("stop")
-        .data(colorScale.ticks(5).map(t => ({offset: (t - colorScale.domain()[0]) / (colorScale.domain()[1] - colorScale.domain()[0]), color: colorScale(t)})))
-        .enter().append("stop")
-        .attr("offset", d => `${d.offset * 100}%`)
-        .attr("stop-color", d => d.color);
-        // Asegurarse de que el color de 0 también está representado o explicado aparte
-        // La escala sequential por defecto interpola entre los extremos. Necesitamos puntos intermedios para un gradiente multi-color
-        // Usaremos un gradiente CSS simple si la escala D3 es solo bipolor. Si es multi-color (Verde-Amarillo-Rojo) necesitamos más stops o un gradiente CSS.
-        // Vamos con un gradiente CSS simple para empezar (Verde a Rojo) como en style.css
+     // Asegurarse de que el dominio y el rango tienen el mismo número de puntos o colores
+     const domainValues = colorScale.domain();
+     const rangeColors = colorScale.range();
 
-     // Renderizar el degradado con CSS en un div
-     container.append('span').text(minCirc > 0 ? minCirc : 1); // Etiqueta del mínimo
-     container.append('div').attr('class', 'color-scale'); // Barra de color CSS
-     container.append('span').text(maxCirc); // Etiqueta del máximo
+     domainValues.forEach((value, i) => {
+         // Calcular el offset proporcionalmente dentro del dominio
+         const offset = (value - domainValues[0]) / (domainValues[domainValues.length - 1] - domainValues[0]);
+         linearGradient.append("stop")
+             .attr("offset", `${offset * 100}%`)
+             .attr("stop-color", rangeColors[i]);
+     });
 
-     // Añadir etiqueta para 0 circulaciones
-      container.append('div')
-          .style('margin-top', '10px')
-          .style('font-size', '0.9em')
-          .html(`<span style="display:inline-block; width:16px; height:16px; background-color:${EMPTY_COLOR}; vertical-align:middle; margin-right:5px; border:1px solid #ccc;"></span> 0 circulaciones (o sin datos)`);
+
+    svg.append("rect")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#gradient-scale)");
+
+
+    scaleContainer.append('span').text(maxCirc);
+
+     const labelContainer = container.append('div')
+         .attr('class', 'legend-labels');
+
+    // Generar ticks para la escala lineal
+    const legendTicks = colorScale.ticks(numTicks);
+
+     // Asegurar que min y max están incluidos si no lo están ya
+     if (legendTicks.length === 0 || legendTicks[0] > minCirc) {
+         legendTicks.unshift(minCirc);
+     }
+     if (legendTicks.length === 0 || legendTicks[legendTicks.length - 1] < maxCirc) {
+         legendTicks.push(maxCirc);
+     }
+     // Eliminar duplicados y ordenar
+     const uniqueTicks = Array.from(new Set(legendTicks)).sort((a, b) => a - b);
+
+
+    labelContainer.selectAll('span')
+        .data(uniqueTicks)
+        .enter()
+        .append('span')
+        .style('font-size', '0.8em')
+         .style('margin-left', (d, i) => { // Posicionar las etiquetas manualmente bajo la escala
+             if (i === 0) return '0';
+             const previousTick = uniqueTicks[i-1];
+             const totalRange = uniqueTicks[uniqueTicks.length - 1] - uniqueTicks[0];
+             const previousOffset = (previousTick - uniqueTicks[0]) / totalRange * legendWidth;
+             const currentOffset = (d - uniqueTicks[0]) / totalRange * legendWidth;
+             return `${(currentOffset - previousOffset) - (labelContainer.node().children[i-1].offsetWidth)}px`; // Ajustar por el ancho de la etiqueta anterior
+         })
+         .style('transform', (d, i) => { // Resetear la transformación aplicada por margin-left si fuera necesario
+             if (i === 0) return 'translateX(0)';
+             const currentElement = labelContainer.node().children[i];
+             const currentWidth = currentElement.offsetWidth;
+              const totalRange = uniqueTicks[uniqueTicks.length - 1] - uniqueTicks[0];
+              const currentOffset = (d - uniqueTicks[0]) / totalRange * legendWidth;
+              const currentX = parseFloat(d3.select(currentElement).style('margin-left')) + d3.select(currentElement.previousSibling).node().offsetLeft + d3.select(currentElement.previousSibling).node().offsetWidth; // Posición X actual
+              const targetX = (currentOffset - currentWidth / 2); // Posición X deseada (centrada)
+             return `translateX(${targetX - currentX}px)`; // Mover para centrar
+         })
+        .text(d => Math.round(d));
+
+     // Limpiar el posicionamiento manual y usar flexbox o grid para centrar si es posible
+     labelContainer.selectAll('span')
+         .style('margin-left', null) // Eliminar margin manual
+         .style('transform', null); // Eliminar transform manual
+
+
+     // Usar Flexbox o Grid para distribuir las etiquetas
+      labelContainer.style('display', 'flex')
+                    .style('justify-content', 'space-between') // Distribuir espacio
+                    .style('width', `${legendWidth}px`); // Asegurar que ocupa el mismo ancho que la escala
+
+
+    container.append('div')
+        .attr('class', 'legend-zero-info')
+        .html(`<span style="background-color:${EMPTY_COLOR}; border-color: #ccc;"></span> 0 circulaciones (o sin datos)`);
 
 }
+
+
+// *** MODIFICACIÓN: setupYearSelector para cambiar de vista si es necesario antes del scroll ***
+function setupYearSelector(selector, dataByContractualYear, toggleButton, calendarContainer, chartsContainer) {
+    selector.selectAll('option:not(:first-child)').remove(); // Limpiar opciones existentes
+
+    selector.selectAll('option.year-option')
+        .data(dataByContractualYear)
+        .enter()
+        .append('option')
+        .attr('class', 'year-option')
+        .attr('value', d => d.key.replace('-', '_'))
+        .text((d, i) => `Año Contrato (${i + 1}) ${d.key}`);
+
+    selector.on('change', function() {
+        const selectedYearId = this.value;
+        // Resetear el selector inmediatamente para que el usuario pueda volver a usarlo
+        selector.property('selectedIndex', 0);
+
+        if (selectedYearId) {
+            // Comprobar si la vista de calendario está visible
+            const isCalendarViewVisible = !calendarContainer.classed('hidden');
+
+             if (isCalendarViewVisible) {
+                 // Si ya estamos en la vista de calendario, simplemente hacer scroll
+                  const targetElement = document.getElementById(`year-${selectedYearId}`);
+                  if (targetElement) {
+                      targetElement.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'start' // Desplazarse para que el elemento quede al inicio de la ventana
+                      });
+                  } else {
+                      console.warn(`Elemento con ID year-${selectedYearId} no encontrado para hacer scroll.`);
+                  }
+             } else { // Si NO es vista de calendario (es vista de gráficas)
+                 // Cambiar a la vista de calendario programáticamente
+                  // console.log("Cambiando a vista de calendario y haciendo scroll...");
+                  // Disparar un clic en el botón de toggle para cambiar la vista
+                  toggleButton.dispatch('click');
+
+                  // Esperar un poco para que la transición de ocultar/mostrar termine y el DOM se actualice
+                  setTimeout(() => {
+                       const targetElement = document.getElementById(`year-${selectedYearId}`);
+                       if (targetElement) {
+                           targetElement.scrollIntoView({
+                               behavior: 'smooth',
+                               block: 'start'
+                           });
+                       } else {
+                           console.warn(`Elemento con ID year-${selectedYearId} no encontrado para hacer scroll después de cambiar vista.`);
+                       }
+                  }, 350); // 350ms es un tiempo estimado, puede variar
+
+             }
+        }
+    });
+}
+
+
+function renderSpecialDatesSection(container, specialDatesByContractualYear, dataByContractualYear, dateOnlyParser, summaryDateFormatter) {
+     container.selectAll('.special-dates-year').remove(); // Limpiar sección
+
+     const yearKeys = Object.keys(specialDatesByContractualYear);
+
+     // Crear un mapa para asociar la clave del año contractual con su número de orden
+     const yearKeyToNumber = new Map(dataByContractualYear.map((d, i) => [d.key, i + 1]));
+
+     // Ordenar las claves de los años contractuales
+     yearKeys.sort((a, b) => parseInt(a.split('-')[0], 10) - parseInt(b.split('-')[0], 10));
+
+
+     yearKeys.forEach(yearKey => {
+         const datesInYear = specialDatesByContractualYear[yearKey];
+
+         if (datesInYear.length > 0) {
+             const yearDiv = container.append('div')
+                 .attr('class', 'special-dates-year');
+
+             const contractualYearNumber = yearKeyToNumber.get(yearKey) || 'N/A';
+             yearDiv.append('h3').text(`Año Contrato (${contractualYearNumber}) ${yearKey}`);
+
+             const list = yearDiv.append('ul').attr('class', 'special-dates-list');
+
+             list.selectAll('.special-date-item')
+                 .data(datesInYear)
+                 .enter()
+                 .append('li')
+                 .attr('class', 'special-date-item')
+                 .html(d => {
+                      const date = dateOnlyParser(d.fecha);
+                       // Verificar si la fecha es válida antes de formatear
+                      const formattedDate = date ? summaryDateFormatter(date) : d.fecha;
+
+                      return `<strong>${formattedDate}:</strong> <span>${d.evento}</span>`;
+                 });
+         }
+     });
+
+     // Mostrar u ocultar el título principal de la sección si no hay eventos
+     if (yearKeys.length === 0 || yearKeys.every(key => specialDatesByContractualYear[key].length === 0)) {
+          container.append('p').text('No hay fechas destacadas definidas en este momento.');
+          container.select('h2').style('display', 'none');
+     } else {
+          container.select('h2').style('display', 'block'); // Asegurarse de que está visible si hay eventos
+     }
+}
+
+
+// Lógica para alternar entre vistas
+function setupViewToggle(button, calendarContainer, chartsContainer, renderFunctions) {
+    let isCalendarView = true; // Estado: true = Calendar visible, false = Charts visible
+
+    button.on('click', () => {
+        isCalendarView = !isCalendarView; // Cambiar estado
+
+        if (isCalendarView) {
+            // Mostrar calendario, ocultar gráficas
+            chartsContainer.classed('hidden', true);
+            calendarContainer.classed('hidden', false);
+            button.text('Mostrar Gráficas');
+            yearSelector.style('visibility', 'visible'); // Mostrar selector de año
+            // d3.select('.controls').style('justify-content', 'center'); // Restaurar justificación si se cambió
+
+             specialDatesSection.classed('hidden', false); // Mostrar sección de eventos también con calendario
+
+        } else {
+            // Mostrar gráficas, ocultar calendario
+            calendarContainer.classed('hidden', true);
+            chartsContainer.classed('hidden', false);
+            button.text('Mostrar Calendario');
+             yearSelector.style('visibility', 'hidden'); // Ocultar selector de año pero mantener el espacio
+
+             // Opcional: ajustar justificación si el selector está oculto
+             // d3.select('.controls').style('justify-content', 'center'); // Si solo queda el botón
+
+             specialDatesSection.classed('hidden', false); // Mostrar sección de eventos también con gráficas
+
+            // Renderizar gráficas (por si acaso el tamaño del contenedor ha cambiado)
+             renderFunctions.charts();
+        }
+         tooltip.style('display', 'none'); // Ocultar tooltip al cambiar de vista
+    });
+    // Asegurarse de que la vista inicial es la de calendario
+    chartsContainer.classed('hidden', true);
+    calendarContainer.classed('hidden', false);
+    button.text('Mostrar Gráficas');
+    yearSelector.style('visibility', 'visible');
+    specialDatesSection.classed('hidden', false);
+}
+
 
 // Iniciar la aplicación al cargar el script
 initializeVisualization();
