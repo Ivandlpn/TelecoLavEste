@@ -368,7 +368,7 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
 
          yearDiv.append('h2')
              .attr('class', 'year-title')
-             .text(`Año Contrato (${contractualYearNumber}) ${yearKey}`);
+             .text(`Año Contrato ${contractualYearNumber} (${yearKey})`);
 
          const yearTotal = d3.sum(yearValues, d => d.circulaciones);
           yearDiv.append('div')
