@@ -14,8 +14,9 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    /* Padding solo lateral. Eliminamos el padding-top que reservaba espacio para los logos flotantes */
-    padding: 0 15px 20px 15px; /* top right bottom left */
+    /* Ajustar padding para dejar espacio en la parte superior para logos y título */
+    /* El padding-top se ajustará en base a la nueva altura de los logos */
+    padding: 70px 15px 20px 15px; /* top right bottom left - Ajustamos el padding superior */
     /* position: relative; */ /* Ya no es necesario si el header usa flexbox */
 }
 
@@ -24,24 +25,21 @@ body {
     display: flex; /* Usar flexbox para alinear elementos en una fila */
     align-items: center; /* Alinear verticalmente los elementos al centro */
     justify-content: space-between; /* Distribuir elementos: logo izq, texto centrado, logo der */
-    padding: 20px 0; /* Espacio superior e inferior dentro de la cabecera. Ajusta 20px si es necesario */
+    padding: 10px 0; /* *** MODIFICADO: Reducir padding vertical de la cabecera *** */
     margin-bottom: 20px; /* Espacio entre la cabecera y los controles/contenido */
     /* Puedes añadir un borde o fondo si quieres separarla visualmente */
     border-bottom: 1px solid #ddd; /* Opcional: una línea para separar */
 }
 
 
-/* *** MODIFICADO: Estilos para las imágenes de logo dentro de la cabecera Flexbox *** */
-/* Quitamos el posicionamiento absoluto, Flexbox lo maneja */
+/* *** MODIFICADO: Reducir tamaño de los logos en escritorio *** */
 .logo-adif,
 .logo-ineco {
-    /* position: absolute; */ /* Eliminado */
-    /* left: 15px; right: 15px; top: 20px; z-index: 10; width: 80px; height: 50px; */ /* Eliminado */
-    height: 45px; /* Altura fija para ambos logos */
-    width: 68px; /* Ancho fijo para ambos logos */
-    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsión */
-    display: block; /* Asegura que width/height funcionen bien */
-    flex-shrink: 0; /* Evita que los logos se encojan si el espacio es limitado */
+    height: 35px; /* *** MODIFICADO: Altura fija reducida para ambos logos *** */
+    width: auto; /* *** NUEVO: Establecer ancho a auto para mantener la proporción con la nueva altura *** */
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
     /* Añadir margen lateral si se quiere más separación con el texto */
      margin: 0 20px; /* Margen a la derecha del logo izq y a la izquierda del logo der */
 }
@@ -73,17 +71,18 @@ body {
      .container {
           padding-left: 10px; /* Ajustar padding lateral */
           padding-right: 10px; /* Ajustar padding lateral */
+          /* El padding-top para pantallas medianas se ajustará abajo */
      }
      /* Ajustar padding vertical de la cabecera y margen entre elementos */
      .header-content {
-         padding: 15px 0; /* Reducir padding vertical */
+         padding: 10px 0; /* Mantener o ajustar si es necesario */
          margin-bottom: 15px; /* Reducir margen inferior */
      }
-     /* *** MODIFICADO: Ajuste del tamaño y margen de los logos en pantallas medianas *** */
+     /* *** MODIFICADO: Reducir tamaño de los logos en pantallas medianas *** */
      .logo-adif,
      .logo-ineco {
-        height: 35px; /* Altura fija reducida */
-        width: 56px; /* Ancho fijo reducido */
+        height: 25px; /* *** MODIFICADO: Altura fija reducida en móviles *** */
+        width: auto; /* Mantener ancho a auto */
          margin: 0 10px; /* Reducir margen lateral */
      }
      /* Ajustar margen horizontal del contenedor de texto */
@@ -97,12 +96,17 @@ body {
 
      /* Ajuste del scroll-margin-top para pantallas medianas */
      .contractual-year {
-         /* Estimar altura de la cabecera móvil: 35px (logo) + 15*2 (padding) + altura texto. Aprox 70-90px */
-         scroll-margin-top: 90px; /* Ajustar según la altura real de la cabecera */
+         /* Estimar altura de la cabecera móvil: 25px (logo) + 10*2 (padding header) + altura texto. Aprox 60-80px */
+         scroll-margin-top: 80px; /* Ajustar según la altura real de la cabecera */
      }
      /* Ajuste para scroll-margin-top si no hay header fijo u otros elementos */
      body:not(.has-fixed-header) .contractual-year {
          scroll-margin-top: 20px; /* Mantenemos este ajuste si no hay fixed header */
+     }
+
+     /* *** NUEVO: Ajustar padding superior del .container para pantallas medianas *** */
+     .container {
+          padding-top: 80px; /* Ajustar en base a la altura estimada de la cabecera + margen */
      }
 }
 @media (max-width: 480px) {
@@ -110,23 +114,28 @@ body {
      .container {
           padding-left: 10px;
           padding-right: 10px;
+          /* El padding-top para pantallas pequeñas se ajustará abajo */
      }
      .header-content {
-          padding: 15px 0;
+          padding: 10px 0;
           margin-bottom: 15px;
      }
       .logo-adif,
       .logo-ineco {
-          height: 35px;
-          width: 56px;
+          height: 25px; /* Mantener altura */
+          width: auto; /* Mantener ancho */
           margin: 0 10px;
       }
       /* Ajuste del scroll-margin-top para pantallas pequeñas */
      .contractual-year {
-         scroll-margin-top: 90px; /* Mantener o ajustar */
+         scroll-margin-top: 80px; /* Mantener el ajuste */
      }
      body:not(.has-fixed-header) .contractual-year {
          scroll-margin-top: 20px; /* Mantenemos este ajuste si no hay fixed header */
+     }
+      /* *** NUEVO: Ajustar padding superior del .container para pantallas pequeñas *** */
+     .container {
+          padding-top: 80px; /* Ajustar en base a la altura estimada de la cabecera + margen */
      }
 }
 
