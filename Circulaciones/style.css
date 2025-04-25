@@ -2,6 +2,7 @@
 body {
     font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     margin: 0;
+    /* Mantenemos un padding general en el body */
     padding: 20px;
     background-color: #f4f7f6;
     color: #333;
@@ -9,112 +10,124 @@ body {
     min-width: 320px;
 }
 
-/* *** MODIFICADO: Estilos del contenedor principal para ser el contexto de posicionamiento *** */
+/* *** MODIFICADO: Estilos del contenedor principal - Solo ancho y centrado, sin padding superior *** */
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    /* Ajustar padding para dejar espacio en la parte superior para logos y título */
-    padding: 90px 15px 20px 15px; /* top right bottom left - Aumentamos el padding superior */
-    position: relative; /* *** NUEVO: Establecer el contexto de posicionamiento absoluto para los logos *** */
+    /* Padding solo lateral. Eliminamos el padding-top que reservaba espacio para los logos flotantes */
+    padding: 0 15px 20px 15px; /* top right bottom left */
+    /* position: relative; */ /* Ya no es necesario si el header usa flexbox */
 }
 
-/* *** MODIFICADO: Estilos para el contenedor de logos - No absoluto, solo para agrupar si es necesario *** */
-/* Eliminamos el posicionamiento absoluto de este contenedor */
-.logo-container {
+/* *** NUEVO: Estilos para el contenedor Flexbox de la cabecera *** */
+.header-content {
+    display: flex; /* Usar flexbox para alinear elementos en una fila */
+    align-items: center; /* Alinear verticalmente los elementos al centro */
+    justify-content: space-between; /* Distribuir elementos: logo izq, texto centrado, logo der */
+    padding: 20px 0; /* Espacio superior e inferior dentro de la cabecera. Ajusta 20px si es necesario */
+    margin-bottom: 20px; /* Espacio entre la cabecera y los controles/contenido */
+    /* Puedes añadir un borde o fondo si quieres separarla visualmente */
+    border-bottom: 1px solid #ddd; /* Opcional: una línea para separar */
+}
+
+
+/* *** MODIFICADO: Estilos para las imágenes de logo dentro de la cabecera Flexbox *** */
+/* Quitamos el posicionamiento absoluto, Flexbox lo maneja */
+.logo-adif,
+.logo-ineco {
     /* position: absolute; */ /* Eliminado */
-    /* top: 0; left: 0; right: 0; height: 70px; padding: 10px 20px; z-index: 10; */ /* Eliminado */
-    /* Mantener si quieres algo de margen para separar del título, aunque los logos son absolutos */
-    margin-bottom: 0; /* Eliminar margen si los logos no empujan contenido */
-    /* display: flex; */ /* Eliminado */
-}
-
-/* *** MODIFICADO: Estilos para las imágenes de logo con posicionamiento ABSOLUTO dentro del .container *** */
-.logo-container img {
-    position: absolute; /* Posicionamiento absoluto respecto a .container */
+    /* left: 15px; right: 15px; top: 20px; z-index: 10; width: 80px; height: 50px; */ /* Eliminado */
     height: 50px; /* Altura fija para ambos logos */
     width: 80px; /* Ancho fijo para ambos logos */
-    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsión dentro del box definido por width/height */
-    display: block; /* Necesario para el posicionamiento absoluto */
-    z-index: 10; /* Asegura que estén por encima de otros elementos si se solapan */
-    max-width: none; /* Permitir que la imagen use el ancho definido */
+    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsión */
+    display: block; /* Asegura que width/height funcionen bien */
+    flex-shrink: 0; /* Evita que los logos se encojan si el espacio es limitado */
+    /* Añadir margen lateral si se quiere más separación con el texto */
+     margin: 0 20px; /* Margen a la derecha del logo izq y a la izquierda del logo der */
 }
 
-/* Posicionamiento específico para cada logo respecto al .container */
-.logo-adif {
-    left: 15px; /* Alineado con el padding izquierdo del contenedor */
-    top: 20px; /* Ajustar la distancia desde el borde superior del contenedor */
+/* *** NUEVO: Estilos para el contenedor de texto de la cabecera *** */
+.header-text {
+    flex-grow: 1; /* Permite que este elemento ocupe el espacio restante */
+    text-align: center; /* Centra el texto DENTRO de este div */
+    margin: 0; /* Resetear márgenes por defecto */
 }
 
-.logo-ineco {
-    right: 15px; /* Alineado con el padding derecho del contenedor */
-    top: 20px; /* Ajustar la distancia desde el borde superior del contenedor */
+/* *** MODIFICADO: Ajustes de margen para h1 y p dentro del header-text *** */
+.header-text h1 {
+     margin-top: 0; /* Eliminar margen superior por defecto del h1 */
+     margin-bottom: 5px; /* Espacio entre h1 y p */
+     /* text-align ya está centrado en .header-text */
 }
+
+.header-text p {
+    margin-top: 0; /* Eliminar margen superior por defecto del p */
+     margin-bottom: 0; /* Eliminar margen inferior por defecto del p */
+    /* text-align ya está centrado en .header-text */
+}
+
 
 /* Ajustes para pantallas más pequeñas */
 @media (max-width: 768px) {
-     /* Ajustar padding superior del contenedor principal */
+     /* Ajustar padding lateral del contenedor principal */
      .container {
-          padding-top: 70px; /* Ajustar padding superior */
           padding-left: 10px; /* Ajustar padding lateral */
           padding-right: 10px; /* Ajustar padding lateral */
      }
-     /* *** MODIFICADO: Ajuste del tamaño y posición de los logos en pantallas medianas *** */
-    .logo-container img {
-        height: 70px; /* Altura fija reducida */
-        width: 112px; /* Ancho fijo reducido */
-    }
-    .logo-adif {
-        left: 10px; /* Alineado con el nuevo padding izquierdo */
-        top: 15px; /* Ajustar distancia superior */
-    }
-    .logo-ineco {
-        right: 10px; /* Alineado con el nuevo padding derecho */
-        top: 15px; /* Ajustar distancia superior */
-    }
+     /* Ajustar padding vertical de la cabecera y margen entre elementos */
+     .header-content {
+         padding: 15px 0; /* Reducir padding vertical */
+         margin-bottom: 15px; /* Reducir margen inferior */
+     }
+     /* *** MODIFICADO: Ajuste del tamaño y margen de los logos en pantallas medianas *** */
+     .logo-adif,
+     .logo-ineco {
+        height: 35px; /* Altura fija reducida */
+        width: 56px; /* Ancho fijo reducido */
+         margin: 0 10px; /* Reducir margen lateral */
+     }
+     /* Ajustar margen horizontal del contenedor de texto */
+     .header-text {
+         /* flex-grow: 1; */ /* Mantener */
+         /* text-align: center; */ /* Mantener */
+         /* margin ya está en 0 */
+     }
+      .header-text h1 { font-size: 1.6em; }
 
-     /* Asegurar que el h1 y p no queden ocultos */
-     /* Esto ya debería estar cubierto por el padding-top del .container */
+
+     /* Ajuste del scroll-margin-top para pantallas medianas */
+     .contractual-year {
+         /* Estimar altura de la cabecera móvil: 35px (logo) + 15*2 (padding) + altura texto. Aprox 70-90px */
+         scroll-margin-top: 90px; /* Ajustar según la altura real de la cabecera */
+     }
+     /* Ajuste para scroll-margin-top si no hay header fijo u otros elementos */
+     body:not(.has-fixed-header) .contractual-year {
+         scroll-margin-top: 20px; /* Mantenemos este ajuste si no hay fixed header */
+     }
 }
 @media (max-width: 480px) {
-     /* Ajustar padding superior del contenedor principal */
+     /* Mantener ajustes de 768px o refinar si es necesario */
      .container {
-          padding-top: 70px; /* Mantener padding superior */
-          padding-left: 10px; /* Mantener padding lateral */
-          padding-right: 10px; /* Mantener padding lateral */
+          padding-left: 10px;
+          padding-right: 10px;
      }
-      /* *** MODIFICADO: Ajuste del tamaño y posición de los logos en pantallas pequeñas *** */
-     .logo-container img {
-          height: 35px; /* Mantener altura */
-          width: 56px; /* Mantener ancho */
+     .header-content {
+          padding: 15px 0;
+          margin-bottom: 15px;
      }
-      .logo-adif {
-          left: 10px; /* Mantener ajuste */
-          top: 15px; /* Mantener ajuste */
-      }
+      .logo-adif,
       .logo-ineco {
-          right: 10px; /* Mantener ajuste */
-          top: 15px; /* Mantener ajuste */
+          height: 35px;
+          width: 56px;
+          margin: 0 10px;
       }
-}
-
-
-h1 {
-    text-align: center;
-    color: #1a5276;
-    margin-bottom: 10px;
-    font-size: 2em;
-    /* margin-top: ...; */ /* Ya no es necesario si usamos padding-top en .container */
-}
-@media (max-width: 768px) {
-    h1 { font-size: 1.6em; }
-}
-
-
-p {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #5a6268;
-    font-size: 1.1em;
+      /* Ajuste del scroll-margin-top para pantallas pequeñas */
+     .contractual-year {
+         scroll-margin-top: 90px; /* Mantener o ajustar */
+     }
+     body:not(.has-fixed-header) .contractual-year {
+         scroll-margin-top: 20px; /* Mantenemos este ajuste si no hay fixed header */
+     }
 }
 
 
@@ -227,7 +240,8 @@ p {
     border-radius: 8px;
     background-color: #fcfcfc;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-    scroll-margin-top: 90px; /* *** MODIFICADO: Ajustar para la nueva altura del padding superior del .container *** */
+    /* Ajustar el scroll-margin-top para la altura de la nueva cabecera */
+    scroll-margin-top: 100px; /* Valor estimado, puede necesitar ajuste visual */
 }
 /* Ajuste para scroll-margin-top si no hay header fijo u otros elementos */
 body:not(.has-fixed-header) .contractual-year {
@@ -259,6 +273,7 @@ body:not(.has-fixed-header) .contractual-year {
     padding-top: 15px;
 }
 
+/* year-details (máximas circulaciones) fue eliminado en JS, se mantiene el selector por si acaso */
 .year-details {
     font-size: 0.95em;
     text-align: center;
@@ -332,6 +347,7 @@ body:not(.has-fixed-header) .contractual-year {
     font-weight: bold;
 }
 
+/* month-details (máximas circulaciones mensuales) fue eliminado en JS, se mantiene el selector por si acaso */
 .month-details {
     font-size: 0.9em;
     text-align: center;
@@ -396,7 +412,7 @@ body:not(.has-fixed-header) .contractual-year {
     }
      /* Ajuste del scroll-margin-top para pantallas medianas */
      .contractual-year {
-         scroll-margin-top: 70px; /* Ajustar para la nueva altura del padding superior del .container */
+         scroll-margin-top: 90px; /* Mantener el ajuste */
      }
      body:not(.has-fixed-header) .contractual-year {
          scroll-margin-top: 20px; /* Mantenemos este ajuste si no hay fixed header */
@@ -412,7 +428,7 @@ body:not(.has-fixed-header) .contractual-year {
     }
     /* Ajuste del scroll-margin-top para pantallas pequeñas */
      .contractual-year {
-         scroll-margin-top: 70px; /* Ajustar para la nueva altura del padding superior del .container */
+         scroll-margin-top: 90px; /* Mantener el ajuste */
      }
      body:not(.has-fixed-header) .contractual-year {
          scroll-margin-top: 20px; /* Mantenemos este ajuste si no hay fixed header */
