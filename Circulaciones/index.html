@@ -7,15 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- *** NUEVO: Contenedor para los logos movido fuera del .container *** -->
+    <div class="logo-container">
+        <img src="adif_logo.png" alt="Logo de ADIF Alta Velocidad" class="logo-adif">
+        <img src="ineco_logo.png" alt="Logo de Ineco" class="logo-ineco">
+    </div>
+
     <div class="container">
         <h1>Histórico Circulaciones AVE Tramo: Albacete-Alicante</h1>
         <p>Visualización interactiva diaria del número de circulaciones AVE entre Albacete y Alicante</p>
-
-        <!-- *** NUEVO: Contenedor para los logos *** -->
-        <div class="logo-container">
-            <img src="adif_logo.png" alt="Logo de ADIF Alta Velocidad">
-            <img src="ineco_logo.png" alt="Logo de Ineco">
-        </div>
 
         <div class="controls">
             <label for="year-selector">Saltar a Año Contractual:</label>
@@ -26,7 +26,6 @@
 
             <button id="toggle-view-btn">Mostrar Gráficas</button>
         </div>
-
 
         <!-- Contenedor para la vista de calendario (inicialmente visible) -->
         <div id="visualization-container" class="visualization-view">
@@ -41,7 +40,6 @@
              <div id="chart-month"></div>
              <!-- Puedes añadir más divs para otros gráficos -->
         </div>
-
 
         <div id="legend" class="legend">
             <!-- Aquí se renderizará la leyenda de color -->
