@@ -936,7 +936,7 @@ function setupYearSelector(selector, dataByContractualYear, toggleButton, calend
         .append('option')
         .attr('class', 'year-option')
         .attr('value', d => d.key.replace('-', '_'))
-        .text((d, i) => `Año Contrato (${i + 1}) ${d.key}`);
+        .text((d, i) => `Año Contrato ${i + 1} (${d.key})`);
 
     selector.on('change', function() {
         const selectedYearId = this.value;
