@@ -21,9 +21,9 @@ body {
     z-index: 10; /* Asegura que esté por encima del contenido principal */
     /* Eliminamos los estilos de flexbox que centraban los logos */
     /* display: flex; */
-    /* justify-content: center; */
-    /* align-items: center; */
-    /* gap: 30px; */
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
     /* flex-wrap: wrap; */
     /* margin-bottom: 30px; */ /* Eliminado */
 }
