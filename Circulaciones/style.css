@@ -1,0 +1,158 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #0056b3;
+}
+
+p {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+#visualization-container {
+    margin-top: 20px;
+    /* Permitir scroll horizontal si los años son muy anchos, o vertical si son altos */
+    /* En este caso, el diseño vertical con scroll nativo es el plan */
+}
+
+/* Estilos para cada bloque de año contractual */
+.contractual-year {
+    margin-bottom: 40px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.year-title {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #0056b3;
+    text-align: center;
+}
+
+/* Estilos para cada bloque mensual */
+.month {
+    display: inline-block; /* Opcional: si quieres que los meses floten */
+    vertical-align: top;
+    margin: 0 10px 20px 10px; /* Espacio entre meses */
+}
+
+.month-title {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    text-align: center;
+    color: #555;
+}
+
+.day-grid {
+    display: grid;
+    /* 7 columnas para los días de la semana */
+    grid-template-columns: repeat(7, var(--cell-size));
+    gap: 1px; /* Espacio pequeño entre celdas */
+    border: 1px solid #eee;
+    padding: 2px;
+    background-color: #eee;
+}
+
+/* Define el tamaño de celda CSS variable */
+:root {
+    --cell-size: 16px; /* Tamaño por defecto */
+}
+
+.day-cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background-color: #eee; /* Color por defecto para días sin datos/0 circulaciones */
+    position: relative; /* Necesario para el indicador de fecha destacada */
+}
+
+/* Indicador visual para fechas destacadas */
+.day-cell.highlighted::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.5); /* Borde sutil */
+    box-sizing: border-box; /* Asegura que el borde no aumente el tamaño */
+    pointer-events: none; /* No interfiere con eventos del ratón en la celda */
+}
+
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    pointer-events: none; /* El tooltip no debe bloquear el ratón */
+    z-index: 10; /* Asegura que esté por encima de otros elementos */
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.tooltip strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.tooltip .event-info {
+    margin-top: 5px;
+    font-style: italic;
+    color: #ccc;
+}
+
+
+/* Leyenda de color */
+.legend {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.color-scale {
+    display: inline-block;
+    width: 200px; /* Ancho de la barra de color */
+    height: 20px;
+    background: linear-gradient(to right, green, yellow, orange, red); /* Degradado ejemplo */
+    vertical-align: middle;
+    margin: 0 10px;
+}
+
+.legend span {
+    vertical-align: middle;
+    font-size: 0.9em;
+}
+
+/* Estilos para los totales (opcional, podemos añadir más detalles) */
+.month-total {
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 5px;
+    color: #555;
+}
+
+.year-total {
+    font-size: 1.3em;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    color: #007bff;
+}

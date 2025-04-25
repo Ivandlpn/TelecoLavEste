@@ -1,0 +1,22 @@
+[
+    {
+      "fecha": "2013-06-17",
+      "evento": "Inauguración línea de alta velocidad Albacete-Alicante."
+    },
+    {
+      "fecha": "2020-03-15",
+      "evento": "Inicio del primer estado de alarma por COVID-19, impacto en la circulación."
+    },
+    {
+      "fecha": "2020-06-21",
+      "evento": "Fin del estado de alarma y reanudación gradual de servicios."
+    },
+      {
+      "fecha": "2022-09-01",
+      "evento": "Inicio de nuevos abonos de transporte o cambios tarifarios."
+    },
+      {
+      "fecha": "2023-06-17",
+      "evento": "10º Aniversario de la puesta en servicio de la línea."
+    }
+  ]

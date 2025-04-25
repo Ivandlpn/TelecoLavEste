@@ -1,1 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circulaciones AVE Albacete-Alicante</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Circulaciones Históricas AVE Albacete-Alicante (Jun 2013 - May 2025)</h1>
+        <p>Visualización interactiva diaria de la frecuencia de trenes AVE entre Albacete y Alicante.</p>
 
+        <div id="visualization-container">
+            <!-- Aquí se renderizará el calendario -->
+        </div>
+
+        <div id="legend" class="legend">
+            <!-- Aquí se renderizará la leyenda de color -->
+        </div>
+
+        <div id="tooltip" class="tooltip" style="display: none;">
+            <!-- El tooltip se actualizará y mostrará/ocultará dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Carga la librería D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Carga tu script principal -->
+    <script src="script.js"></script>
+</body>
+</html>
