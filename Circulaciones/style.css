@@ -37,8 +37,8 @@ body {
 .logo-ineco {
     /* position: absolute; */ /* Eliminado */
     /* left: 15px; right: 15px; top: 20px; z-index: 10; width: 80px; height: 50px; */ /* Eliminado */
-    height: 50px; /* Altura fija para ambos logos */
-    width: 80px; /* Ancho fijo para ambos logos */
+    height: 45px; /* Altura fija para ambos logos */
+    width: 68px; /* Ancho fijo para ambos logos */
     object-fit: contain; /* Asegura que la imagen se ajuste sin distorsión */
     display: block; /* Asegura que width/height funcionen bien */
     flex-shrink: 0; /* Evita que los logos se encojan si el espacio es limitado */
