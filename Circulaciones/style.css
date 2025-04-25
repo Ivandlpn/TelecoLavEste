@@ -28,13 +28,14 @@ body {
     /* margin-bottom: 30px; */ /* Eliminado */
 }
 
+/* *** MODIFICADO: Establecer el mismo ancho y alto para todas las imágenes de logo *** */
 .logo-container img {
     position: absolute; /* Posicionamiento absoluto respecto a .logo-container */
-    height: 50px; /* Altura fija */
-    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsión */
+    height: 50px; /* Altura fija para ambos logos */
+    width: 80px; /* *** NUEVO: Ancho fijo para ambos logos (ajusta este valor si Ineco era de otro ancho) *** */
+    object-fit: contain; /* Asegura que la imagen se ajuste sin distorsión dentro del box definido por width/height */
     display: block; /* Necesario para el posicionamiento absoluto */
-    /* max-width: 100px; */ /* Podemos eliminar o ajustar si la altura ya es suficiente */
-     max-width: none; /* Permitir que la imagen use su ancho natural basado en la altura */
+     max-width: none; /* Permitir que la imagen use el ancho definido */
 }
 
 /* Posicionamiento específico para cada logo */
@@ -54,9 +55,10 @@ body {
          height: 55px; /* Altura reducida */
          padding: 10px; /* Padding reducido */
     }
+     /* *** MODIFICADO: Ajuste del tamaño de los logos en pantallas medianas *** */
     .logo-container img {
-        height: 35px; /* Altura fija en móviles */
-        /* max-width: 70px; */ /* Eliminado o ajustado */
+        height: 35px; /* Altura fija reducida en móviles */
+        width: 56px; /* Ancho fijo proporcional (ajustar si cambiaste el width base) */
          max-width: none;
     }
     .logo-adif {
@@ -81,8 +83,10 @@ body {
           height: 55px; /* Mantener altura o ajustar */
           padding: 10px; /* Mantener padding o ajustar */
      }
+      /* *** MODIFICADO: Ajuste del tamaño de los logos en pantallas pequeñas *** */
      .logo-container img {
           height: 35px; /* Mantener altura */
+          width: 56px; /* Mantener ancho */
           max-width: none;
      }
       .logo-adif {
