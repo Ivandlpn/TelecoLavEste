@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Circulaciones AVE Albacete-Alicante</title>
+    <title>Circulaciones AV Albacete-Alicante</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -12,20 +14,45 @@
         <div class="header-content">
             <img src="adif_logo.png" alt="Logo de ADIF Alta Velocidad" class="logo-adif">
             <div class="header-text">
-                <h1>Histórico Circulaciones AVE Tramo: Albacete-Alicante</h1>
-                <p>Visualización interactiva diaria del número de circulaciones AVE entre Albacete y Alicante</p>
+                <h1>Histórico Circulaciones AV Tramo: Albacete-Alicante</h1>
+                <p>Visualización interactiva diaria del número de circulaciones AV entre Albacete y Alicante</p>
             </div>
             <img src="ineco_logo.png" alt="Logo de Ineco" class="logo-ineco">
         </div>
 
-        <div class="controls">
-            <label for="year-selector">Saltar a Año Contractual:</label>
-            <select id="year-selector">
-                <option value="">Selecciona un año...</option>
-                <!-- Las opciones se llenarán con JavaScript -->
-            </select>
-
+        <!-- Tarjeta de botones de vistas -->
+        <div class="view-buttons-card">
             <button id="toggle-view-btn">Mostrar Gráficas</button>
+            <button id="toggle-single-view-btn">Vista única</button>
+            <button id="toggle-time-axis-btn">EJE TIEMPO</button>
+            <button id="toggle-counter-btn">CONTADOR</button>
+        </div>
+
+        <!-- Contenedor de filtros -->
+        <div class="filters-container">
+            <!-- Filtro de calendario -->
+            <div class="year-selector-container">
+                <label for="year-selector">Ir a:</label>
+                <select id="year-selector">
+                    <option value="">Selecciona un año...</option>
+                    <!-- Las opciones se llenarán con JavaScript -->
+                </select>
+            </div>
+
+            <!-- Filtro de gráfica -->
+            <div class="date-filter-container">
+                <div class="date-inputs-container">
+                    <div class="date-input-group">
+                        <label for="start-date">Fecha Inicio:</label>
+                        <input type="date" id="start-date">
+                    </div>
+                    <div class="date-input-group">
+                        <label for="end-date">Fecha Fin:</label>
+                        <input type="date" id="end-date">
+                    </div>
+                </div>
+                <button id="apply-date-filter-btn" class="apply-filter-button">Aplicar Filtro</button>
+            </div>
         </div>
 
         <!-- Contenedor para la vista de calendario (inicialmente visible) -->
@@ -33,13 +60,163 @@
             <!-- Aquí se renderizará el calendario -->
         </div>
 
+        <!-- Sección de Fechas Destacadas y Eventos -->
+        <div id="special-dates-section">
+            <h2>Fechas Destacadas y Eventos</h2>
+        </div>
+
         <!-- Contenedor para la vista de gráficas (inicialmente oculto) -->
         <div id="charts-container" class="visualization-view hidden">
             <h2>Análisis Gráfico de Circulaciones</h2>
              <div id="chart-trend"></div>
-             <div id="chart-weekday"></div>
-             <div id="chart-month"></div>
+             <!-- Contenedor para la gráfica de caja y bigotes por mes -->
+             <div id="chart-boxplot-month"></div>
              <!-- Puedes añadir más divs para otros gráficos -->
+        </div>
+
+        <!-- Contenedor para la vista única (inicialmente oculto) -->
+        <div id="single-view-container" class="visualization-view hidden">
+            <!-- Aquí se renderizará la tabla de vista única -->
+            <div id="single-view-table"></div>
+            
+            <!-- Sección de Fechas Destacadas y Eventos -->
+            <div id="special-dates-section">
+                <h2>Fechas Destacadas y Eventos</h2>
+            </div>
+        </div>
+
+        <!-- Contenedor para la vista Eje Tiempo (inicialmente oculto) -->
+        <div id="time-axis-container" class="visualization-view hidden">
+            <!-- Encabezado -->
+            <header class="py-12 px-4 text-center">
+                <div class="max-w-3xl mx-auto">
+                    <h1 class="text-4xl font-bold text-[#1e3a8a] mb-4">Eje Cronológico de la Alta Velocidad Ferroviaria</h1>
+                    <h2 class="text-2xl font-semibold text-[#4682b4] mb-6">Albacete - Alicante y Conexiones Clave</h2>
+                    <p class="text-lg text-gray-700">Este eje cronológico presenta los hitos principales en la puesta en servicio de la infraestructura y los operadores de alta velocidad que conectan Albacete y Alicante, incluyendo el servicio Avant con Murcia y la futura conexión con Xátiva.</p>
+                </div>
+            </header>
+
+            <!-- Contenedor Principal del Cronograma -->
+            <div class="timeline-container">
+
+                <!-- Línea del tiempo - Pasado/Presente -->
+                <div class="timeline-line-past"></div>
+
+                <!-- Evento 1 -->
+                <div class="timeline-event" data-delay="100">
+                    <div class="event-icon">⚪</div>
+                    <div class="timeline-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">17 de junio de 2013</div>
+                        <h3 class="event-title">Inauguración y Renfe AVE</h3>
+                        <p class="event-description">Se inaugura el tramo Albacete-Alicante de la Línea de Alta Velocidad Madrid-Levante. Renfe (AVE) comienza a operar, siendo el primer operador en este trayecto.</p>
+                        <div class="logo-container">
+                            <img src="img/ave-logo.png" alt="Logo de Renfe AVE" class="operator-logo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evento 2 -->
+                <div class="timeline-event" data-delay="300">
+                    <div class="event-icon">🟠</div>
+                    <div class="timeline-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">20 de diciembre de 2022</div>
+                        <h3 class="event-title">Renfe Avant Murcia-Alicante</h3>
+                        <p class="event-description">Inicio del servicio de trenes Avant de Renfe entre Murcia y Alicante, utilizando la infraestructura de alta velocidad.</p>
+                        <div class="logo-container">
+                            <img src="img/avant-logo.png" alt="Logo de Renfe Avant" class="operator-logo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evento 3 -->
+                <div class="timeline-event" data-delay="500">
+                    <div class="event-icon">🟢</div>
+                    <div class="timeline-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">27 de marzo de 2023</div>
+                        <h3 class="event-title">Renfe Avlo</h3>
+                        <p class="event-description">Comienzo de las operaciones de Renfe (Avlo), el servicio de alta velocidad de bajo coste, en la ruta Madrid-Alicante con paradas en Albacete.</p>
+                        <div class="logo-container">
+                            <img src="img/avlo.png" alt="Logo de Renfe Avlo" class="operator-logo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evento 4 -->
+                <div class="timeline-event" data-delay="700">
+                    <div class="event-icon">🟣</div>
+                    <div class="timeline-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">27 de abril de 2023</div>
+                        <h3 class="event-title">Ouigo</h3>
+                        <p class="event-description">Ouigo inicia sus operaciones de alta velocidad de bajo coste en la ruta Madrid-Albacete-Alicante.</p>
+                        <div class="logo-container">
+                            <img src="img/ouigo-logo.png" alt="Logo de Ouigo" class="operator-logo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evento 5 -->
+                <div class="timeline-event" data-delay="900">
+                    <div class="event-icon">🔴</div>
+                    <div class="timeline-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">2 de junio de 2023</div>
+                        <h3 class="event-title">Iryo</h3>
+                        <p class="event-description">Iryo comienza a operar servicios de alta velocidad en el corredor que conecta Madrid, Albacete y Alicante.</p>
+                        <div class="logo-container">
+                            <img src="img/iryo-logo.png" alt="Logo de Iryo" class="operator-logo">
+                        </div>
+                    </div>
+                </div>
+    
+                    <!-- NUEVO: Evento Fecha Actual -->
+
+
+                    <div class="timeline-event current-date-event" data-delay="1000">
+                        <div class="event-icon">🔵</div>
+                        <div class="timeline-marker"></div>
+                        <div class="event-content">
+                            <div class="event-date" id="current-date-display">Cargando fecha...</div>
+
+
+                            <h3 class="event-title">En Servicio</h3>
+
+
+
+                        </div>
+                    </div>
+    
+
+
+
+                    <!-- Línea del tiempo - Futuro -->
+                    <div class="timeline-line-future"></div>
+
+                    <!-- Evento 6 -->
+                <div class="timeline-event" data-delay="1100">
+                    <div class="event-icon">⚫</div>
+                    <div class="timeline-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">2026</div>
+                        <h3 class="event-title">Apertura de la Línea AV La Encina-Bif. Xátiva</h3>
+                        <p class="event-description">Fecha prevista para la puesta en servicio de la conexión de alta velocidad entre La Encina y la Bifurcación Xátiva, completando un tramo clave del Corredor Mediterráneo.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Pie de página -->
+
+            <footer class="py-8 px-4 text-center">
+            </footer>
+        </div>
+
+        <!-- Contenedor para la vista Contador (inicialmente oculto) -->
+        <div id="counter-container" class="visualization-view hidden">
+            <!-- Aquí se renderizará la vista del contador -->
         </div>
 
         <div id="legend" class="legend">

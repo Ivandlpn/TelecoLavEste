@@ -16,8 +16,21 @@ const visualizationContainer = d3.select('#visualization-container');
 const chartsContainer = d3.select('#charts-container');
 const tooltip = d3.select('#tooltip');
 const yearSelector = d3.select('#year-selector');
+const yearSelectorContainer = d3.select('.year-selector-container'); // Seleccionar el nuevo contenedor
 const specialDatesSection = d3.select('#special-dates-section');
 const toggleViewButton = d3.select('#toggle-view-btn');
+const toggleSingleViewButton = d3.select('#toggle-single-view-btn'); // Nuevo botón
+const singleViewContainer = d3.select('#single-view-container'); // Nuevo contenedor
+const toggleTimeAxisButton = d3.select('#toggle-time-axis-btn'); // Nuevo botón EJE TIEMPO
+const timeAxisContainer = d3.select('#time-axis-container'); // Nuevo contenedor EJE TIEMPO
+const toggleCounterButton = d3.select('#toggle-counter-btn');
+const counterContainer = d3.select('#counter-container');
+
+// Selección de los selectores de fecha y el botón de filtro
+const startDateInput = d3.select('#start-date');
+const endDateInput = d3.select('#end-date');
+const applyDateFilterButton = d3.select('#apply-date-filter-btn');
+const dateFilterContainer = d3.select('.date-filter-container'); // Nuevo contenedor para el filtro de fecha
 
 
 // Configurar variables CSS en el elemento raíz
@@ -94,7 +107,7 @@ async function initializeVisualization() {
 
         const colorScale = d3.scaleLinear()
             .domain([minCirc, (minCirc + maxCirc) / 2, maxCirc])
-            .range(['#a5d8b5', '#ffeb84', '#d73027'])
+            .range(['#e0e0e0', '#ffeb84', '#c0392b']) // Rango de color más pronunciado (gris claro a rojo oscuro)
             .clamp(true);
 
         colorScale.unknown(EMPTY_COLOR);
@@ -109,16 +122,26 @@ async function initializeVisualization() {
 
         renderLegend(d3.select('#legend'), colorScale, minCirc, maxCirc);
 
-        setupYearSelector(yearSelector, dataByContractualYear, toggleViewButton, visualizationContainer, chartsContainer);
+        setupYearSelector(yearSelector, dataByContractualYear, toggleViewButton, visualizationContainer, chartsContainer, dailyData, monthlySpecialDates); // Pasar dailyData y monthlySpecialDates
 
         renderSpecialDatesSection(specialDatesSection, specialDatesByContractualYear, dataByContractualYear, dateOnlyParser, summaryDateFormatter);
 
-        setupViewToggle(toggleViewButton, visualizationContainer, chartsContainer, {
+        setupViewToggle(toggleViewButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, visualizationContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, {
             calendar: () => renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap),
-            charts: () => renderCharts(chartsContainer, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates)
+            charts: () => renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap), // Pasar dailyData, colorScale y specialDatesMap
+            single: () => renderSingleViewTable(singleViewContainer, dailyData, dataByContractualYear, colorScale, specialDatesMap), // Pasar colorScale y specialDatesMap
+            time: () => {
+                // No se necesita renderizar nada, la vista EJE TIEMPO ya está configurada
+                updateCurrentDateDisplay();
+                updateTimelineLinePosition();
+            },
+            counter: () => renderCounterView(counterContainer) // Agregar función para renderizar la vista CONTADOR
         });
 
-         renderCharts(chartsContainer, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates);
+        // Configurar el filtro de fecha
+        setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates); // Pasar dailyData, chartsContainer, colorScale y monthlySpecialDates
+
+         renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap); // Pasar dailyData, colorScale y specialDatesMap
 
 
     } catch (error) {
@@ -292,6 +315,8 @@ function mapSpecialDatesToMonths(specialDates, monthlyTotalData) {
     return monthlyEvents;
 }
 
+// Función para posicionar el marcador de la fecha actual en el eje de tiempo
+
 
 // --- Funciones de Agregación para Gráficas ---
 
@@ -375,17 +400,6 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
               .attr('class', 'year-total')
               .text(`Total Circulaciones: ${yearTotal}`);
 
-         // const maxYearDay = findMaxCirculationDay(yearValues); // --- ELIMINADO
-         // if (maxYearDay && maxYearDay.date) { // Verificar que maxYearDay y su fecha existen --- ELIMINADO
-         //      yearDiv.append('div') // --- ELIMINADO
-         //          .attr('class', 'year-details') // --- ELIMINADO
-         //          .text(`Máx. circulaciones: ${maxYearDay.circulaciones} (${summaryDateFormatter(maxYearDay.date)})`); // --- ELIMINADO
-         // } else { // --- ELIMINADO
-         //     yearDiv.append('div') // --- ELIMINADO
-         //         .attr('class', 'year-details') // --- ELIMINADO
-         //         .text('Sin datos de máximos para este año.'); // --- ELIMINADO
-         // } // --- ELIMINADO
-
 
          const dataByMonth = d3.group(yearValues, d => d.date.getMonth());
          // Meses en orden contractual (Junio a Mayo)
@@ -431,17 +445,6 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
                    .attr('class', 'month-total')
                    .text(`Total: ${monthTotal}`);
 
-             // const maxMonthDay = findMaxCirculationDay(monthValues); // --- ELIMINADO
-              // if (maxMonthDay && maxMonthDay.date) { // Verificar que maxMonthDay y su fecha existen --- ELIMINADO
-              //     monthDiv.append('div') // --- ELIMINADO
-              //         .attr('class', 'month-details') // --- ELIMINADO
-              //         .text(`Máx: ${maxMonthDay.circulaciones} (${maxMonthDay.date.getDate()})`); // --- ELIMINADO
-             // } else { // --- ELIMINADO
-             //     monthDiv.append('div') // --- ELIMINADO
-             //         .attr('class', 'month-details') // --- ELIMINADO
-             //         .text('Máx: 0'); // Mostrar 0 si no hay datos o solo 0s --- ELIMINADO
-             // } // --- ELIMINADO
-
 
              const weekdayLabelsDiv = monthDiv.append('div')
                  .attr('class', 'weekday-labels');
@@ -477,9 +480,18 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
              dayCells
                  .style('background-color', d => {
                       const circ = monthDataLookup.get(dateFormatter(d)) || 0; // Usa 0 si no hay datos
-                      return colorScale(circ);
+                      if (circ === 0) {
+                          return '#ffffff'; // Blanco para 0 circulaciones o sin datos
+                      }
+                      return colorScale(circ); // Usar la escala de color para > 0 circulaciones
                   })
-                 .classed('highlighted', d => specialDatesMap.has(dateFormatter(d)));
+                  .classed('highlighted', d => specialDatesMap.has(dateFormatter(d)));
+
+              // Añadir icono a las celdas destacadas
+              dayCells.filter('.highlighted')
+                  .append('div')
+                  .attr('class', 'highlight-icon')
+                  .html('⭐'); // Icono de estrella para destacar
 
 
              dayCells
@@ -490,418 +502,574 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
 
                      let tooltipHtml = `<strong>${fullDateFormatter(d)}</strong><br>Circulaciones: ${circulaciones}`;
                      if (eventInfo) {
-                         tooltipHtml += `<div class="event-info">${eventInfo}</div>`;
+                         tooltipHtml = `⚠️ ${tooltipHtml}<div class="event-info">${eventInfo}</div>`; // Añadir icono de advertencia amarillo y mantener info del evento
                      }
 
                      tooltip.html(tooltipHtml)
                          .style('display', 'block');
 
-                     // Posicionar el tooltip
+                     // Posicionar el tooltip encima de la celda
                      const tooltipNode = tooltip.node();
+                     const cellRect = this.getBoundingClientRect(); // Obtener dimensiones de la celda
                      const tooltipWidth = tooltipNode.offsetWidth;
                      const tooltipHeight = tooltipNode.offsetHeight;
-                     const cellRect = this.getBoundingClientRect(); // Posición relativa a la ventana
+                     const containerRect = container.node().getBoundingClientRect();
 
-                     let top = cellRect.bottom + window.scrollY + 8;
-                     let left = cellRect.left + window.scrollX + cellRect.width / 2 - tooltipWidth / 2;
+                     // Calcular posición para centrar horizontalmente sobre la celda y encima de ella
+                     // Usar coordenadas relativas a la página, teniendo en cuenta el scroll
+                     const scrollX = window.scrollX || window.pageXOffset;
+                     const scrollY = window.scrollY || window.pageYOffset;
 
-                     // Ajustar posición si sale por los bordes
-                     if (left + tooltipWidth > window.innerWidth + window.scrollX - 10) { left = window.innerWidth + window.scrollX - tooltipWidth - 10; }
-                     if (left < window.scrollX + 10) { left = window.scrollX + 10; }
-                      // Si el tooltip sale por abajo, posicionarlo encima de la celda
-                     if (top + tooltipHeight > window.innerHeight + window.scrollY - 10) { top = cellRect.top + window.scrollY - tooltipHeight - 8; }
-                      // Si incluso arriba sale por arriba (ventana pequeña), posicionarlo arriba a la izquierda
-                     if (top < window.scrollY + 10) {
-                          top = window.scrollY + 10;
-                          left = window.scrollX + 10;
+                     let tooltipLeft = cellRect.left + scrollX + (cellRect.width / 2) - (tooltipWidth / 2);
+                     let tooltipTop = cellRect.top + scrollY - tooltipHeight - 5; // 5px de padding
+
+                     // Ajustar si se sale por la izquierda
+                     if (tooltipLeft < scrollX) {
+                         tooltipLeft = scrollX + 5;
+                     }
+
+                     // Ajustar si se sale por la derecha
+                     if (tooltipLeft + tooltipWidth > window.innerWidth + scrollX) {
+                         tooltipLeft = window.innerWidth + scrollX - tooltipWidth - 5;
+                     }
+
+                     // Ajustar si se sale por arriba (mostrar debajo en su lugar)
+                     if (tooltipTop < scrollY) {
+                         tooltipTop = cellRect.bottom + scrollY + 5;
                      }
 
 
-                    tooltip
-                        .style('left', `${left}px`)
-                        .style('top', `${top}px`);
-
-                })
-                .on('mouseout', function() {
-                    tooltip.style('display', 'none');
-                });
+                     tooltip
+                         .style('left', `${tooltipLeft}px`)
+                         .style('top', `${tooltipTop}px`);
+                 })
+                 .on('mouseout', function() {
+                     tooltip.style('display', 'none');
+                 });
          });
      });
 }
 
 
-function renderCharts(container, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates) {
+function renderCharts(container, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap, startDate = null, endDate = null) { // Añadir optional startDate y endDate
     container.select('#chart-trend').selectAll('*').remove();
     container.select('#chart-weekday').selectAll('*').remove();
     container.select('#chart-month').selectAll('*').remove();
 
-    const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+    const margin = { top: 100, right: 30, bottom: 60, left: 60 }; // Aumentar el margen superior para el título y asegurar espacio
     const containerNode = container.node();
     // Asegurar que containerNode no es null antes de obtener su ancho
     const containerWidth = containerNode ? parseInt(containerNode.getBoundingClientRect().width) : 960;
     const width = containerWidth - margin.left - margin.right;
     let height = 300; // Altura base para las gráficas
 
+    let dataToRender = monthlyTotalData;
+    let specialDatesToRender = monthlySpecialDates;
 
-    // Renderizar solo si hay datos
-    if (monthlyTotalData && monthlyTotalData.length > 0) {
-        renderMonthlyTrendChart(container.select('#chart-trend'), monthlyTotalData, monthlySpecialDates, margin, width, height);
-    } else {
-         container.select('#chart-trend').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de tendencia mensual.</p>');
+    if (startDate && endDate) {
+        // Ajustar la fecha de fin para incluir todo el día seleccionado
+        const adjustedEndDate = d3.timeDay.offset(endDate, 1);
+
+        // Filtrar los datos diarios por el rango de fechas
+        const filteredDailyData = dailyData.filter(d => d.date >= startDate && d.date < adjustedEndDate);
+
+        if (filteredDailyData.length > 0) {
+             // Recalcular agregaciones mensuales para la gráfica de tendencia con los datos filtrados
+             dataToRender = aggregateMonthlyTotals(filteredDailyData);
+
+             // Filtrar fechas destacadas para el rango de fechas seleccionado
+             specialDatesToRender = monthlySpecialDates.filter(d => d.originalDate >= startDate && d.originalDate < adjustedEndDate);
+        } else {
+             dataToRender = []; // No hay datos en el rango
+             specialDatesToRender = [];
+        }
     }
 
-    if (dailyAvgByWeekday && dailyAvgByWeekday.length > 0) {
-        renderWeekdayAvgChart(container.select('#chart-weekday'), dailyAvgByWeekday, margin, width, height);
+
+    // Renderizar la gráfica de tendencia con los datos (filtrados o totales)
+    if (dataToRender && dataToRender.length > 0) {
+        renderTrendChart(container.select('#chart-trend'), dataToRender, specialDatesToRender, margin, width, height); // Usar dataToRender y specialDatesToRender
     } else {
-         container.select('#chart-weekday').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por día de la semana.</p>');
+        container.select('#chart-trend').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de tendencia en el rango seleccionado.</p>'); // Título actualizado
     }
 
-    if (monthlyAvgByMonth && monthlyAvgByMonth.length > 0) {
-       renderMonthAvgChart(container.select('#chart-month'), monthlyAvgByMonth, margin, width, height);
-    } else {
-        container.select('#chart-month').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por mes del año.</p>');
-    }
+    // Las gráficas de promedio por día de la semana y por mes del año siempre usan los datos completos
+    // Se han eliminado las llamadas a renderWeekdayAvgChart y renderMonthAvgChart según la solicitud del usuario.
 }
 
-function renderMonthlyTrendChart(container, data, monthlySpecialDates, margin, width, height) {
-    container.append('h3').text('Total de Circulaciones por Mes');
+function renderTrendChart(container, data, specialDates, margin, width, height) { // Renombrar y aceptar daily data
+    container.selectAll('*').remove(); // Limpiar contenedor
 
-    const svg = container.append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+    if (!data || data.length === 0) {
+        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de tendencia.</p>');
+        return;
+    }
 
-    const xScale = d3.scaleTime()
+    const svg = container.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleTime()
         .domain(d3.extent(data, d => d.date))
         .range([0, width]);
 
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.total)]).nice()
+    const y = d3.scaleLinear()
+        .domain([Math.max(0, (d3.min(data, d => d.circulaciones) || 0) * 0.95), (d3.max(data, d => d.circulaciones) || 10) * 1.1]) // Dominio basado en el mínimo y máximo de circulaciones
+        .nice()
         .range([height, 0]);
 
-    const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b %Y'));
-    const yAxis = d3.axisLeft(yScale);
+    const line = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.circulaciones)); // Usar circulaciones diarias para la línea
 
-    svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(xAxis)
-         .selectAll("text")
-            .attr("transform", "rotate(-45)")
-            .style("text-anchor", "end");
+    svg.append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 1.5)
+        .attr('d', line);
 
-    svg.append("g")
-        .call(yAxis);
+    // Eje X
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.timeFormat('%d/%m/%Y'))) // Formato de fecha para días con año
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '.15em')
+        .attr('transform', 'rotate(-45)');
 
-     svg.append("text")
+    // Eje Y
+    svg.append('g')
+        .call(d3.axisLeft(y));
+
+    // Título del eje Y
+    svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left + 10)
+        .attr("y", 0 - margin.left)
         .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Total Circulaciones Mensuales");
+        .text("Circulaciones Diarias"); // Título actualizado
 
-      svg.append("text")
-         .attr("x", width / 2)
-         .attr("y", height + margin.bottom - 5)
-         .style("text-anchor", "middle")
-         .text("Fecha");
+    // Puntos para eventos destacados
+    svg.selectAll(".event-dot")
+        .data(specialDates) // Usar specialDates directamente
+        .enter().append("circle")
+        .attr("class", "event-dot")
+        .attr("cx", d => x(d.originalDate)) // Usar la fecha original del evento
+        .attr("cy", d => {
+             // Encontrar el punto de datos diario correspondiente para obtener la altura correcta
+             const dailyDataPoint = data.find(item => item.date.getTime() === d.originalDate.getTime());
+             return dailyDataPoint ? y(dailyDataPoint.circulaciones) : -100; // Posición fuera si no se encuentra
+        })
+        .attr("r", 5)
+        .attr("fill", "red")
+        .attr("stroke", "white")
+        .on("mouseover", function(event, d) {
+             const dailyDataPoint = data.find(item => item.date.getTime() === d.originalDate.getTime());
+             if (!dailyDataPoint) return;
 
-    const line = d3.line()
-        .x(d => xScale(d.date))
-        .y(d => yScale(d.total));
-
-    svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);
-
-     svg.selectAll(".data-point")
-         .data(data)
-         .enter().append("circle")
-         .attr("class", "data-point")
-         .attr("cx", d => xScale(d.date))
-         .attr("cy", d => yScale(d.total))
-         .attr("r", 3)
-         .attr("fill", "steelblue");
-
-     svg.selectAll(".event-marker")
-         .data(monthlySpecialDates)
-         .enter().append("circle")
-         .attr("class", "event-marker")
-         .attr("cx", d => xScale(d.date)) // Usar la fecha de inicio del mes para posicionar el marcador
-         .attr("cy", d => yScale(d.total)) // Usar el total del mes para la posición Y
-         .attr("r", 6)
-         .attr("fill", "#e74c3c")
-         .attr("stroke", "#fff")
-         .attr("stroke-width", 1.5)
-         .style("cursor", "pointer")
-         .on('mouseover', function(event, d) {
-              const formattedOriginalDate = fullDateFormatter(d.originalDate); // Mostrar la fecha exacta del evento
-              let tooltipHtml = `<strong>${formattedOriginalDate}</strong><br>Total Circulaciones Mes (${monthYearFormatter(d.date)}): ${d.total}`;
-              if(d.eventInfo) { // Asegurarse de que eventInfo existe
-                 tooltipHtml += `<div class="event-info">${d.eventInfo}</div>`;
-              }
-
-
-              tooltip.html(tooltipHtml)
-                  .style('display', 'block');
-
-              // Posicionar el tooltip
-              const tooltipNode = tooltip.node();
-              const tooltipWidth = tooltipNode.offsetWidth;
-              const tooltipHeight = tooltipNode.offsetHeight;
-              // Ajustar para que el tooltip no se salga de la pantalla
-               let top = event.clientY + window.scrollY + 10;
-               let left = event.clientX + window.scrollX + 10;
-
-               if (left + tooltipWidth > window.innerWidth + window.scrollX - 10) { left = event.clientX + window.scrollX - tooltipWidth - 10; }
-               if (left < window.scrollX + 10) { left = window.scrollX + 10; }
-               if (top + tooltipHeight > window.innerHeight + window.scrollY - 10) { top = event.clientY + window.scrollY - tooltipHeight - 10; }
-                if (top < window.scrollY + 10) { top = window.scrollY + 10; }
-
-
-              tooltip
-                  .style('left', `${left}px`)
-                  .style('top', `${top}px`);
-
-         })
-         .on('mouseout', function() {
+             const tooltipHtml = `<strong>${fullDateFormatter(d.originalDate)}</strong><br>Circulaciones: ${dailyDataPoint.circulaciones}<br>Evento: ${d.eventInfo}`; // Mostrar circulaciones diarias
+             tooltip.html(tooltipHtml)
+                 .style('display', 'block')
+                 .style('left', `${event.pageX + 10}px`)
+                 .style('top', `${event.pageY - 20}px`);
+        })
+        .on("mouseout", function() {
              tooltip.style('display', 'none');
-         });
+        });
 
-
+     // Título de la gráfica
+     svg.append("text")
+         .attr("x", (width / 2))
+         .attr("y", margin.top / 2)
+         .attr("text-anchor", "middle")
+         .style("font-size", "1.2em")
+         .style("font-weight", "bold")
+         .text("Tendencia Diaria de Circulaciones"); // Título actualizado
 }
 
+
 function renderWeekdayAvgChart(container, data, margin, width, height) {
-    container.append('h3').text('Promedio de Circulaciones por Día de la Semana');
+    container.selectAll('*').remove(); // Limpiar contenedor
 
-     const adjustedHeight = height;
-      const adjustedMarginBottom = margin.bottom + 20; // Espacio extra para las etiquetas del eje X si rotan
+    if (!data || data.length === 0) {
+        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por día de la semana.</p>');
+        return;
+    }
 
+    const svg = container.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const svg = container.append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", adjustedHeight + margin.top + adjustedMarginBottom)
-      .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    const xScale = d3.scaleBand()
+    const x = d3.scaleBand()
         .domain(data.map(d => d.weekdayName))
         .range([0, width])
         .padding(0.1);
 
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.average)]).nice()
-        .range([adjustedHeight, 0]);
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.average) || 10]) // Asegurar dominio mínimo de 10
+        .nice()
+        .range([height, 0]);
 
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
-
-    svg.append("g")
-        .attr("transform", `translate(0,${adjustedHeight})`)
-        .call(xAxis);
-
-    svg.append("g")
-        .call(yAxis);
-
-      svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left + 10)
-        .attr("x", 0 - (adjustedHeight / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Promedio Diario de Circulaciones");
-
-      svg.append("text")
-         .attr("x", width / 2)
-         .attr("y", adjustedHeight + adjustedMarginBottom - 5)
-         .style("text-anchor", "middle")
-         .text("Día de la Semana");
-
-
-    svg.selectAll(".bar")
+    svg.selectAll('.bar')
         .data(data)
-        .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", d => xScale(d.weekdayName))
-        .attr("y", d => yScale(d.average))
-        .attr("width", xScale.bandwidth())
-        .attr("height", d => adjustedHeight - yScale(d.average))
-        .attr("fill", "steelblue");
+        .enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => x(d.weekdayName))
+        .attr('y', d => y(d.average))
+        .attr('width', x.bandwidth())
+        .attr('height', d => height - y(d.average))
+        .attr('fill', 'steelblue')
+         .on("mouseover", function(event, d) {
+             const tooltipHtml = `<strong>${d.weekdayName}</strong><br>Promedio: ${d.average.toFixed(2)}`;
+             tooltip.html(tooltipHtml)
+                 .style('display', 'block')
+                 .style('left', `${event.pageX + 10}px`)
+                 .style('top', `${event.pageY - 20}px`);
+         })
+         .on("mouseout", function() {
+             tooltip.style('display', 'none');
+         });
 
-     // Etiquetas sobre las barras
-     svg.selectAll(".bar-label")
-         .data(data)
-         .enter().append("text")
-         .attr("class", "bar-label")
-         .attr("x", d => xScale(d.weekdayName) + xScale.bandwidth() / 2)
-         .attr("y", d => yScale(d.average) - 5) // Ligeramente por encima de la barra
+    // Eje X
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+    // Eje Y
+    svg.append('g')
+        .call(d3.axisLeft(y));
+
+     // Título del eje Y
+     svg.append("text")
+         .attr("transform", "rotate(-90)")
+         .attr("y", 0 - margin.left)
+         .attr("x", 0 - (height / 2))
+         .attr("dy", "1em")
+         .style("text-anchor", "middle")
+         .text("Promedio Diario de Circulaciones");
+
+     // Título de la gráfica
+     svg.append("text")
+         .attr("x", (width / 2))
+         .attr("y", 0 - (margin.top / 2))
          .attr("text-anchor", "middle")
-         .style("font-size", "0.8em")
-         .style("fill", "#555") // Color oscuro para contraste
-         .text(d => Math.round(d.average)); // Redondear el promedio
+         .style("font-size", "1.2em")
+         .style("font-weight", "bold")
+         .text("Promedio de Circulaciones por Día de la Semana");
 }
 
 function renderMonthAvgChart(container, data, margin, width, height) {
-    container.append('h3').text('Promedio de Circulaciones por Mes del Año');
+    container.selectAll('*').remove(); // Limpiar contenedor
 
-     const adjustedHeight = height;
-      const adjustedMarginBottom = margin.bottom + 20; // Espacio extra para las etiquetas del eje X
+    if (!data || data.length === 0) {
+        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por mes del año.</p>');
+        return;
+    }
 
+    const svg = container.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const svg = container.append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", adjustedHeight + margin.top + adjustedMarginBottom)
-      .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    const xScale = d3.scaleBand()
+    const x = d3.scaleBand()
         .domain(data.map(d => d.monthName))
         .range([0, width])
         .padding(0.1);
 
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.average)]).nice()
-        .range([adjustedHeight, 0]);
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.average) || 10]) // Asegurar dominio mínimo de 10
+        .nice()
+        .range([height, 0]);
 
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
-
-    svg.append("g")
-        .attr("transform", `translate(0,${adjustedHeight})`)
-        .call(xAxis)
-        .selectAll("text")
-            .attr("transform", "rotate(-45)") // Rotar etiquetas para que no se superpongan
-            .style("text-anchor", "end");
-
-
-    svg.append("g")
-        .call(yAxis);
-
-      svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left + 10)
-        .attr("x", 0 - (adjustedHeight / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Promedio Diario de Circulaciones");
-
-      svg.append("text")
-         .attr("x", width / 2)
-         .attr("y", adjustedHeight + adjustedMarginBottom - 5)
-         .style("text-anchor", "middle")
-         .text("Mes del Año");
-
-
-    svg.selectAll(".bar")
+    svg.selectAll('.bar')
         .data(data)
-        .enter().append("rect")
-        .attr("class", "bar")
-        .attr("x", d => xScale(d.monthName))
-        .attr("y", d => yScale(d.average))
-        .attr("width", xScale.bandwidth())
-        .attr("height", d => adjustedHeight - yScale(d.average))
-        .attr("fill", "steelblue");
+        .enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => x(d.monthName))
+        .attr('y', d => y(d.average))
+        .attr('width', x.bandwidth())
+        .attr('height', d => height - y(d.average))
+        .attr('fill', 'steelblue')
+         .on("mouseover", function(event, d) {
+             const tooltipHtml = `<strong>${d.monthName}</strong><br>Promedio: ${d.average.toFixed(2)}`;
+             tooltip.html(tooltipHtml)
+                 .style('display', 'block')
+                 .style('left', `${event.pageX + 10}px`)
+                 .style('top', `${event.pageY - 20}px`);
+         })
+         .on("mouseout", function() {
+             tooltip.style('display', 'none');
+         });
 
-     // Etiquetas sobre las barras
-     svg.selectAll(".bar-label")
-         .data(data)
-         .enter().append("text")
-         .attr("class", "bar-label")
-         .attr("x", d => xScale(d.monthName) + xScale.bandwidth() / 2)
-         .attr("y", d => yScale(d.average) - 5) // Ligeramente por encima de la barra
+    // Eje X
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '.15em')
+        .attr('transform', 'rotate(-45)');
+
+    // Eje Y
+    svg.append('g')
+        .call(d3.axisLeft(y));
+
+     // Título del eje Y
+     svg.append("text")
+         .attr("transform", "rotate(-90)")
+         .attr("y", 0 - margin.left)
+         .attr("x", 0 - (height / 2))
+         .attr("dy", "1em")
+         .style("text-anchor", "middle")
+         .text("Promedio Diario de Circulaciones");
+
+     // Título de la gráfica
+     svg.append("text")
+         .attr("x", (width / 2))
+         .attr("y", 0 - (margin.top / 2))
          .attr("text-anchor", "middle")
-         .style("font-size", "0.8em")
-         .style("fill", "#555") // Color oscuro para contraste
-         .text(d => Math.round(d.average)); // Redondear el promedio
+         .style("font-size", "1.2em")
+         .style("font-weight", "bold")
+         .text("Promedio de Circulaciones por Mes del Año");
 }
 
 
 function renderLegend(container, colorScale, minCirc, maxCirc) {
-     container.selectAll('*').remove(); // Limpiar contenedor antes de renderizar
+    container.selectAll('*').remove(); // Limpiar contenedor
+
+    container.append('h3').text('Circulaciones Diarias');
 
     const legendWidth = LEGEND_SCALE_WIDTH;
-    const legendHeight = 25;
-    const numTicks = 5; // Número sugerido de ticks
+    const legendHeight = 60; // Aumentar la altura para asegurar que las etiquetas del eje sean visibles
 
-    const scaleContainer = container.append('div')
-        .attr('class', 'legend-scale-container');
+    const legendSvg = container.append('svg')
+        .attr('width', legendWidth)
+        .attr('height', legendHeight);
 
-    scaleContainer.append('span').text(minCirc > 0 ? minCirc : 1); // Mostrar el mínimo real o 1
+    const legendScale = d3.scaleLinear()
+        .domain([minCirc, maxCirc])
+        .range([0, legendWidth]);
 
-    const svg = scaleContainer.append('svg')
-        .attr("width", legendWidth)
-        .attr("height", legendHeight);
+    const legendAxis = d3.axisBottom(legendScale)
+        .ticks(7) // Aumentar el número de ticks para mostrar más números
+        .tickFormat(d3.format('d'));
 
-    const linearGradient = svg.append("defs")
+    legendSvg.append('g')
+        .attr('transform', `translate(0, 0)`)
+        .call(legendAxis);
+
+    // Crear un gradiente para la escala de color
+    const linearGradient = legendSvg.append("defs")
         .append("linearGradient")
-        .attr("id", "gradient-scale")
-        .attr("x1", "0%").attr("y1", "0%")
-        .attr("x2", "100%").attr("y2", "0%");
+        .attr("id", "linear-gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
 
-     // Asegurarse de que el dominio y el rango tienen el mismo número de puntos o colores
-     const domainValues = colorScale.domain();
-     const rangeColors = colorScale.range();
+    linearGradient.selectAll("stop")
+        .data(colorScale.range())
+        .enter().append("stop")
+        .attr("offset", (d, i) => i / (colorScale.range().length - 1))
+        .attr("stop-color", d => d);
 
-     domainValues.forEach((value, i) => {
-         // Calcular el offset proporcionalmente dentro del dominio
-         const offset = (value - domainValues[0]) / (domainValues[domainValues.length - 1] - domainValues[0]);
-         linearGradient.append("stop")
-             .attr("offset", `${offset * 100}%`)
-             .attr("stop-color", rangeColors[i]);
-     });
-
-
-    svg.append("rect")
+    // Añadir un rectángulo para mostrar el gradiente
+    legendSvg.append("rect")
+        .attr("x", 0)
+        .attr("y", 0) // Ajustar posición Y para que no se solape con el eje
         .attr("width", legendWidth)
-        .attr("height", legendHeight)
-        .style("fill", "url(#gradient-scale)");
+        .attr("height", legendHeight / 2) // Reducir altura para dejar espacio al eje
+        .style("fill", "url(#linear-gradient)");
+
+     // Ajustar la posición del eje para que esté debajo del gradiente
+     legendSvg.select('g')
+         .attr('transform', `translate(0, ${legendHeight - 30})`); // Ajustar Y para dejar más espacio para las etiquetas
+         // .style('border', '1px solid black'); // Borde temporal para depuración
+
+     // Añadir etiqueta para 0 circulaciones
+     container.append('div')
+         .style('display', 'flex')
+         .style('align-items', 'center')
+         .style('margin-top', '10px')
+         .html(`
+             <span style="display: inline-block; width: 15px; height: 15px; background-color: ${EMPTY_COLOR}; margin-right: 5px; border-radius: 3px;"></span>
+             <span>0 circulaciones</span>
+         `);
+}
+
+// --- Función de Renderizado (Gráfica de Caja y Bigotes por Mes) ---
 
 
-    scaleContainer.append('span').text(maxCirc);
 
-     const labelContainer = container.append('div')
-         .attr('class', 'legend-labels');
+// --- Función de Renderizado (Gráfica de Caja y Bigotes por Mes) ---
 
-    // Generar ticks para la escala lineal
-    const legendTicks = colorScale.ticks(numTicks);
+function renderBoxPlotMonthChart(container, dailyData, margin, width, height) {
+    container.selectAll('*').remove(); // Limpiar contenedor
 
-     // Asegurar que min y max están incluidos si no lo están ya
-     if (legendTicks.length === 0 || legendTicks[0] > minCirc) {
-         legendTicks.unshift(minCirc);
-     }
-     if (legendTicks.length === 0 || legendTicks[legendTicks.length - 1] < maxCirc) {
-         legendTicks.push(maxCirc);
-     }
-     // Eliminar duplicados y ordenar
-     const uniqueTicks = Array.from(new Set(legendTicks)).sort((a, b) => a - b);
+    if (!dailyData || dailyData.length === 0) {
+        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de caja y bigotes por mes.</p>');
+        return;
+    }
+
+    const svg = container.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Agrupar datos por mes para el box plot
+    const dataByMonth = Array.from(d3.group(dailyData, d => d.date.getMonth()), ([key, values]) => ({
+        monthIndex: key,
+        monthName: esLocale.format('%B')(new Date(2000, key, 1)), // Usar el nombre del mes
+        circulaciones: values.map(v => v.circulaciones).sort(d3.ascending) // Obtener y ordenar circulaciones
+    })).sort((a, b) => a.monthIndex - b.monthIndex); // Ordenar por índice de mes
+
+    // Calcular estadísticas para el box plot (cuartiles, mediana, bigotes)
+    const boxPlotData = dataByMonth.map(d => {
+        const q1 = d3.quantile(d.circulaciones, 0.25);
+        const median = d3.quantile(d.circulaciones, 0.5);
+        const q3 = d3.quantile(d.circulaciones, 0.75);
+        const interQuartileRange = q3 - q1;
+        const lowerWhisker = d3.max([d3.min(d.circulaciones), q1 - 1.5 * interQuartileRange]);
+        const upperWhisker = d3.min([d3.max(d.circulaciones), q3 + 1.5 * interQuartileRange]);
+
+        return {
+            monthName: d.monthName,
+            q1: q1,
+            median: median,
+            q3: q3,
+            interQuartileRange: interQuartileRange,
+            lowerWhisker: lowerWhisker,
+            upperWhisker: upperWhisker,
+            outliers: d.circulaciones.filter(v => v < lowerWhisker || v > upperWhisker) // Identificar outliers
+        };
+    });
+
+    // Escalas
+    const x = d3.scaleBand()
+        .domain(boxPlotData.map(d => d.monthName))
+        .range([0, width])
+        .padding(0.3); // Ajustar padding para las cajas
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(boxPlotData, d => d.upperWhisker) * 1.1 || 10]) // Dominio basado en el bigote superior
+        .nice()
+        .range([height, 0]);
+
+    // Eje X
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '.15em')
+        .attr('transform', 'rotate(-45)');
+
+    // Eje Y
+    svg.append('g')
+        .call(d3.axisLeft(y));
+
+    // Título del eje Y
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Circulaciones Diarias");
+
+    // Dibujar las cajas
+    const boxWidth = x.bandwidth();
+    svg.selectAll(".box")
+        .data(boxPlotData)
+        .enter().append("rect")
+        .attr("class", "box")
+        .attr("x", d => x(d.monthName) + boxWidth / 4) // Centrar la caja
+        .attr("y", d => y(d.q3))
+        .attr("height", d => y(d.q1) - y(d.q3))
+        .attr("width", boxWidth / 2) // Ancho de la caja
+        .attr("stroke", "black")
+        .attr("fill", "#69b3a2"); // Color de la caja
+
+    // Dibujar la línea de la mediana
+    svg.selectAll(".median-line")
+        .data(boxPlotData)
+        .enter().append("line")
+        .attr("class", "median-line")
+        .attr("x1", d => x(d.monthName) + boxWidth / 4)
+        .attr("x2", d => x(d.monthName) + boxWidth * 3 / 4)
+        .attr("y1", d => y(d.median))
+        .attr("y2", d => y(d.median))
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
+
+    // Dibujar los bigotes
+    svg.selectAll(".whisker-line")
+        .data(boxPlotData)
+        .enter().append("line")
+        .attr("class", "whisker-line")
+        .attr("x1", d => x(d.monthName) + boxWidth / 2) // Centrar la línea del bigote
+        .attr("x2", d => x(d.monthName) + boxWidth / 2)
+        .attr("y1", d => y(d.upperWhisker))
+        .attr("y2", d => y(d.lowerWhisker))
+        .attr("stroke", "black")
+        .attr("stroke-dasharray", "2,2"); // Línea discontinua
+
+    // Dibujar los extremos de los bigotes
+     svg.selectAll(".whisker-cap-top")
+         .data(boxPlotData)
+         .enter().append("line")
+         .attr("class", "whisker-cap")
+         .attr("x1", d => x(d.monthName) + boxWidth / 4)
+         .attr("x2", d => x(d.monthName) + boxWidth * 3 / 4)
+         .attr("y1", d => y(d.upperWhisker))
+         .attr("y2", d => y(d.upperWhisker))
+         .attr("stroke", "black");
+
+     svg.selectAll(".whisker-cap-bottom")
+         .data(boxPlotData)
+         .enter().append("line")
+         .attr("class", "whisker-cap")
+         .attr("x1", d => x(d.monthName) + boxWidth / 4)
+         .attr("x2", d => x(d.monthName) + boxWidth * 3 / 4)
+         .attr("y1", d => y(d.lowerWhisker))
+         .attr("y2", d => y(d.lowerWhisker))
+         .attr("stroke", "black");
 
 
-    labelContainer.selectAll('span')
-        .data(uniqueTicks)
-        .enter()
-        .append('span')
-        .style('font-size', '0.8em');
+    // Dibujar los outliers
+    svg.selectAll(".outlier-dot")
+        .data(boxPlotData.flatMap(d => d.outliers.map(o => ({ monthName: d.monthName, value: o })))) // Aplanar outliers
+        .enter().append("circle")
+        .attr("class", "outlier-dot")
+        .attr("cx", d => x(d.monthName) + boxWidth / 2) // Centrar el punto
+        .attr("cy", d => y(d.value))
+        .attr("r", 3) // Radio del punto
+        .attr("fill", "red") // Color rojo para outliers
+        .attr("stroke", "white");
 
-
-     // Usar Flexbox o Grid para distribuir las etiquetas
-      labelContainer.style('display', 'flex')
-                    .style('justify-content', 'space-between') // Distribuir espacio
-                    .style('width', `${legendWidth}px`); // Asegurar que ocupa el mismo ancho que la escala
-
-
-    container.append('div')
-        .attr('class', 'legend-zero-info')
-        .html(`<span style="background-color:${EMPTY_COLOR}; border-color: #ccc;"></span> 0 circulaciones (o sin datos)`);
-
+    // Título de la gráfica
+    svg.append("text")
+        .attr("x", (width / 2))
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")
+        .style("font-size", "1.2em")
+        .style("font-weight", "bold")
+        .text("Distribución de Circulaciones Diarias por Mes");
 }
 
 
-// *** MODIFICACIÓN: setupYearSelector para cambiar de vista si es necesario antes del scroll ***
-function setupYearSelector(selector, dataByContractualYear, toggleButton, calendarContainer, chartsContainer) {
+function setupYearSelector(selector, dataByContractualYear, toggleChartsButton, calendarContainer, chartsContainer, dailyData, monthlySpecialDates) { // Añadir dailyData y monthlySpecialDates
     selector.selectAll('option:not(:first-child)').remove(); // Limpiar opciones existentes
 
     selector.selectAll('option.year-option')
@@ -932,31 +1100,38 @@ function setupYearSelector(selector, dataByContractualYear, toggleButton, calend
                   } else {
                       console.warn(`Elemento con ID year-${selectedYearId} no encontrado para hacer scroll.`);
                   }
-             } else { // Si NO es vista de calendario (es vista de gráficas)
-                 // Cambiar a la vista de calendario programáticamente
-                  // console.log("Cambiando a vista de calendario y haciendo scroll...");
-                  // Disparar un clic en el botón de toggle para cambiar la vista
-                  // Clonar el evento para asegurar compatibilidad
-                  const clickEvent = new MouseEvent('click', {
-                      view: window,
-                      bubbles: true,
-                      cancelable: true
-                  });
-                  toggleButton.node().dispatchEvent(clickEvent);
+             } else { // Si NO es vista de calendario (es vista de gráficas o vista única)
+                 // Encontrar los datos del año seleccionado
+                 const selectedYearKey = selectedYearId.replace('_', '-');
+                 const yearData = dataByContractualYear.find(d => d.key === selectedYearKey);
 
-                  // Esperar un poco para que la transición de ocultar/mostrar termine y el DOM se actualice
-                  setTimeout(() => {
-                       const targetElement = document.getElementById(`year-${selectedYearId}`);
-                       if (targetElement) {
-                           targetElement.scrollIntoView({
-                               behavior: 'smooth',
-                               block: 'start'
-                           });
-                       } else {
-                           console.warn(`Elemento con ID year-${selectedYearId} no encontrado para hacer scroll después de cambiar vista.`);
-                       }
-                  }, 350); // 350ms es un tiempo estimado, puede variar
+                 // Comprobar si la vista de gráficas está visible
+                 const isChartsViewVisible = !chartsContainer.classed('hidden');
 
+                 if (isChartsViewVisible) {
+                     if (yearData && yearData.values.length > 0) {
+                         // Filtrar dailyData por el año contractual seleccionado
+                         const filteredDailyData = yearData.values;
+
+                         // Recalcular agregaciones para las gráficas con los datos filtrados
+                         const filteredMonthlyTotals = aggregateMonthlyTotals(filteredDailyData);
+                         const filteredDailyAvgByWeekday = aggregateDailyAvgByWeekday(filteredDailyData);
+                         const filteredMonthlyAvgByMonth = aggregateMonthlyAvgByMonth(filteredDailyData);
+
+                         // Filtrar fechas destacadas para el rango de fechas del año contractual
+                         const startOfYear = d3.min(filteredDailyData, d => d.date);
+                         const endOfYear = d3.max(filteredDailyData, d => d.date);
+                         const filteredSpecialDates = monthlySpecialDates.filter(d => d.originalDate >= startOfYear && d.originalDate <= endOfYear);
+
+                         // Renderizar gráficas con los datos filtrados
+                         renderCharts(chartsContainer, filteredDailyData, filteredMonthlyTotals, filteredDailyAvgByWeekday, filteredMonthlyAvgByMonth, filteredSpecialDates); // Pasar filteredDailyData y filteredSpecialDates
+
+                     } else {
+                         // Mostrar mensaje de no hay datos para este año en las gráficas
+                         chartsContainer.html('<p class="no-data">No hay datos disponibles para este año contractual en las gráficas.</p>');
+                     }
+                 }
+                 // Si la vista única está activa, no hacer nada con el selector de año por ahora.
              }
         }
     });
@@ -983,77 +1158,655 @@ function renderSpecialDatesSection(container, specialDatesByContractualYear, dat
                  .attr('class', 'special-dates-year');
 
              const contractualYearNumber = yearKeyToNumber.get(yearKey) || 'N/A';
-             yearDiv.append('h3').text(`Año Contrato (${contractualYearNumber}) ${yearKey}`);
+             yearDiv.append('h3').text(`Año Contrato ${contractualYearNumber} (${yearKey})`);
 
              const list = yearDiv.append('ul').attr('class', 'special-dates-list');
 
-             list.selectAll('.special-date-item')
-                 .data(datesInYear)
-                 .enter()
-                 .append('li')
-                 .attr('class', 'special-date-item')
-                 .html(d => {
-                      const date = dateOnlyParser(d.fecha);
-                       // Verificar si la fecha es válida antes de formatear
-                      const formattedDate = date ? summaryDateFormatter(date) : d.fecha;
-
-                      return `<strong>${formattedDate}:</strong> <span>${d.evento}</span>`;
-                 });
+             datesInYear.forEach(dateInfo => {
+                 list.append('li')
+                     .html(`📅 <strong>${summaryDateFormatter(dateOnlyParser(dateInfo.fecha))}</strong>: ${dateInfo.evento}`); // Añadir icono de calendario
+             });
          }
      });
+}
 
-     // Mostrar u ocultar el título principal de la sección si no hay eventos
-     if (yearKeys.length === 0 || yearKeys.every(key => specialDatesByContractualYear[key].length === 0)) {
-          container.append('p').text('No hay fechas destacadas definidas en este momento.');
-          container.select('h2').style('display', 'none');
-     } else {
-          container.select('h2').style('display', 'block'); // Asegurarse de que está visible si hay eventos
-     }
+function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, calendarContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, renderFunctions) {
+    let currentView = 'calendar';
+
+    const updateViewVisibility = () => {
+        // Ocultar todos los contenedores de vista
+        calendarContainer.classed('hidden', true);
+        chartsContainer.classed('hidden', true);
+        singleViewContainer.classed('hidden', true);
+        timeAxisContainer.classed('hidden', true);
+        counterContainer.classed('hidden', true);
+
+        // Ocultar todos los botones de vista inicialmente
+        toggleChartsButton.style('display', 'none');
+        toggleSingleViewButton.style('display', 'none');
+        toggleTimeAxisButton.style('display', 'none');
+        toggleCounterButton.style('display', 'none');
+
+        // Ocultar el filtro de fecha, el selector de año y la leyenda por defecto
+        dateFilterContainer.style('display', 'none');
+        yearSelectorContainer.style('display', 'none');
+        d3.select('#legend').style('display', 'none'); // Ocultar la leyenda por defecto
+
+        switch (currentView) {
+            case 'calendar':
+                calendarContainer.classed('hidden', false);
+                toggleChartsButton.style('display', 'inline-block').text('GRAFICOS');
+                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
+                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
+                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                
+                // Mostrar el selector de año solo en la vista de calendario
+                yearSelectorContainer.style('display', 'block');
+                
+                // Mostrar la leyenda en la vista de calendario
+                d3.select('#legend').style('display', 'block');
+                
+                // Renderizar el calendario
+                renderFunctions.calendar();
+                break;
+            case 'charts':
+                chartsContainer.classed('hidden', false);
+                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
+                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
+                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
+                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                
+                // Mostrar el filtro de fecha solo en la vista de gráficas
+                dateFilterContainer.style('display', 'flex');
+                
+                // Asegurarse de que el filtro de fecha muestra el rango completo al entrar a gráficas
+                const minDate = d3.min(dailyData, d => d.date);
+                const maxDate = d3.max(dailyData, d => d.date);
+                startDateInput.property('value', minDate ? esLocale.format('%Y-%m-%d')(minDate) : '');
+                endDateInput.property('value', maxDate ? esLocale.format('%Y-%m-%d')(maxDate) : '');
+                
+                // Aplicar el filtro de fecha actual
+                applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDateInput.property('value'), endDateInput.property('value'));
+                break;
+            case 'single':
+                singleViewContainer.classed('hidden', false);
+                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
+                toggleSingleViewButton.style('display', 'inline-block').text('GRAFICOS');
+                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
+                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                
+                // Mostrar la leyenda en la vista única
+                d3.select('#legend').style('display', 'block');
+                
+                // Renderizar la vista única
+                renderFunctions.single();
+                break;
+            case 'time':
+                timeAxisContainer.classed('hidden', false);
+                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
+                toggleSingleViewButton.style('display', 'inline-block').text('GRAFICOS');
+                toggleTimeAxisButton.style('display', 'inline-block').text('VISTA UNICA');
+                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                
+                // No mostrar la leyenda en la vista de eje tiempo
+                d3.select('#legend').style('display', 'none');
+                break;
+            case 'counter':
+                counterContainer.classed('hidden', false);
+                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
+                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
+                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
+                toggleCounterButton.style('display', 'inline-block').text('GRAFICOS');
+                
+                // No mostrar la leyenda en la vista de contador
+                d3.select('#legend').style('display', 'none');
+                break;
+        }
+    };
+
+    const handleViewButtonClick = function() {
+        const buttonText = d3.select(this).text();
+        let targetView;
+
+        switch (buttonText) {
+            case 'CALENDARIO':
+                targetView = 'calendar';
+                break;
+            case 'GRAFICOS':
+                targetView = 'charts';
+                break;
+            case 'VISTA UNICA':
+                targetView = 'single';
+                break;
+            case 'EJE TIEMPO':
+                targetView = 'time';
+                break;
+            case 'CONTADOR':
+                targetView = 'counter';
+                break;
+        }
+
+        if (targetView !== currentView) {
+            currentView = targetView;
+            updateViewVisibility();
+            renderFunctions[targetView]();
+        }
+    };
+
+    toggleChartsButton.on('click', handleViewButtonClick);
+    toggleSingleViewButton.on('click', handleViewButtonClick);
+    toggleTimeAxisButton.on('click', handleViewButtonClick);
+    toggleCounterButton.on('click', handleViewButtonClick);
+
+    // Inicializar la vista
+    updateViewVisibility();
+}
+
+function renderSingleViewTable(container, dailyData, dataByContractualYear, colorScale, specialDatesMap) { // Añadir colorScale y specialDatesMap como argumentos
+    container.selectAll('*').remove(); // Limpiar contenedor
+
+    if (!dailyData || dailyData.length === 0) {
+        container.html('<p class="no-data">No hay datos disponibles para la vista única.</p>');
+        return;
+    }
+    
+    // Función para posicionar el marcador de la fecha actual en el eje de tiempo
+
+    const table = container.append('table').attr('class', 'single-view-table');
+    const thead = table.append('thead');
+    const tbody = table.append('tbody');
+
+    // Crear cabecera de la tabla
+    const headerRow = thead.append('tr');
+    headerRow.append('th').html('AÑO').attr('rowspan', 2);
+    headerRow.append('th').text('MES').attr('rowspan', 2);
+    headerRow.append('th').text('Nº TRENES / DIA').attr('colspan', 31);
+    headerRow.append('th').html('TOTAL<br>MES').attr('rowspan', 2).attr('class', 'total-mes-header');
+    headerRow.append('th').html('TOTAL<br>AÑO').attr('rowspan', 2).attr('class', 'total-anyo-header');
+
+    const daysRow = thead.append('tr');
+    for (let i = 1; i <= 31; i++) {
+        daysRow.append('th').text(i);
+    }
+
+    // Llenar cuerpo de la tabla
+    dataByContractualYear.forEach((yearData, i) => {
+        const yearKey = yearData.key;
+        const yearValues = yearData.values;
+        const contractualYearNumber = i + 1;
+        const yearTotal = d3.sum(yearValues, d => d.circulaciones);
+
+        const dataByMonth = d3.group(yearValues, d => d.date.getMonth());
+        // Meses en orden contractual (Junio a Mayo)
+        const monthOrder = [5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4];
+
+        monthOrder.forEach(monthIndex => {
+            const monthValues = dataByMonth.has(monthIndex) ? dataByMonth.get(monthIndex) : [];
+            const monthTotal = d3.sum(monthValues, d => d.circulaciones);
+
+            let yearOfThisMonth;
+            const [startYearContractual, endYearContractual] = yearKey.split('-').map(Number);
+
+              // Determinar el año correcto para crear el objeto Date del primer día del mes
+              if (monthIndex >= 5) { yearOfThisMonth = startYearContractual; } // Meses de Junio a Diciembre usan el año de inicio del contrato
+             else { yearOfThisMonth = endYearContractual; } // Meses de Enero a Mayo usan el año de fin del contrato
+
+
+             const firstDayOfMonth = new Date(yearOfThisMonth, monthIndex, 1);
+             // Asegurarse de que la fecha es válida antes de usarla
+             if (isNaN(firstDayOfMonth.getTime())) {
+                 console.error("Fecha no válida generada para el mes:", monthIndex, "Año:", yearOfThisMonth);
+                 return; // Saltar este mes si la fecha no es válida
+             }
+
+             const monthName = esLocale.format('%b-%y')(firstDayOfMonth); // Formato corto ej: jun-13
+
+             const row = tbody.append('tr')
+                 .classed('last-month-row', monthIndex === 4); // Añadir clase si es el último mes del año contractual (Mayo)
+
+             // Celda de Año Contrato (solo en la primera fila de cada año)
+             if (monthIndex === monthOrder[0]) { // Si es el primer mes del año contractual
+                 row.append('td')
+                     .text(contractualYearNumber)
+                     .attr('rowspan', monthOrder.length) // Ocupa todas las filas del año
+                     .attr('class', 'year-contract-cell')
+                     .style('border-right', '2px solid #a0a0a0'); /* Añadir borde derecho */
+            }
+
+            row.append('td').text(monthName);
+
+            const monthDataLookup = new Map(monthValues.map(d => [d.date.getDate(), d.circulaciones]));
+
+            for (let day = 1; day <= 31; day++) {
+                const circulaciones = monthDataLookup.get(day);
+                const cell = row.append('td');
+
+                // Comprobar si el día existe en este mes
+                const date = new Date(yearOfThisMonth, monthIndex, day);
+                if (date.getMonth() === monthIndex && date.getDate() === day) {
+                    const dateStr = dateFormatter(date); // Formatear la fecha para buscar en specialDatesMap
+                    const eventInfo = specialDatesMap.get(dateStr);
+                    const isHighlighted = specialDatesMap.has(dateStr);
+
+                    cell.text(circulaciones !== undefined ? circulaciones : ''); // Mostrar vacío si no hay datos para ese día
+                    if (day === 1) { // Add this condition
+                        cell.classed('day-1-cell', true); // Add a class for day 1
+                    }
+                    cell.style('background-color', () => {
+                        if (circulaciones === undefined || circulaciones === 0) {
+                            return '#ffffff'; // Blanco para 0 circulaciones o sin datos
+                        }
+                        return colorScale(circulaciones); // Usar la escala de color para > 0 circulaciones
+                    });
+
+                    if (isHighlighted) {
+                        cell.classed('highlighted-single-view', true); // Añadir clase para destacar
+                    }
+
+                    // Añadir event listeners para el tooltip
+                    cell.on('mouseover', function(event) {
+                        let tooltipHtml = `<strong>${esLocale.format('%A, %d de %B de %Y')(date)}</strong><br>Circulaciones: ${circulaciones !== undefined ? circulaciones : 'N/D'}`;
+                        if (eventInfo) {
+                            tooltipHtml = `⚠️ ${tooltipHtml}<div class="event-info">${eventInfo}</div>`;
+                        }
+
+                        tooltip.html(tooltipHtml)
+                            .style('display', 'block')
+                            .style('left', (event.pageX + 10) + 'px') // Posicionar a la derecha del cursor
+                            .style('top', (event.pageY - 20) + 'px'); // Posicionar ligeramente encima del cursor
+                    })
+                    .on('mouseout', function() {
+                        tooltip.style('display', 'none');
+                    });
+
+                } else {
+                    cell.text('').attr('class', 'empty-day'); // Celda vacía para días que no existen
+                }
+            }
+
+            row.append('td').text(monthTotal).attr('class', 'total-mes-cell');
+
+            // Celda de Total Año (solo en la primera fila de cada año)
+            if (monthIndex === monthOrder[0]) { // Si es el primer mes del año contractual
+                 row.append('td')
+                     .text(yearTotal)
+                     .attr('rowspan', monthOrder.length) // Ocupa todas las filas del año
+                     .attr('class', 'year-total-cell total-anyo-cell')
+                     .style('border-left', '2px solid #a0a0a0'); /* Añadir borde izquierdo */
+            }
+        });
+    });
+}
+
+function renderCounterView(container) {
+    container.selectAll('*').remove(); // Limpiar contenedor
+
+    // Fecha de inauguración
+    const inaugurationDate = new Date(2013, 5, 17); // 17 de junio de 2013 (mes 5 porque en JavaScript los meses empiezan en 0)
+    const currentDate = new Date();
+    
+    // Calcular días de servicio
+    const daysInService = Math.floor((currentDate - inaugurationDate) / (1000 * 60 * 60 * 24));
+
+    // Crear el SVG para el contador
+    const svg = container.append('svg')
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('viewBox', '0 0 800 500'); // Aumentar altura para la tarjeta adicional
+
+    // Título
+    svg.append('text')
+        .attr('x', 400)
+        .attr('y', 50)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '24px')
+        .attr('font-weight', 'bold')
+        .text('Días de Servicio Ininterrumpido');
+
+    // Número grande (con animación)
+    const counterText = svg.append('text')
+        .attr('x', 400)
+        .attr('y', 150)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '120px')
+        .attr('font-weight', 'bold')
+        .style('fill', '#357ABD')
+        .text('0'); // Empezar desde 0
+
+    // Subtítulo
+    svg.append('text')
+        .attr('x', 400)
+        .attr('y', 200) // Cambiado de 250 a 200 para acercarlo al número
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '24px')
+        .style('fill', '#666')
+        .text('desde la inauguración el 17 de junio de 2013');
+
+    // Animación del contador
+    const duration = 2000; // Duración de la animación en milisegundos
+    
+    // Definir un formateador personalizado con punto como separador de miles
+    const formatNumber = (value) => {
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    };
+    
+    // Crear la animación usando d3.transition
+    counterText.transition()
+        .duration(duration)
+        .tween("text", function() {
+            const i = d3.interpolateNumber(0, daysInService);
+            return function(t) {
+                // Usar Math.round para evitar decimales durante la animación
+                const currentValue = Math.round(i(t));
+                // Formatear con puntos como separadores de miles
+                this.textContent = formatNumber(currentValue);
+            };
+        })
+        .ease(d3.easeCubicOut); // Tipo de aceleración (más lento al final)
+        
+    // Calcular el total real de circulaciones sumando todos los datos
+    // Primero, cargar los datos si aún no están disponibles
+    d3.json('datos.json').then(rawData => {
+        // Procesar los datos
+        const dailyData = processRawData(rawData);
+        // Sumar todas las circulaciones
+        const totalCirculations = d3.sum(dailyData, d => d.circulaciones);
+        
+        // Encontrar el día con mayor número de circulaciones
+        const maxDay = dailyData.reduce((max, current) => {
+            return (current.circulaciones > max.circulaciones) ? current : max;
+        }, { circulaciones: 0 });
+        
+        // Formato de fecha para el día con máxima circulación
+        const maxDayFormatted = esLocale.format('%d de %B de %Y')(maxDay.date);
+        
+        // Crear un rectángulo para la tarjeta del total de circulaciones
+        svg.append('rect')
+            .attr('x', 100)  // Posición más a la izquierda para dar más espacio
+            .attr('y', 270)
+            .attr('width', 280) // Tarjeta más ancha
+            .attr('height', 120)
+            .attr('rx', 15)
+            .attr('ry', 15)
+            .attr('fill', '#f8f9fa')
+            .attr('stroke', '#dee2e6')
+            .attr('stroke-width', 2);
+            
+        // Título de la tarjeta del total
+        svg.append('text')
+            .attr('x', 240)  // Ajustado al centro de la primera tarjeta
+            .attr('y', 300)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '18px')
+            .attr('font-weight', 'bold')
+            .style('fill', '#495057')
+            .text('Total de Trenes Circulados');
+            
+        // Número de trenes (con animación)
+        const trainCounterText = svg.append('text')
+            .attr('x', 240)  // Ajustado al centro de la primera tarjeta
+            .attr('y', 350)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '36px')
+            .attr('font-weight', 'bold')
+            .style('fill', '#dc3545')
+            .text('0');
+            
+        // Animación del contador de trenes
+        trainCounterText.transition()
+            .duration(duration)
+            .tween("text", function() {
+                const i = d3.interpolateNumber(0, totalCirculations);
+                return function(t) {
+                    const currentValue = Math.round(i(t));
+                    this.textContent = formatNumber(currentValue);
+                };
+            })
+            .ease(d3.easeCubicOut);
+            
+        // Crear un rectángulo para la tarjeta del día máximo
+        svg.append('rect')
+            .attr('x', 420)  // Posicionado a la derecha con espacio simétrico entre tarjetas
+            .attr('y', 270)
+            .attr('width', 280)  // Tarjeta más ancha
+            .attr('height', 120)
+            .attr('rx', 15)
+            .attr('ry', 15)
+            .attr('fill', '#f8f9fa')
+            .attr('stroke', '#dee2e6')
+            .attr('stroke-width', 2);
+            
+        // Título de la tarjeta del día máximo
+        svg.append('text')
+            .attr('x', 560)  // Ajustado al centro de la segunda tarjeta
+            .attr('y', 300)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '18px')
+            .attr('font-weight', 'bold')
+            .style('fill', '#495057')
+            .text('Día con Máxima Circulación');
+            
+        // Mostrar el número máximo de trenes
+        svg.append('text')
+            .attr('x', 560)  // Ajustado al centro de la segunda tarjeta
+            .attr('y', 340)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '36px')
+            .attr('font-weight', 'bold')
+            .style('fill', '#28a745')  // Color verde para diferenciarlo
+            .text(formatNumber(maxDay.circulaciones));
+            
+        // Mostrar la fecha del día máximo
+        svg.append('text')
+            .attr('x', 560)  // Ajustado al centro de la segunda tarjeta
+            .attr('y', 370)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '14px')
+            .style('fill', '#6c757d')
+            .text(maxDayFormatted);
+    }).catch(error => {
+        console.error("Error al cargar los datos para el contador de circulaciones:", error);
+        // En caso de error, mostrar un mensaje en la tarjeta
+        svg.append('rect')
+            .attr('x', 150)
+            .attr('y', 270)
+            .attr('width', 240)
+            .attr('height', 120)
+            .attr('rx', 15)
+            .attr('ry', 15)
+            .attr('fill', '#f8f9fa')
+            .attr('stroke', '#dee2e6')
+            .attr('stroke-width', 2);
+            
+        svg.append('text')
+            .attr('x', 270)
+            .attr('y', 330)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '16px')
+            .style('fill', '#dc3545')
+            .text('Error al cargar datos de circulaciones');
+    });
+}
+
+// En la función setupViewToggle, modificar la vista counter
+const handleViewButtonClick = function() {
+    const buttonText = d3.select(this).text();
+    let targetView;
+
+    switch (buttonText) {
+        case 'CALENDARIO':
+            targetView = 'calendar';
+            break;
+        case 'GRAFICOS':
+            targetView = 'charts';
+            break;
+        case 'VISTA UNICA':
+            targetView = 'single';
+            break;
+        case 'EJE TIEMPO':
+            targetView = 'time';
+            break;
+        case 'CONTADOR':
+            targetView = 'counter';
+            break;
+    }
+
+    if (targetView !== currentView) {
+        currentView = targetView;
+        updateViewVisibility();
+        renderFunctions[targetView]();
+    }
+};
+
+// Función para aplicar el filtro de fecha y renderizar las gráficas
+function applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate) {
+    // Ajustar la fecha de fin para incluir todo el día seleccionado
+    const adjustedEndDate = d3.timeDay.offset(endDate, 1);
+
+    // Filtrar los datos diarios por el rango de fechas
+    const filteredDailyData = dailyData.filter(d => d.date >= startDate && d.date < adjustedEndDate);
+
+    if (filteredDailyData.length > 0) {
+        // Recalcular agregaciones mensuales para la gráfica de tendencia con los datos filtrados
+        const filteredMonthlyTotals = aggregateMonthlyTotals(filteredDailyData);
+
+        // Filtrar fechas destacadas para el rango de fechas seleccionado
+        const filteredSpecialDates = monthlySpecialDates.filter(d => d.originalDate >= startDate && d.originalDate < adjustedEndDate);
+
+        // Renderizar solo la gráfica de tendencia con los datos filtrados
+        const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+        const containerNode = chartsContainer.node();
+        // Asegurar que containerNode no es null antes de obtener su ancho
+        const containerWidth = containerNode ? parseInt(containerNode.getBoundingClientRect().width) : 960;
+        const width = containerWidth - margin.left - margin.right;
+        let height = 300;
+
+        renderTrendChart(chartsContainer.select('#chart-trend'), filteredDailyData, filteredSpecialDates, margin, width, height); // Pasar filteredDailyData y filteredSpecialDates
+
+        // Opcional: Limpiar o mostrar mensaje en las otras gráficas si no se aplican a este filtro
+        // chartsContainer.select('#chart-weekday').html('');
+        // chartsContainer.select('#chart-month').html('');
+
+    } else {
+        chartsContainer.select('#chart-trend').html('<p class="no-data">No hay datos disponibles para el rango de fechas seleccionado.</p>');
+    }
 }
 
 
-// Lógica para alternar entre vistas
-function setupViewToggle(button, calendarContainer, chartsContainer, renderFunctions) {
-    let isCalendarView = true; // Estado: true = Calendar visible, false = Charts visible
+// Función para configurar el filtro de fecha
+function setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates) { // Añadir monthlySpecialDates
+    // Determinar la primera y última fecha disponible en los datos
+    const firstAvailableDate = dailyData.length > 0 ? dailyData[0].date : new Date();
+    const lastAvailableDate = dailyData.length > 0 ? dailyData[dailyData.length - 1].date : new Date();
+    const minDateString = dateFormatter(firstAvailableDate);
+    const maxDateString = dateFormatter(lastAvailableDate);
 
-    button.on('click', () => {
-        isCalendarView = !isCalendarView; // Cambiar estado
+    // Establecer los atributos 'min' y 'max' en los selectores de fecha
+    startDateInput.attr('min', minDateString);
+    startDateInput.attr('max', maxDateString);
+    endDateInput.attr('min', minDateString);
+    endDateInput.attr('max', maxDateString);
 
-        if (isCalendarView) {
-            // Mostrar calendario, ocultar gráficas
-            chartsContainer.classed('hidden', true);
-            calendarContainer.classed('hidden', false);
-            button.text('Mostrar Gráficas');
-            yearSelector.style('visibility', 'visible'); // Mostrar selector de año
-            // d3.select('.controls').style('justify-content', 'center'); // Restaurar justificación si se cambió
+    applyDateFilterButton.on('click', () => {
+        const startDateStr = startDateInput.property('value');
+        const endDateStr = endDateInput.property('value');
 
-             specialDatesSection.classed('hidden', false); // Mostrar sección de eventos también con calendario
+        const startDate = dateOnlyParser(startDateStr);
+        const endDate = dateOnlyParser(endDateStr);
 
-        } else {
-            // Mostrar gráficas, ocultar calendario
-            calendarContainer.classed('hidden', true);
-            chartsContainer.classed('hidden', false);
-            button.text('Mostrar Calendario');
-             yearSelector.style('visibility', 'hidden'); // Ocultar selector de año pero mantener el espacio
-
-             // Opcional: ajustar justificación si el selector está oculto
-             // d3.select('.controls').style('justify-content', 'center'); // Si solo queda el botón
-
-             specialDatesSection.classed('hidden', false); // Mostrar sección de eventos también con gráficas
-
-            // Renderizar gráficas (por si acaso el tamaño del contenedor ha cambiado)
-             renderFunctions.charts();
+        if (!startDate || !endDate) {
+            alert("Por favor, selecciona una fecha de inicio y una fecha de fin válidas.");
+            return;
         }
-         tooltip.style('display', 'none'); // Ocultar tooltip al cambiar de vista
+
+        if (startDate > endDate) {
+            alert("La fecha de inicio no puede ser posterior a la fecha de fin.");
+            return;
+        }
+
+        applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
     });
-    // Asegurarse de que la vista inicial es la de calendario
-    chartsContainer.classed('hidden', true);
-    calendarContainer.classed('hidden', false);
-    button.text('Mostrar Gráficas');
-    yearSelector.style('visibility', 'visible');
-    specialDatesSection.classed('hidden', false);
 }
 
 
 // Iniciar la aplicación al cargar el script
 initializeVisualization();
+
+// Script for Time Axis View animation and responsiveness
+document.addEventListener('DOMContentLoaded', function() {
+    // Animación de los eventos del cronograma
+    const timelineEvents = document.querySelectorAll('.timeline-event');
+
+    function checkVisibility() {
+        timelineEvents.forEach(event => {
+            const eventPosition = event.getBoundingClientRect().top;
+            const screenPosition = window.innerHeight / 1.2;
+
+            if (eventPosition < screenPosition) {
+                const delay = parseInt(event.getAttribute('data-delay')) || 0;
+                setTimeout(() => {
+                    event.classList.add('visible');
+                }, delay);
+            }
+        });
+    }
+
+    // Verificar visibilidad al cargar y al hacer scroll
+    window.addEventListener('scroll', checkVisibility);
+    checkVisibility();
+
+    // Adaptación responsive para móviles
+    function handleResize() {
+        const timelineLine = document.querySelector('.timeline-line');
+        const events = document.querySelectorAll('.timeline-event');
+
+        if (window.innerWidth <= 768) {
+            timelineLine.style.left = '40px';
+            events.forEach(event => {
+                const icon = event.querySelector('.event-icon');
+                icon.style.left = '40px';
+            });
+        } else {
+            timelineLine.style.left = '50%';
+            events.forEach(event => {
+                const icon = event.querySelector('.event-icon');
+                icon.style.left = '50%';
+            });
+        }
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+});
+
+// Función para actualizar la fecha actual en el eje de tiempo
+function updateCurrentDateDisplay() {
+    const now = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = now.toLocaleDateString('es-ES', options);
+    const dateElement = d3.select('#current-date-display');
+    if (!dateElement.empty()) {
+        dateElement.text(formattedDate);
+    }
+}
+
+// Función para ajustar la posición de las líneas del tiempo pasado y futuro
+function updateTimelineLinePosition() {
+    const currentDateEvent = document.querySelector('.timeline-event.current-date-event');
+    const timelinePast = document.querySelector('.timeline-line-past');
+    const timelineFuture = document.querySelector('.timeline-line-future');
+    const timelineContainer = document.querySelector('.timeline-container');
+
+    if (currentDateEvent && timelinePast && timelineFuture && timelineContainer) {
+        const containerRect = timelineContainer.getBoundingClientRect();
+        const eventRect = currentDateEvent.getBoundingClientRect();
+
+        // Calcular la posición vertical del centro del evento respecto al contenedor del timeline
+        const eventCenterRelativeToContainer = eventRect.top + eventRect.height / 2 - containerRect.top;
+
+        // Ajustar la altura de la línea pasada
+        timelinePast.style.bottom = `calc(100% - ${eventCenterRelativeToContainer}px)`;
+
+        // Ajustar la posición superior de la línea futura
+        timelineFuture.style.top = `${eventCenterRelativeToContainer}px`;
+    }
+}
