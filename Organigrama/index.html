@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organigrama LAV ESTE</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .org-unit {
@@ -487,20 +488,28 @@
             </div>
         </main>
 
-        <footer class="mt-12 text-center text-gray-600 text-sm">
-            <p>Última actualización Abril 2025</p>
-            <p class="mt-2">Organigrama de la Línea de Alta Velocidad Este (LAV ESTE)</p>
+        <footer class="mt-12 text-center text-gray-600">
+            <div class="w-full flex justify-center items-center">
+                <p class="flex items-center gap-2 text-lg"><i class="fas fa-calendar-alt text-xl"></i>📅 Última actualización Abril 2025</p>
+            </div>
         </footer>
     </div>
 </body>
 <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            const mainContent = document.querySelector('main');
-            const innerContent = mainContent.querySelector('div');
-            const contentWidth = innerContent.scrollWidth;
-            const visibleWidth = mainContent.clientWidth;
-            const scrollPosition = (contentWidth - visibleWidth) / 2;
-            mainContent.scrollLeft = scrollPosition;
+            // Ajustar el tamaño del contenedor del organigrama
+            function ajustarTamaño() {
+                // Ajustar el zoom inicial del navegador
+                document.body.style.zoom = '90%';
+                
+                const mainContent = document.querySelector('main');
+                const innerContent = mainContent.querySelector('div');
+                const contentWidth = innerContent.scrollWidth;
+                const visibleWidth = mainContent.clientWidth;
+                const scrollPosition = (contentWidth - visibleWidth) / 2;
+                mainContent.scrollLeft = scrollPosition;
+            }
+            ajustarTamaño();
         });
     </script>
 </html>

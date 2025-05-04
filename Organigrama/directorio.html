@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Directorio LAV ESTE</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/@tailwindcss/typography@0.5.9/dist/typography.min.css">
@@ -54,13 +55,23 @@
         }
         
         .contact-card {
-            padding: 1rem;
-            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
             background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
-            border-left: 4px solid #008080;
             position: relative;
+            overflow: hidden;
+            border-left: 6px solid #008080; /* Color por defecto para ADIF */
+        }
+
+        .contact-card.ineco {
+            border-left: 6px solid #005293; /* Color específico para INECO */
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
         }
         
         .company-logo {
@@ -72,21 +83,23 @@
             border-radius: 1rem;
         }
         
-        .contact-card:hover {
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
         .contact-avatar {
-            width: 3rem;
-            height: 3rem;
+            width: 4rem;
+            height: 4rem;
             border-radius: 50%;
             background-color: #008080;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-avatar:hover {
+            background-color: #005293;
+            transform: scale(1.1);
         }
         
         .contact-info {
@@ -132,7 +145,6 @@
         .contact-card:hover {
             transform: translateY(-5px) rotateX(2deg);
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            border-left: 4px solid #005293;
             background: rgba(255, 255, 255, 0.95);
         }
         
@@ -240,21 +252,21 @@
                     <select id="locationFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005293] focus:border-[#005293] transition">
                         <option value="">Todas las ubicaciones</option>
                         <option value="Madrid - Paseo del Rey">Madrid - Paseo del Rey</option>
+                        <option value="Villaverde">Villaverde</option>
                         <option value="Madrid Sur">Madrid Sur</option>
                         <option value="BM Villarrubia">BM Villarrubia</option>
                         <option value="BM Requena">BM Requena</option>
                         <option value="BM Gabaldón">BM Gabaldón</option>
+                        <option value="BM Monforte">BM Monforte</option>
+                        <option value="ET Albacete">ET Albacete</option>
                         <option value="Estación Valencia">Estación Valencia</option>
                         <option value="ET Valencia">ET Valencia</option>
-                        <option value="Villaverde">Villaverde</option>
-                        <option value="ET Albacete">ET Albacete</option>
-                        <option value="BM Monforte">BM Monforte</option>
                         <option value="CRC Albacete">CRC Albacete</option>
                     </select>
                 </div>
             </div>
             <div class="mt-4 flex flex-wrap gap-2">
-                <span class="text-sm text-gray-600">Sugerencias: </span>
+                <span class="text-sm text-gray-600 flex items-center">Sugerencias:</span>
                 <!-- Roles -->
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">Jefe de Área</button>
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">Jefe de Base</button>
@@ -896,27 +908,41 @@
                 puesto: "Operador Telemando",
                 correo: "jesus.castillo@ineco.com",
                 telefono: "967539503"
-            }
+            },  
+            {
+                ubicacion: "CRC Albacete",
+                        nombre: "Pedro Juan Valero Escribano",
+                        puesto: "GTM",
+                        correo: "pedro.valero@ineco.com",
+                        telefono: "663938853"
+                    },
+                    {
+                        ubicacion: "CRC Albacete",
+                        nombre: "María Jesús Bausela Porrero",
+                        puesto: "GTM",
+                        correo: "maria.bausela@ineco.com",
+                        telefono: "647957307"
+                    },
+                     
+
         ];
+
+        // Ajustar el zoom inicial del navegador
+        document.body.style.zoom = '90%';
 
         // Función para determinar la empresa del trabajador
         function getEmpresa(correo) {
             if (correo.includes('@ineco.com')) return 'ineco';
             if (correo.includes('@adif.es')) return 'adif';
-            return 'ineco'; // Por defecto INECO si no se especifica
+            return 'adif'; // Por defecto ADIF si no se especifica
         }
 
+        // Función para renderizar los contactos
         function renderContacts(filteredContacts = contacts) {
             const container = document.getElementById('contactsContainer');
             container.innerHTML = '';
-            
-            if (filteredContacts.length === 0) {
-                document.getElementById('noResults').classList.remove('hidden');
-                return;
-            } else {
-                document.getElementById('noResults').classList.add('hidden');
-            }
-            
+
+            // Agrupar contactos por ubicación
             const groupedContacts = filteredContacts.reduce((acc, contact) => {
                 if (!acc[contact.ubicacion]) {
                     acc[contact.ubicacion] = [];
@@ -944,7 +970,7 @@
                 const contactsGrid = document.createElement('div');
                 contactsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10';
                 
-                // Si es Mario García Aguado, lo mantenemos al principio
+                // Ordenar contactos por nombre, manteniendo a Mario al principio si existe
                 if (groupedContacts[location][0]?.nombre === "Mario García Aguado") {
                     const mario = groupedContacts[location].shift();
                     const sortedContacts = groupedContacts[location].sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -955,7 +981,7 @@
                 
                 groupedContacts[location].forEach(contact => {
                     const contactCard = document.createElement('div');
-                    contactCard.className = 'contact-card bg-white p-6 rounded-lg shadow-sm animate-fade-in';
+                    contactCard.className = `contact-card ${getEmpresa(contact.correo)} bg-white p-6 rounded-lg shadow-sm animate-fade-in`;
                     contactCard.innerHTML = `
                         <div class="flex items-start">
                             <div class="rounded-full w-12 h-12 flex items-center justify-center mr-4 ${getEmpresa(contact.correo) === 'adif' ? 'bg-[#008080]' : 'bg-[#2196F3]'}">
@@ -980,7 +1006,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     `;
                     contactsGrid.appendChild(contactCard);

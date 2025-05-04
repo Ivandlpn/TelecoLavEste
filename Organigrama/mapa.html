@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribución Geográfica de Centros de Trabajo</title>
+    <title>Mapa MTTO LAV ESTE</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -103,16 +104,17 @@
         
         .modal-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 12px;
+            border-radius: 16px;
             width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
+            max-width: 800px;
+            max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             transform: translateY(-20px) scale(0.95);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             border: 1px solid rgba(0,128,128,0.1);
+            padding: 24px;
         }
         
         .modal-overlay.active .modal-card {
@@ -158,6 +160,26 @@
             text-overflow: ellipsis;
         }
         
+        .iframe-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .modal-title {
+            background: linear-gradient(135deg, #008080 0%, #00a8a8 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 128, 128, 0.2);
+        }
+
         .close-btn {
             position: absolute;
             top: 15px;
@@ -196,6 +218,26 @@
         
         .nombres-list {
             margin-left: 20px;
+        }
+        
+        .persona-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .persona-icon.adif {
+            background-color: #008080;
+            color: white;
+        }
+        
+        .persona-icon.ineco {
+            background-color: #0066cc;
+            color: white;
         }
         
         .nombre-item {
@@ -347,8 +389,8 @@
             <img src="https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true" alt="ADIF" class="logo-adif absolute top-0 left-0 w-48">
             <!-- Logo INECO -->
             <img src="https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png" alt="INECO" class="logo-ineco absolute top-0 right-0 w-44 h-21.5 mt-2">
-            <a href="#" class="text-4xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">Distribución Geográfica de Centros de Trabajo</a>
-            <h2 class="text-2xl font-semibold text-[#008080]">Equipo de Mantenimiento - Línea de Alta Velocidad Eje Este</h2>
+            <a href="#" class="text-4xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">MATENIMIENTO LAV ESTE </a>
+            <h2 class="text-2xl font-semibold text-[#008080]">Distribución Geográfica</h2>
             <div class="w-24 h-1 bg-[#008080] mx-auto mt-4 rounded-full"></div>
         </header>
 
@@ -369,7 +411,7 @@
     
     <div class="map-container relative">
         <div id="map"></div>
-        <button class="reset-view-button" id="resetView">Vista Inicial</button>
+        <button class="reset-view-button" id="resetView">Vista EJE ESTE</button>
     </div>
 
     <div class="footer">
@@ -393,6 +435,94 @@
     <script>
         // Datos JSON proporcionados
         const centros = [
+            {
+                "id_centro": "BM Villarrubia",
+                "nombre_centro": "BM Villarrubia",
+                "lat": 39.95869458375458,
+                "lon": -3.3466914766888025,
+                "iframe": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5118.5109323918605!2d-3.348399686888238!3d39.9591135874297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd42757d6f033fef%3A0xa57062d311e4a0a3!2sBase%20Mantenimiento%20AVE%20Adif%20de%20Villarrubia%20de%20Santiago!5e1!3m2!1ses!2ses!4v1746377573368!5m2!1ses!2ses\" width=\"400\" height=\"300\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+                "imagen": "https://www.transportes.gob.es/recursos_mfom/descarga1_23.png",
+                "enlace_google_maps": "https://maps.app.goo.gl/VwPnrP1bDesxZsHK9",
+                "direccion": "Autopista Ctra. Villarrubia a Villatobas, Km. 3 (A-40 Salida 196), 45360, Villarrubia de Santiago (Toledo)",
+                "como_llegar": "<strong>Google Maps:</strong>\n<a href='https://maps.app.goo.gl/VwPnrP1bDesxZsHK9' target='_blank'>Ver en Maps</a>",
+                "ambitos_mantenimiento": [
+                    "Tramo 1",
+                    "Tramo 2",
+                    "Tramo 3"
+                ],
+                "personas": [
+                    {
+                        "nombre": "PTE NOMBRAMIENTO",
+                        "cargo": "Jefe de Base"
+                    },
+                    {
+                        "nombre": "Javier Gambin Ortuño",
+                        "cargo": "C.T. Ingeniería Civil",
+                        "email": "javier.gambin@adif.es",
+                        "telefono": "610165651"
+                    },
+                    {
+                        "nombre": "Juan José Recio Lanchas",
+                        "cargo": "Jefe de Unidad",
+                        "email": "juan.recio@ineco.com",
+                        "telefono": "659727779"
+                    },
+                    {
+                        "nombre": "Silvia García Maroto",
+                        "cargo": "Técnico Documentalista",
+                        "email": "silvia.maroto@ineco.com",
+                        "telefono": "683656405"
+                    },
+                    {
+                        "nombre": "Manuel García Díaz",
+                        "cargo": "Técnico De Inversiones",
+                        "email": "mgarcia.diaz@ineco.com",
+                        "telefono": "610670612"
+                    },
+                    {
+                        "nombre": "Jesús Fernández Avilés",
+                        "cargo": "Técnico Proyectos y Explanaciones",
+                        "email": "jesus.garciadelarosa@ineco.com",
+                        "telefono": "690110855"
+                    },
+                    {
+                        "nombre": "Felix Pestana",
+                        "cargo": "Técnico De Infra y Vía",
+                        "email": "ruben.anton@ineco.com",
+                        "telefono": "628715029"
+                    },
+                    {
+                        "nombre": "Víctor Solana Ortíz",
+                        "cargo": "Técnico De Infra y Vía",
+                        "email": "victor.solana@ineco.com",
+                        "telefono": "676655220"
+                    },
+                    {
+                        "nombre": "Gregorio Ramos Córdoba",
+                        "cargo": "Técnico De Infra y Vía",
+                        "email": "gregorio.ramos@ineco.com",
+                        "telefono": "670555183"
+                    },
+                    {
+                        "nombre": "Luis Martín del Valle Soria",
+                        "cargo": "Técnico De Infra y Vía",
+                        "email": "luis.martin@ineco.com",
+                        "telefono": "660722020"
+                    },
+                    {
+                        "nombre": "Álvaro Barahona Serrano",
+                        "cargo": "Técnico De Infra y Vía",
+                        "email": "alvaro.barahona@ineco.com",
+                        "telefono": "647985585"
+                    },
+                    {
+                        "nombre": "José A. De la Casa",
+                        "cargo": "Técnico De Infra y Vía",
+                        "email": "jose.delacasa@ineco.com",
+                        "telefono": "661242679"
+                    }
+                ]
+            },
             {
                 "id_centro": "Madrid - Paseo del Rey",
                 "nombre_centro": "Madrid - Paseo del Rey",
@@ -464,90 +594,19 @@
                 ]
             },
             {
-                "id_centro": "BM Villarrubia",
-                "nombre_centro": "BM Villarrubia",
-                "lat": 39.95869458375458,
-                "lon": -3.3466914766888025,
-                "personas": [
-                    {
-                        "nombre": "PTE NOMBRAMIENTO",
-                        "cargo": "Jefe de Base",
-                        "email": "",
-                        "telefono": ""
-                    },
-                    {
-                        "nombre": "Javier Gambin Ortuño",
-                        "cargo": "C.T. Ingeniería Civil",
-                        "email": "javier.gambin@adif.es",
-                        "telefono": "610165651"
-                    },
-                    {
-                        "nombre": "Juan José Recio Lanchas",
-                        "cargo": "Jefe de Unidad",
-                        "email": "juan.recio@ineco.com",
-                        "telefono": "659727779"
-                    },
-                    {
-                        "nombre": "Silvia García Maroto",
-                        "cargo": "Técnico Documentalista",
-                        "email": "silvia.maroto@ineco.com",
-                        "telefono": "683656405"
-                    },
-                    {
-                        "nombre": "Manuel García Díaz",
-                        "cargo": "Técnico De Inversiones",
-                        "email": "mgarcia.diaz@ineco.com",
-                        "telefono": "610670612"
-                    },
-                    {
-                        "nombre": "Jesús Fernández Avilés",
-                        "cargo": "Técnico Proyectos y Explanaciones",
-                        "email": "jesus.garciadelarosa@ineco.com",
-                        "telefono": "690110855"
-                    },
-                    {
-                        "nombre": "Felix Pestana",
-                        "cargo": "Técnico De Infra y Vía",
-                        "email": "ruben.anton@ineco.com",
-                        "telefono": "628715029"
-                    },
-                    {
-                        "nombre": "Víctor Solana Ortíz",
-                        "cargo": "Técnico De Infra y Vía",
-                        "email": "victor.solana@ineco.com",
-                        "telefono": "676655220"
-                    },
-                    {
-                        "nombre": "Gregorio Ramos Córdoba",
-                        "cargo": "Técnico De Infra y Vía",
-                        "email": "gregorio.ramos@ineco.com",
-                        "telefono": "670555183"
-                    },
-                    {
-                        "nombre": "Luis Martín del Valle Soria",
-                        "cargo": "Técnico De Infra y Vía",
-                        "email": "luis.martin@ineco.com",
-                        "telefono": "660722020"
-                    },
-                    {
-                        "nombre": "Álvaro Barahona Serrano",
-                        "cargo": "Técnico De Infra y Vía",
-                        "email": "alvaro.barahona@ineco.com",
-                        "telefono": "647985585"
-                    },
-                    {
-                        "nombre": "José A. De la Casa",
-                        "cargo": "Técnico De Infra y Vía",
-                        "email": "jose.delacasa@ineco.com",
-                        "telefono": "661242679"
-                    }
-                ]
-            },
-            {
                 "id_centro": "BM Requena",
                 "nombre_centro": "BM Requena",
                 "lat": 39.53650527581516,
                 "lon": -1.1568542512212574,
+                "imagen": "https://www.adifaltavelocidad.es/documents/34745/0/base+requena+2.jpg/fc29c659-725b-388c-0df5-8a28d2e06d7d?t=1720526301674",
+                "iframe": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.025230084496!2d-1.159315423448779!3d39.53638067159474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd60cc471c6adbe7%3A0xab8fab4bc4869dd7!2sBase%20De%20Requena!5e1!3m2!1ses!2ses!4v1746376680804!5m2!1ses!2ses\" width=\"100%\" height=\"300\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+                "direccion": "Autovía A-3, salida Kilómetro 281.e, 46390, San Antonio de Requena (Valencia)",
+                "como_llegar": "Google Maps: <a href='https://www.google.com/maps/place/Base+De+Requena/@39.5363806,-1.1593154,17z/data=!3m1!4b1!4m6!3m5!1s0xd60cc471c6adbe7:0xab8fab4bc4869dd7!8m2!3d39.5363806!4d-1.1571041!16s%2Fg%2F11h53jz48b' target='_blank'>Ver en Maps</a>",
+                "ambitos_mantenimiento": [
+                    "Tramo 1",
+                    "Tramo 2",
+                    "Tramo 3"
+                ],
                 "personas": [
                     {
                         "nombre": "Jesús Valero Núñez",
@@ -634,6 +693,14 @@
                 "nombre_centro": "BM Gabaldón",
                 "lat": 39.635991503492555,
                 "lon": -1.9447236892349693,
+                "iframe": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7405.085311917694!2d-1.951590801731561!3d39.63584599059875!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd67a3ffd97c951b%3A0x697cf46563fe1167!2sBase%20Mantenimiento%20de%20ADIF%20Gabald%C3%B3n!5e1!3m2!1ses!2ses!4v1746376754155!5m2!1ses!2ses\" width=\"400\" height=\"300\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+                "direccion": "Ctra.N-320 Km. 80 (Salida 212 Autovía A-3), 16214, Gabaldón (Cuenca)",
+                "como_llegar": "Google Maps: <a href='https://www.google.com/maps/place/Base+Mantenimiento+de+ADIF+Gabald%C3%B3n/@39.6358459,-1.9515908,17z/data=!3m1!4b1!4m6!3m5!1s0xd67a3ffd97c951b:0x697cf46563fe1167!8m2!3d39.6358459!4d-1.9493721!16s%2Fg%2F11h53jz48b' target='_blank'>Ver en Maps</a>",
+                "ambitos_mantenimiento": [
+                    "Tramo 1",
+                    "Tramo 2",
+                    "Tramo 3"
+                ],
                 "personas": [
                     {
                         "nombre": "Jesús Peña Cañada",
@@ -800,6 +867,15 @@
                 "nombre_centro": "BM Monforte",
                 "lat": 38.406680124943136,
                 "lon": -0.6947316860660484,
+                "imagen": "https://www.adif.es/documents/20124/0/base+mantenimiento+monforte+cid+2+%281%29.jpg/62979e09-9354-1ca8-2c7f-2aaad6ef6b71?t=1686045833878",
+                "iframe": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3745.193285739742!2d-0.6801471!3d38.4086042!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd63cf68a6db1ce1%3A0x2187577d99de572!2sBase%20Mantenimiento%20Monforte%20%28ADIF%29!5e1!3m2!1ses!2ses!4v1746377941393!5m2!1ses!2ses\" width=\"400\" height=\"300\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+                "direccion": "Ctra.Cv. 825, Km. 9,5, 03670, Monforte del Cid (Alicante)",
+                "como_llegar": "Google Maps: <a href='https://maps.app.goo.gl/t7NngC1VvGqdopgo8' target='_blank'>Ver en Maps</a>",
+                "ambitos_mantenimiento": [
+                    "Tramo 1",
+                    "Tramo 2",
+                    "Tramo 3"
+                ],
                 "personas": [
                     {
                         "nombre": "Juan Pablo Rodriguez De La Fuente",
@@ -970,6 +1046,18 @@
                         "cargo": "Operador Telemando",
                         "email": "jesus.castillo@ineco.com",
                         "telefono": "967539503"
+                    },
+                    {
+                        "nombre": "Pedro Juan Valero Escribano",
+                        "cargo": "GTM",
+                        "email": "pedro.valero@ineco.com",
+                        "telefono": "663938853"
+                    },
+                    {
+                        "nombre": "María Jesús Bausela Porrero",
+                        "cargo": "GTM",
+                        "email": "maria.bausela@ineco.com",
+                        "telefono": "647957307"
                     }
                 ]
             }
@@ -977,11 +1065,45 @@
 
         // Inicializar el mapa
         const map = L.map('map');
+        // Ajustar el zoom inicial del navegador
+        document.body.style.zoom = '90%';
         
-        // Añadir capa base del mapa (OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        // Añadir capa base del mapa con límites provinciales
+        const baseMap = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Tiles: &copy; <a href="https://hot.openstreetmap.org/">Humanitarian OpenStreetMap Team</a>'
         }).addTo(map);
+
+        // Añadir capa de límites provinciales
+        const provinceBoundaries = L.tileLayer('https://{s}.tile.openstreetmap.fr/data/osmborder/{z}/{x}/{y}.json', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Province boundaries: &copy; <a href="https://osmfr.github.io/osmborder/">OSM Border</a>'
+        }).addTo(map);
+
+        // Añadir capa de transporte
+        const transportMap = L.tileLayer('https://{s}.tile.openstreetmap.fr/transport/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://openstreetmap.fr">OpenStreetMap France</a>'
+        }).addTo(map);
+
+        // Añadir capa de ferrocarriles de alta velocidad
+        const railwayMap = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org">OpenRailwayMap</a>'
+        }).addTo(map);
+
+        // Añadir leyenda en la esquina superior derecha
+        const legend = L.control({position: 'topright'});
+        legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML = `
+                <div class="bg-white p-2 rounded-lg shadow-md flex items-center gap-2">
+                    <span class="w-4 h-1 bg-red-600"></span>
+                    <span class="text-gray-700">LAV (Línea de Alta Velocidad)</span>
+                </div>
+            `;
+            // Ajustar el padding para que esté en la esquina superior derecha
+            div.style.padding = '12px 12px 0 12px';
+            return div;
+        };
+        legend.addTo(map);
+        legend.addTo(map);
 
         // Establecer vista inicial en Madrid con zoom 12
         map.setView([40.4165, -3.7026], 12);
@@ -1058,12 +1180,35 @@
 
         // Asociar datos del centro al marcador y manejar clic
         markers.eachLayer((marker) => {
-            marker.centroData = centros.find(c => 
+            // Buscar el centro correspondiente
+            const centro = centros.find(c => 
                 c.lat === marker.getLatLng().lat && 
                 c.lon === marker.getLatLng().lng
             );
 
-            marker.on('click', () => openModal(marker.centroData));
+            // Verificar que se encontró el centro
+            if (!centro) {
+                console.error('Centro no encontrado para estas coordenadas:', marker.getLatLng());
+                return;
+            }
+
+            // Asignar los datos al marcador
+            marker.centroData = centro;
+
+            // Crear el popup
+            marker.bindPopup(`<div class="p-4">
+                <h3 class="text-lg font-semibold mb-2">${centro.nombre_centro}</h3>
+                <p class="text-gray-600">${centro.personas.length} personas</p>
+            </div>`);
+
+            // Manejar el clic
+            marker.on('click', function(e) {
+                if (marker.centroData) {
+                    openModal(marker.centroData);
+                } else {
+                    console.error('Datos del centro no disponibles');
+                }
+            });
         });
 
         // Función para restablecer la vista inicial
@@ -1084,22 +1229,110 @@
 
         // Función para abrir el modal con los datos del centro
         function openModal(centro) {
-            const totalPersonas = centro.personas.length;
-            modalTitle.textContent = `${centro.nombre_centro} (${totalPersonas} personas)`;
+            if (!centro) {
+                console.error('Centro no válido');
+                return;
+            }
+
+            modalTitle.innerHTML = `
+                <div class="modal-title">
+                    <span>${centro.nombre_centro}</span>
+                </div>
+            `;
             modalContent.innerHTML = '';
             
             // Agrupar personas por puesto
             const personasPorPuesto = {};
-            centro.personas.forEach(persona => {
-                const cargo = persona.cargo.trim(); // Eliminar espacios en blanco
-                if (!personasPorPuesto[cargo]) {
-                    personasPorPuesto[cargo] = [];
-                }
-                personasPorPuesto[cargo].push(persona.nombre);
-            });
+            if (centro.personas && Array.isArray(centro.personas)) {
+                centro.personas.forEach(persona => {
+                    const cargo = persona.cargo.trim(); // Eliminar espacios en blanco
+                    if (!personasPorPuesto[cargo]) {
+                        personasPorPuesto[cargo] = [];
+                    }
+                    personasPorPuesto[cargo].push(persona.nombre);
+                });
+            } else {
+                console.error('Datos de personas no válidos:', centro.personas);
+                return;
+            }
 
             // Ordenar los cargos en BM según la jerarquía
             if (centro.nombre_centro.includes('BM')) {
+                // Crear la estructura de dos columnas
+                const container = document.createElement('div');
+                container.className = 'flex flex-col md:flex-row gap-8'; // Aumentado el espacio entre columnas
+
+                // Columna izquierda: Información general
+                const infoColumn = document.createElement('div');
+                infoColumn.className = 'w-full md:w-1/2 space-y-6'; // Añadido espacio vertical entre elementos
+
+                // Agregar imagen si existe
+                if (centro.imagen) {
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'mb-4';
+                    imgDiv.innerHTML = `
+                        <img src="${centro.imagen}" alt="${centro.nombre_centro}" class="w-full rounded-lg shadow-lg">
+                    `;
+                    infoColumn.appendChild(imgDiv);
+                }
+
+                // Información básica
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'space-y-4';
+
+                // Crear el HTML con validación de datos
+                let html = `
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2 text-gray-700">
+                            <i class="fas fa-map-marker-alt text-green-500"></i>
+                            <h3 class="text-lg font-semibold">Dirección</h3>
+                        </div>
+                        <p class="text-gray-600">${centro.direccion || 'No disponible'}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2 text-gray-700">
+                            <i class="fas fa-directions text-green-500"></i>
+                            <h3 class="text-lg font-semibold">Cómo llegar</h3>
+                        </div>
+                        <div class="text-gray-600">
+                            ${centro.como_llegar || 'No disponible'}
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2 text-gray-700">
+                            <i class="fas fa-map text-green-500"></i>
+                            <h3 class="text-lg font-semibold">Ubicación</h3>
+                        </div>
+                        <div class="mt-2">
+                            <div class="iframe-container">
+                                ${centro.iframe.replace('height="300"', 'height="200"')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Añadir sección de ámbitos de mantenimiento si existe
+                if (centro.ambitos_mantenimiento && Array.isArray(centro.ambitos_mantenimiento) && centro.ambitos_mantenimiento.length > 0) {
+                    html += `
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700">Ámbitos de Mantenimiento</h3>
+                            <ul class="list-disc list-inside text-gray-600">
+                                ${centro.ambitos_mantenimiento.map(ambito => `
+                                    <li>${ambito}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                infoDiv.innerHTML = html;
+                infoColumn.appendChild(infoDiv);
+
+                // Columna derecha: Personal
+                const personalColumn = document.createElement('div');
+                personalColumn.className = 'w-full md:w-1/2 space-y-6'; // Añadido espacio vertical entre elementos
+
+                // Ordenar los cargos en BM según la jerarquía
                 const ordenBM = [
                     'Jefe de Base',
                     'C.T. Ingeniería Civil',
@@ -1160,8 +1393,12 @@
                     `;
                     
                     puestoDiv.innerHTML = html;
-                    modalContent.appendChild(puestoDiv);
+                    personalColumn.appendChild(puestoDiv);
                 });
+
+                container.appendChild(infoColumn);
+                container.appendChild(personalColumn);
+                modalContent.appendChild(container);
                 
                 modal.classList.add('active');
                 return; // Salir de la función ya que ya hemos mostrado los datos
@@ -1177,24 +1414,24 @@
                         <span class="text-lg font-semibold text-gray-700">${puesto}</span>
                     </div>
                     <div class="nombres-list">
-                        ${nombres.map(nombre => {
-                            // Determinar empresa basado en el cargo y el correo
-                            const email = nombre.split(' ').pop(); // Tomar la última parte (el correo)
-                            const cargo = nombre.split(' ')[0]; // Tomar la primera parte (el cargo)
+                        ${nombres.map(persona => {
+                            // Determinar empresa basado en el correo y el cargo
+                            const cargo = persona.cargo;
+                            const email = persona.email;
                             
                             // Jefes de base, jefes de área y técnicos de ADIF son siempre verdes
                             const esCargoADIF = cargo.toLowerCase().includes('jefe') || 
                                               cargo.toLowerCase().includes('base') || 
                                               cargo.toLowerCase().includes('área') || 
                                               cargo.toLowerCase().includes('técnico');
-                                              
+                                                
                             const empresa = esCargoADIF || email.includes('@adif.es') ? 'adif' : 'ineco';
                             return `
                                 <div class="nombre-item mb-1">
                                     <div class="persona-icon ${empresa}">
                                         <i class="fas fa-user"></i>
                                     </div>
-                                    <span class="text-gray-600">${nombre}</span>
+                                    <span class="text-gray-600">${persona.nombre}</span>
                                 </div>
                             `;
                         }).join('')}
