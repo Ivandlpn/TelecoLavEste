@@ -24,7 +24,9 @@
         #map {
             height: 650px;
             width: 100%;
-            z-index: 1;
+            z-index: 0;
+            border: none;
+            position: relative;
         }
         
         .office-icon {
@@ -60,6 +62,24 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
         
+        .reset-view-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: #008080;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            z-index: 2;
+            transition: background-color 0.3s;
+        }
+
+        .reset-view-button:hover {
+            background-color: #005293;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -321,23 +341,35 @@
     </style>
 </head>
 <body>
-    <div class="container mx-auto px-4 py-8 relative">
-        <!-- Logo ADIF -->
-        <div class="logo-adif adif-logo"></div>
-        <!-- Logo INECO -->
-        <div class="logo-ineco ineco-logo"></div>
-        
-        <div class="location-header p-6 text-center rounded-lg mb-8">
-            <h1 class="text-3xl font-bold mb-2">Mantenimiento LAV ESTE</h1>
-            <p class="text-lg">Visualización geográfica de los centros de trabajo</p>
+    <div class="container mx-auto px-4 py-4 relative">
+        <header class="mb-4 text-center relative z-10">
+            <!-- Logo ADIF -->
+            <img src="https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true" alt="ADIF" class="logo-adif absolute top-0 left-0 w-48">
+            <!-- Logo INECO -->
+            <img src="https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png" alt="INECO" class="logo-ineco absolute top-0 right-0 w-44 h-21.5 mt-2">
+            <a href="#" class="text-4xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">Distribución Geográfica de Centros de Trabajo</a>
+            <h2 class="text-2xl font-semibold text-[#008080]">Equipo de Mantenimiento - Línea de Alta Velocidad Eje Este</h2>
+            <div class="w-24 h-1 bg-[#008080] mx-auto mt-4 rounded-full"></div>
+        </header>
+
+        <div class="bg-white shadow-md rounded-lg p-4 mb-4">
+            <div class="flex justify-center">
+                <div class="flex gap-4">
+                    <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">
+                        ORGANIGRAMA
+                    </button>
+                    <button onclick="window.location.href='directorio.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">
+                        DIRECTORIO
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="text-center mb-2">
-            <p class="text-gray-600 font-medium">Haz clic en un centro para ver su personal</p>
-        </div>
+
     </div>
     
-    <div class="map-container">
+    <div class="map-container relative">
         <div id="map"></div>
+        <button class="reset-view-button" id="resetView">Vista Inicial</button>
     </div>
 
     <div class="footer">
@@ -1008,6 +1040,12 @@
             padding: [20, 20]
         });
 
+        // Guardar la vista inicial
+        const initialView = {
+            bounds: markers.getBounds(),
+            zoom: map.getZoom()
+        };
+
         // Crear icono personalizado para los centros
         function createOfficeIcon(isBM = false) {
             return L.divIcon({
@@ -1018,25 +1056,25 @@
             });
         }
 
-        // Añadir el grupo de marcadores al mapa
-        map.addLayer(markers);
-
-        // Ajustar el zoom para que todos los marcadores estén visibles
-        map.fitBounds(markers.getBounds(), {
-            padding: [20, 20]
-        });
-
         // Asociar datos del centro al marcador y manejar clic
         markers.eachLayer((marker) => {
             marker.centroData = centros.find(c => 
                 c.lat === marker.getLatLng().lat && 
                 c.lon === marker.getLatLng().lng
             );
-            
-            marker.on('click', function(e) {
-                openModal(this.centroData);
-            });
+
+            marker.on('click', () => openModal(marker.centroData));
         });
+
+        // Función para restablecer la vista inicial
+        const resetButton = document.getElementById('resetView');
+        if (resetButton) {
+            resetButton.addEventListener('click', () => {
+                map.fitBounds(markers.getBounds(), {
+                    padding: [20, 20]
+                });
+            });
+        }
 
         // Elementos del modal
         const modal = document.getElementById('modal');
