@@ -1266,8 +1266,18 @@
                 const infoColumn = document.createElement('div');
                 infoColumn.className = 'w-full md:w-1/2 space-y-6'; // Añadido espacio vertical entre elementos
 
-                // Agregar imagen si existe
-                if (centro.imagen) {
+                // Agregar video para BM Monforte, imagen para otros
+                if (centro.nombre_centro === 'BM Monforte') {
+                    const videoDiv = document.createElement('div');
+                    videoDiv.className = 'mb-4';
+                    videoDiv.innerHTML = `
+                        <video width="100%" autoplay muted playsinline loop class="rounded-lg shadow-lg">
+                            <source src="VideoBMMonforte.mp4" type="video/mp4">
+                            Tu navegador no soporta el elemento de video.
+                        </video>
+                    `;
+                    infoColumn.appendChild(videoDiv);
+                } else if (centro.imagen) {
                     const imgDiv = document.createElement('div');
                     imgDiv.className = 'mb-4';
                     imgDiv.innerHTML = `
