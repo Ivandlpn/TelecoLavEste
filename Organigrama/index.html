@@ -6,6 +6,7 @@
     <title>Organigrama LAV ESTE</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .org-unit {
             background-color: #f5f5dc;
@@ -67,51 +68,76 @@
     </style>
     <style>
         /* Connector from Level 1 to Level 2 */
+        /* Conexión vertical desde el Jefe de Área al Nivel 2 */
+        .person-adif {
+            position: relative;
+        }
+        
         .person-adif::after {
             content: '';
             position: absolute;
-            bottom: -15px; /* Height of the vertical line */
+            bottom: -15px;
             left: 50%;
             transform: translateX(-50%);
             width: 2px;
-            height: 15px; /* Height of the vertical line */
-            background-color: #555;
-        }
-
-        .flex.justify-center.gap-4.mb-8.items-start.relative::before {
-            content: '';
-            position: absolute;
-            top: -15px; /* Should align with the bottom of the vertical line from Level 1 */
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #555;
-        }
-
-        /* Adjust .org-unit::before to connect to the new horizontal line */
-        .org-unit::before {
-            content: '';
-            position: absolute;
-            top: -15px; /* Should align with the horizontal line */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 15px; /* Height to reach the horizontal line */
+            height: 15px;
             background-color: #555;
         }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            document.body.style.zoom = "80%";
+            const organigramaContainer = document.querySelector('main');
+            const zoomLevelDisplay = document.getElementById('zoom-level');
+            let scale = 1;
+            const scaleStep = 0.1;
+            const minScale = 0.5;
+            const maxScale = 2;
+
+            function updateZoom() {
+                organigramaContainer.style.transform = `scale(${scale})`;
+                organigramaContainer.style.transformOrigin = 'top left';
+                zoomLevelDisplay.textContent = `${Math.round(scale * 100)}%`;
+            }
+
+            // Manejar la rueda del ratón para hacer zoom
+            organigramaContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                
+                // Ajustar el zoom basado en la dirección del scroll
+                const delta = -Math.sign(e.deltaY);
+                const newScale = scale + (delta * scaleStep);
+            if (newScale >= minScale && newScale <= maxScale) {
+                scale = newScale;
+                updateZoom();
+            }
+                
+                updateZoom();
+            }, { passive: false });
+
+            // Mostrar el nivel de zoom inicial
+            updateZoom();
+
+            // Añadir tooltip informativo
+            const zoomInfo = document.createElement('div');
+            zoomInfo.className = 'fixed bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-6 py-3 rounded-t-lg shadow-lg text-sm font-medium';
+            zoomInfo.innerHTML = 'Usa la rueda del ratón para hacer zoom <i class="fas fa-mouse-pointer ml-2"></i>';
+            document.body.appendChild(zoomInfo);
+
+            // Ocultar el tooltip después de 5 segundos
+            setTimeout(() => {
+                zoomInfo.style.opacity = '0';
+                zoomInfo.style.transform = 'translate(-50%, 0) scale(0.95)';
+                setTimeout(() => zoomInfo.remove(), 500);
+            }, 5000);
         });
     </script>
 </head>
 <body class="bg-gray-100 font-sans">
-    <div class="container mx-auto px-4 py-8">
+    <div class="w-full min-w-full overflow-x-auto px-4 py-8">
         <header class="mb-8 text-center relative">
             <img src="https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true" alt="Logo Adif" class="absolute top-0 left-0 h-24">
             <img src="https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png" alt="Logo Ineco" class="absolute top-0 right-0 h-16 mt-2">
-            <h1 class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">Organigrama Mantenimiento<br>LAV ESTE</h1>
+            <h1 class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">MANTENIMIENTO LAV ESTE<br>Organigrama</h1>
         </header>
 
         <div class="bg-white shadow-md rounded-lg p-4 mb-6">
@@ -127,15 +153,28 @@
             </div>
         </div>
 
-        <main class="overflow-x-auto">
-            <div class="min-w-max relative">
+        <div class="fixed top-4 left-4 bg-white rounded-lg shadow-lg px-3 py-1 text-sm font-medium text-gray-700 z-10">
+            Zoom: <span id="zoom-level">100%</span>
+        </div>
+        <main class="min-w-max mx-auto origin-top-left transition-transform duration-200 ease-in-out px-8">
+            <div class="relative bg-white rounded-lg border border-gray-200 shadow-lg p-6 w-full min-w-[1200px] pb-16">
+                <!-- Botón de descarga PDF -->
                 <div class="absolute right-4 bottom-4">
+                    <a href="Organigrama LAV ESTE ABR25.pdf" target="_blank" class="block hover:opacity-90 transition-opacity duration-200 text-center">
+                        <div class="border-2 border-gray-300 rounded-lg p-2 bg-white">
+                            <img src="Descargable.png" alt="Descargar PDF" class="w-48 h-auto">
+                            <div class="flex items-center justify-center gap-2 mt-1">
+                                <i class="fas fa-download text-blue-600"></i>
+                                <span class="text-base font-bold text-gray-800">DESCARGAR</span>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            <div class="min-w-max">
+            <div class="w-full inline-block">
                 <!-- Nivel 1 - Jefe de Área -->
                 <div class="flex justify-center mb-8">
-                    <div class="person-adif p-4 text-center w-64 animate-fade-in duration-1000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="font-bold">MARIO GARCÍA</div>
+                    <div class="person-adif p-4 text-center w-64 animate-fade-in duration-1000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg relative">
+                        <div class="font-bold mb-1">MARIO GARCÍA</div>
                         <div class="text-sm">Jefe de Área</div>
                     </div>
                 </div>
@@ -149,19 +188,19 @@
                         </div>
                         <div class="grid grid-cols-2 gap-4 w-full">
                             <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg w-full">
-                                <div class="font-bold text-sm">PEDRO LUIS MIGUEL</div>
+                                <div class="font-semibold mb-1">PEDRO LUIS MIGUEL</div>
                                 <div class="text-xs">Coordinador Línea</div>
                             </div>
                             <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg w-full">
-                                <div class="font-bold text-sm">LOURDES MIRASIERRA</div>
+                                <div class="font-semibold mb-1">LOURDES MIRASIERRA</div>
                                 <div class="text-xs">Secretaria</div>
                             </div>
                             <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg w-full">
-                                <div class="font-bold text-sm">HÉCTOR SANZ</div>
+                                <div class="font-semibold mb-1">HÉCTOR SANZ</div>
                                 <div class="text-xs">Técnico Infra y Vía Línea</div>
                             </div>
                             <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-500 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg w-full">
-                                <div class="font-bold text-sm">JUAN GIL</div>
+                                <div class="font-semibold mb-1">JUAN GIL</div>
                                 <div class="text-xs">Técnico Análisis de Incidencias</div>
                             </div>
                         </div>
@@ -175,15 +214,15 @@
                         <!-- GTM and its members -->
                         <div class="flex flex-col items-center mb-8 animate-fade-in duration-1000 delay-700 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                             <div class="org-unit p-2 text-center mb-4">
-                                <div class="font-bold">GTM</div>
+                                <div class="font-bold mb-1">GTM</div>
                             </div>
                             <div class="flex gap-4 justify-center w-full">
                                 <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="font-bold text-sm">MARIA JESÚS BAUSELA</div>
+                                    <div class="font-semibold mb-1">MARIA JESÚS BAUSELA</div>
                                     <div class="text-xs"></div>
                                 </div>
                                 <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="font-bold text-sm">PEDRO JUAN VALERO</div>
+                                    <div class="font-semibold mb-1">PEDRO JUAN VALERO</div>
                                     <div class="text-xs"></div>
                                 </div>
                             </div>
@@ -193,10 +232,10 @@
                             <!-- CSI -->
                             <div class="flex flex-col items-center flex-1 min-w-[150px] animate-fade-in duration-1000 delay-1000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                                 <div class="org-unit p-2 text-center w-full mb-4">
-                                    <div class="font-bold">CSI</div>
+                                    <div class="font-bold mb-1">CSI</div>
                                 </div>
                                 <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-1100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="font-bold text-sm">Operadores CSI</div>
+                                    <div class="font-semibold mb-1">Operadores CSI</div>
                                     <div class="flex flex-col gap-1 mt-1">
                                         <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-1200 w-full">JOSÉ MARÍA BAÑÓN</div>
                                         <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-1300 w-full">JOSÉ ÁNGEL CEREZUELA</div>
@@ -211,10 +250,10 @@
                             <!-- Telemando -->
                             <div class="flex flex-col items-center flex-1 min-w-[150px] animate-fade-in duration-1000 delay-1800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                                 <div class="org-unit p-2 text-center w-full mb-4">
-                                    <div class="font-bold">Telemando</div>
+                                    <div class="font-bold mb-1">Telemando</div>
                                 </div>
                                 <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-1900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                    <div class="font-bold text-sm">Operadores TME</div>
+                                    <div class="font-semibold mb-1">Operadores TME</div>
                                     <div class="flex flex-col gap-1 mt-1">
                                         <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-2000 w-full">ÓSCAR JÁTIVA</div>
                                         <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-2100 w-full">ALBERTO LÓPEZ</div>
@@ -237,19 +276,19 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif vacant p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-2900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Vacante</div>
+                                <div class="font-semibold mb-1">Vacante</div>
                                 <div class="text-xs">Jefe de Base</div>
                             </div>
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-3000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JAVIER GAMBIN</div>
+                                <div class="font-semibold mb-1">JAVIER GAMBIN</div>
                                 <div class="text-xs">C.T. Ingeniería Civil</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-3100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JUAN JOSÉ RECIO</div>
+                                <div class="font-semibold mb-1">JUAN JOSÉ RECIO</div>
                                 <div class="text-xs">Jefe de Unidad</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-3200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos IyV</div>
+                                <div class="font-semibold mb-1">Técnicos IyV</div>
                                 <div class="flex flex-col gap-1 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-3300 w-full">VÍCTOR SOLANA</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-3400 w-full">FÉLIX PESTANA</div>
@@ -260,15 +299,15 @@
                                 </div>
                             </div>
                             <div class="person-ineco vacant p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-3900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Vacante</div>
+                                <div class="font-semibold mb-1">Vacante</div>
                                 <div class="text-xs">Técnico Proyectos</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-4000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">MANUEL GARCÍA</div>
+                                <div class="font-semibold mb-1">MANUEL GARCÍA</div>
                                 <div class="text-xs">Técnico Inversiones</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-4100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">SILVIA GARCÍA</div>
+                                <div class="font-semibold mb-1">SILVIA GARCÍA</div>
                                 <div class="text-xs">Técnico Documentalista</div>
                             </div>
                         </div>
@@ -281,19 +320,19 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-4300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JESÚS PEÑA</div>
+                                <div class="font-semibold mb-1">JESÚS PEÑA</div>
                                 <div class="text-xs">Jefe de Base</div>
                             </div>
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-4400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">VICENTE TORTAJADA</div>
+                                <div class="font-semibold mb-1">VICENTE TORTAJADA</div>
                                 <div class="text-xs">C.T. Ingeniería Civil</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-4500 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JOSÉ LUIS LÓPEZ</div>
+                                <div class="font-semibold mb-1">JOSÉ LUIS LÓPEZ</div>
                                 <div class="text-xs">Jefe de Unidad</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-4600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos IyV</div>
+                                <div class="font-semibold mb-1">Técnicos IyV</div>
                                 <div class="flex flex-col gap-1 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-4700 w-full">JOSÉ NUÑEZ</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-4800 w-full">JUAN LUIS CAMPOS</div>
@@ -304,18 +343,18 @@
                                 </div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-5300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JAIME CHECA</div>
+                                <div class="font-semibold mb-1">JAIME CHECA</div>
                                 <div class="text-xs">Técnico Proyectos</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-5400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos Inversiones</div>
+                                <div class="font-semibold mb-1">Técnicos Inversiones</div>
                                 <div class="grid grid-cols-2 gap-2 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-5500">ROBERTO DÍAZ</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-5600">ANTONIO OLIVARES</div>
                                 </div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-5700 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">PATRICIA MACÍAS</div>
+                                <div class="font-semibold mb-1">PATRICIA MACÍAS</div>
                                 <div class="text-xs">Técnico Documentalista</div>
                             </div>
                         </div>
@@ -328,19 +367,19 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-5900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JESÚS VALERO</div>
+                                <div class="font-semibold mb-1">JESÚS VALERO</div>
                                 <div class="text-xs">Jefe de Base</div>
                             </div>
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-6000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">SANTIAGO FERRI</div>
+                                <div class="font-semibold mb-1">SANTIAGO FERRI</div>
                                 <div class="text-xs">C.T. Ingeniería Civil</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-6100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">RAMIRO DE ARRIBA</div>
+                                <div class="font-semibold mb-1">RAMIRO DE ARRIBA</div>
                                 <div class="text-xs">Jefe de Unidad</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-6200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos IyV</div>
+                                <div class="font-semibold mb-1">Técnicos IyV</div>
                                 <div class="flex flex-col gap-1 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-6300 w-full">JOSÉ RAMÓN HERNÁNDEZ</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-6400 w-full">JOSÉ RAFAEL RODRÍGUEZ</div>
@@ -351,15 +390,15 @@
                                 </div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-6900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">ANTONIO PÉREZ</div>
+                                <div class="font-semibold mb-1">ANTONIO PÉREZ</div>
                                 <div class="text-xs">Técnico Proyectos</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-7000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JOSÉ MOLTO</div>
+                                <div class="font-semibold mb-1">JOSÉ MOLTO</div>
                                 <div class="text-xs">Técnico Inversiones</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-7100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">MARCO SALINAS</div>
+                                <div class="font-semibold mb-1">MARCO SALINAS</div>
                                 <div class="text-xs">Técnico Documentalista</div>
                             </div>
                         </div>
@@ -372,19 +411,19 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-7300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JUAN PABLO RODRÍGUEZ</div>
+                                <div class="font-semibold mb-1">JUAN PABLO RODRÍGUEZ</div>
                                 <div class="text-xs">Jefe de Base</div>
                             </div>
                             <div class="person-adif vacant p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-7400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Vacante</div>
+                                <div class="font-semibold mb-1">Vacante</div>
                                 <div class="text-xs">C.T. Ingeniería Civil</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-7500 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">ERNESTO BOTELLA</div>
+                                <div class="font-semibold mb-1">ERNESTO BOTELLA</div>
                                 <div class="text-xs">Jefe de Unidad</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-7600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos IyV</div>
+                                <div class="font-semibold mb-1">Técnicos IyV</div>
                                 <div class="flex flex-col gap-1 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-7700 w-full">MANUEL UREÑA</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-7800 w-full">JOSÉ ANTONIO CÓRDOBA</div>
@@ -395,15 +434,15 @@
                                 </div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-8300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JOSÉ LUIS MARTÍN</div>
+                                <div class="font-semibold mb-1">JOSÉ LUIS MARTÍN</div>
                                 <div class="text-xs">Técnico Proyectos</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-8400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">GLORIA JOVER</div>
+                                <div class="font-semibold mb-1">GLORIA JOVER</div>
                                 <div class="text-xs">Técnico Inversiones</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-48 h-24 mb-3 connector animate-fade-in duration-1000 delay-8500 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">IRENE CUERDA</div>
+                                <div class="font-semibold mb-1">IRENE CUERDA</div>
                                 <div class="text-xs">Técnico Documentalista</div>
                             </div>
                         </div>
@@ -416,15 +455,15 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-8700 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">JOSÉ MANUEL SEÑORANS</div>
+                                <div class="font-semibold mb-1">JOSÉ MANUEL SEÑORANS</div>
                                 <div class="text-xs">Técnico Energía</div>
                             </div>
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-8800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">VICTOR JOSÉ CASTILLO</div>
+                                <div class="font-semibold mb-1">VICTOR JOSÉ CASTILLO</div>
                                 <div class="text-xs">C.T. Ingeniería Industrial</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-8900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos Energía</div>
+                                <div class="font-semibold mb-1">Técnicos Energía</div>
                                 <div class="grid grid-cols-1 gap-2 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-9000">MANUEL JESÚS DEL PINO</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-9100">ALBERTO SANZ</div>
@@ -440,15 +479,15 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-9400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">ESTHER LORENTE</div>
+                                <div class="font-semibold mb-1">ESTHER LORENTE</div>
                                 <div class="text-xs">Técnico II.SS.</div>
                             </div>
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-9500 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">MANUEL TIRADO</div>
+                                <div class="font-semibold mb-1">MANUEL TIRADO</div>
                                 <div class="text-xs">Técnico II.SS.</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-9600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos II.SS.</div>
+                                <div class="font-semibold mb-1">Técnicos II.SS.</div>
                                 <div class="grid grid-cols-1 gap-2 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-9700">DAVID MORETA</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-9800">JOSE ANTONIO GARCÍA</div>
@@ -456,10 +495,10 @@
                                 </div>
                             </div>
                             <div class="org-unit p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-10000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Protección y Seguridad (PyS)</div>
+                                <div class="font-semibold mb-1">Protección y Seguridad (PyS)</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-10100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">DAVID GARCIA</div>
+                                <div class="font-semibold mb-1">DAVID GARCIA</div>
                                 <div class="text-xs">Técnico Proteccion Civil</div>
                             </div>
                         </div>
@@ -471,11 +510,11 @@
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-10400 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">SAMUEL GARCÍA</div>
+                                <div class="font-semibold mb-1">SAMUEL GARCÍA</div>
                                 <div class="text-xs">Técnico Telecomunicaciones</div>
                             </div>
                             <div class="team p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-10500 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-bold text-sm">Técnicos Telecomunicaciones</div>
+                                <div class="font-semibold mb-1">Técnicos Telecomunicaciones</div>
                                 <div class="grid grid-cols-1 gap-2 mt-1">
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-10600">RAÚL UREÑA</div>
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-10700">IVÁN DE LA PAZ</div>
@@ -490,7 +529,7 @@
 
         <footer class="mt-12 text-center text-gray-600">
             <div class="w-full flex justify-center items-center">
-                <p class="flex items-center gap-2 text-lg"><i class="fas fa-calendar-alt text-xl"></i>📅 Última actualización Abril 2025</p>
+                <p class="flex items-center gap-2 text-lg"><i class="fas fa-calendar-alt text-xl"></i>Última actualización Abril 2025</p>
             </div>
         </footer>
     </div>

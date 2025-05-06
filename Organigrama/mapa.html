@@ -389,8 +389,8 @@
             <img src="https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true" alt="ADIF" class="logo-adif absolute top-0 left-0 w-48">
             <!-- Logo INECO -->
             <img src="https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png" alt="INECO" class="logo-ineco absolute top-0 right-0 w-44 h-21.5 mt-2">
-            <a href="#" class="text-4xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">MATENIMIENTO LAV ESTE </a>
-            <h2 class="text-2xl font-semibold text-[#008080]">Distribución Geográfica</h2>
+            <a href="#" class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">MANTENIMIENTO LAV ESTE </a>
+            <h2 class="text-3xl font-semibold text-[#008080]">Distribución Geográfica</h2>
             <div class="w-24 h-1 bg-[#008080] mx-auto mt-4 rounded-full"></div>
         </header>
 
@@ -446,9 +446,8 @@
                 "direccion": "Autopista Ctra. Villarrubia a Villatobas, Km. 3 (A-40 Salida 196), 45360, Villarrubia de Santiago (Toledo)",
                 "como_llegar": "<strong>Google Maps:</strong>\n<a href='https://maps.app.goo.gl/VwPnrP1bDesxZsHK9' target='_blank'>Ver en Maps</a>",
                 "ambitos_mantenimiento": [
-                    "Tramo 1",
-                    "Tramo 2",
-                    "Tramo 3"
+                    "Línea 40 (PK 0+000 - PK 199+176)",
+                  
                 ],
                 "personas": [
                     {
@@ -603,9 +602,7 @@
                 "direccion": "Autovía A-3, salida Kilómetro 281.e, 46390, San Antonio de Requena (Valencia)",
                 "como_llegar": "Google Maps: <a href='https://www.google.com/maps/place/Base+De+Requena/@39.5363806,-1.1593154,17z/data=!3m1!4b1!4m6!3m5!1s0xd60cc471c6adbe7:0xab8fab4bc4869dd7!8m2!3d39.5363806!4d-1.1571041!16s%2Fg%2F11h53jz48b' target='_blank'>Ver en Maps</a>",
                 "ambitos_mantenimiento": [
-                    "Tramo 1",
-                    "Tramo 2",
-                    "Tramo 3"
+                    "Línea 40 (PK 286+288 - PK 397+213)"
                 ],
                 "personas": [
                     {
@@ -697,9 +694,8 @@
                 "direccion": "Ctra.N-320 Km. 80 (Salida 212 Autovía A-3), 16214, Gabaldón (Cuenca)",
                 "como_llegar": "Google Maps: <a href='https://www.google.com/maps/place/Base+Mantenimiento+de+ADIF+Gabald%C3%B3n/@39.6358459,-1.9515908,17z/data=!3m1!4b1!4m6!3m5!1s0xd67a3ffd97c951b:0x697cf46563fe1167!8m2!3d39.6358459!4d-1.9493721!16s%2Fg%2F11h53jz48b' target='_blank'>Ver en Maps</a>",
                 "ambitos_mantenimiento": [
-                    "Tramo 1",
-                    "Tramo 2",
-                    "Tramo 3"
+                    "Línea 40 (PK 199+176 - PK 286+288)",
+                    "Línea 42 (PK 247+025 - PK 364+286)"
                 ],
                 "personas": [
                     {
@@ -872,9 +868,9 @@
                 "direccion": "Ctra.Cv. 825, Km. 9,5, 03670, Monforte del Cid (Alicante)",
                 "como_llegar": "Google Maps: <a href='https://maps.app.goo.gl/t7NngC1VvGqdopgo8' target='_blank'>Ver en Maps</a>",
                 "ambitos_mantenimiento": [
-                    "Tramo 1",
-                    "Tramo 2",
-                    "Tramo 3"
+                    "Línea 42 (PK 364+286 - PK 485+925)",
+                    "Línea 48",
+                    "Línea 46 (BIF. Murcia - BIF. VINALOPÓ)"
                 ],
                 "personas": [
                     {
@@ -1241,30 +1237,47 @@
             `;
             modalContent.innerHTML = '';
             
-            // Agrupar personas por puesto
+            // Agrupar personas por puesto si existen
             const personasPorPuesto = {};
-            if (centro.personas && Array.isArray(centro.personas)) {
+            if (centro.personas && Array.isArray(centro.personas) && centro.personas.length > 0) {
                 centro.personas.forEach(persona => {
-                    const cargo = persona.cargo.trim(); // Eliminar espacios en blanco
-                    if (!personasPorPuesto[cargo]) {
-                        personasPorPuesto[cargo] = [];
+                    if (persona && persona.cargo) {
+                        const cargo = persona.cargo.trim(); // Eliminar espacios en blanco
+                        if (!personasPorPuesto[cargo]) {
+                            personasPorPuesto[cargo] = [];
+                        }
+                        if (persona.nombre) {
+                            personasPorPuesto[cargo].push(persona.nombre);
+                        }
                     }
-                    personasPorPuesto[cargo].push(persona.nombre);
                 });
-            } else {
-                console.error('Datos de personas no válidos:', centro.personas);
+            }
+
+            // Verificar si hay información para mostrar
+            const hasPersonas = Object.keys(personasPorPuesto).length > 0;
+            const hasInfo = centro.direccion || centro.ambitos_mantenimiento || centro.horario || centro.contacto;
+            
+            // Si no hay información ni personas, mostrar mensaje
+            if (!hasPersonas && !hasInfo) {
+                const noInfoDiv = document.createElement('div');
+                noInfoDiv.className = 'text-center py-4 text-gray-500';
+                noInfoDiv.textContent = 'No hay información disponible para este centro.';
+                modalContent.appendChild(noInfoDiv);
                 return;
             }
 
-            // Ordenar los cargos en BM según la jerarquía
-            if (centro.nombre_centro.includes('BM')) {
-                // Crear la estructura de dos columnas
-                const container = document.createElement('div');
-                container.className = 'flex flex-col md:flex-row gap-8'; // Aumentado el espacio entre columnas
-
-                // Columna izquierda: Información general
+            // Determinar si es BM u oficina
+            const isBM = centro.nombre_centro.includes('BM');
+            
+            // Crear la estructura de dos columnas para BM o una columna para oficinas
+            const container = document.createElement('div');
+            
+            if (isBM && hasPersonas) {
+                container.className = 'flex flex-col md:flex-row gap-8';
+                
+                // Columna izquierda: Información general (solo para BM)
                 const infoColumn = document.createElement('div');
-                infoColumn.className = 'w-full md:w-1/2 space-y-6'; // Añadido espacio vertical entre elementos
+                infoColumn.className = 'w-full md:w-1/2 space-y-6';
 
                 // Agregar video para BM Monforte, imagen para otros
                 if (centro.nombre_centro === 'BM Monforte') {
@@ -1299,6 +1312,26 @@
                         </div>
                         <p class="text-gray-600">${centro.direccion || 'No disponible'}</p>
                     </div>
+                `;
+
+                // Añadir sección de ámbitos de mantenimiento si existe
+                if (centro.ambitos_mantenimiento && Array.isArray(centro.ambitos_mantenimiento) && centro.ambitos_mantenimiento.length > 0) {
+                    html += `
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2 text-gray-700">
+                                <i class="fas fa-route text-green-500"></i>
+                                <h3 class="text-lg font-semibold">Ámbitos de Mantenimiento</h3>
+                            </div>
+                            <ul class="list-disc list-inside text-gray-600">
+                                ${centro.ambitos_mantenimiento.map(ambito => `
+                                    <li>${ambito}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                html += `
                     <div class="space-y-2">
                         <div class="flex items-center space-x-2 text-gray-700">
                             <i class="fas fa-directions text-green-500"></i>
@@ -1319,21 +1352,19 @@
                             </div>
                         </div>
                     </div>
+                    ${['BM Monforte', 'BM Requena'].includes(centro.nombre_centro) ? `
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2 text-gray-700">
+                            <i class="fas fa-building text-green-500"></i>
+                            <h3 class="text-lg font-semibold">UTE Mantenimiento</h3>
+                        </div>
+                        <p class="text-gray-600 mb-2">MANTENIMIENTO LAV ESTE UTE</p>
+                        <img src="img/logo-ute-mantenimiento.jpg" alt="Logo UTE Mantenimiento" class="w-48 h-auto mt-2">
+                    </div>
+                    ` : ''}
                 `;
 
-                // Añadir sección de ámbitos de mantenimiento si existe
-                if (centro.ambitos_mantenimiento && Array.isArray(centro.ambitos_mantenimiento) && centro.ambitos_mantenimiento.length > 0) {
-                    html += `
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-700">Ámbitos de Mantenimiento</h3>
-                            <ul class="list-disc list-inside text-gray-600">
-                                ${centro.ambitos_mantenimiento.map(ambito => `
-                                    <li>${ambito}</li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    `;
-                }
+                // La sección de ámbitos de mantenimiento se ha movido arriba, junto con el HTML principal
 
                 infoDiv.innerHTML = html;
                 infoColumn.appendChild(infoDiv);
@@ -1383,19 +1414,35 @@
                         </div>
                         <div class="nombres-list">
                             ${item.personas.map(nombre => {
-                                const email = nombre.split(' ').pop();
-                                const cargo = nombre.split(' ')[0];
-                                const esCargoADIF = cargo.toLowerCase().includes('jefe') || 
-                                                  cargo.toLowerCase().includes('base') || 
-                                                  cargo.toLowerCase().includes('área') || 
-                                                  cargo.toLowerCase().includes('técnico');
-                                const empresa = esCargoADIF || email.includes('@adif.es') ? 'adif' : 'ineco';
+                                // Determinar si es un objeto o un string
+                                let nombreStr, email, cargo;
+                                
+                                if (typeof nombre === 'object') {
+                                    // Es un objeto con propiedades nombre, cargo, email
+                                    nombreStr = nombre.nombre || '';
+                                    cargo = nombre.cargo || '';
+                                    email = nombre.email || '';
+                                } else {
+                                    // Es un string, intentar extraer la información
+                                    nombreStr = nombre;
+                                    const parts = nombre.split(' ');
+                                    cargo = parts[0];
+                                    email = parts[parts.length - 1].includes('@') ? parts[parts.length - 1] : '';
+                                }
+                                
+                                // Determinar la empresa basada en el cargo y el email
+                                const esCargoADIF = cargo && (cargo.toLowerCase().includes('jefe') || 
+                                                          cargo.toLowerCase().includes('base') || 
+                                                          cargo.toLowerCase().includes('área') || 
+                                                          cargo.toLowerCase().includes('técnico'));
+                                const empresa = esCargoADIF || (email && email.includes('@adif.es')) ? 'adif' : 'ineco';
+                                
                                 return `
                                     <div class="nombre-item mb-1">
                                         <div class="persona-icon ${empresa}">
                                             <i class="fas fa-user"></i>
                                         </div>
-                                        <span class="text-gray-600">${nombre}</span>
+                                        <span class="text-gray-600">${nombreStr}</span>
                                     </div>
                                 `;
                             }).join('')}
@@ -1409,47 +1456,62 @@
                 container.appendChild(infoColumn);
                 container.appendChild(personalColumn);
                 modalContent.appendChild(container);
-                
-                modal.classList.add('active');
-                return; // Salir de la función ya que ya hemos mostrado los datos
-            }
+            } else {
+                // Crear la estructura de una columna para oficinas
+                const container = document.createElement('div');
+                container.className = 'space-y-6';
 
-            // Mostrar cada puesto con sus nombres
-            for (const [puesto, nombres] of Object.entries(personasPorPuesto)) {
-                const puestoDiv = document.createElement('div');
-                puestoDiv.className = 'puesto-item mb-4';
-                
-                let html = `
-                    <div class="puesto-header mb-2">
-                        <span class="text-lg font-semibold text-gray-700">${puesto}</span>
-                    </div>
-                    <div class="nombres-list">
-                        ${nombres.map(persona => {
-                            // Determinar empresa basado en el correo y el cargo
-                            const cargo = persona.cargo;
-                            const email = persona.email;
-                            
-                            // Jefes de base, jefes de área y técnicos de ADIF son siempre verdes
-                            const esCargoADIF = cargo.toLowerCase().includes('jefe') || 
-                                              cargo.toLowerCase().includes('base') || 
-                                              cargo.toLowerCase().includes('área') || 
-                                              cargo.toLowerCase().includes('técnico');
-                                                
-                            const empresa = esCargoADIF || email.includes('@adif.es') ? 'adif' : 'ineco';
-                            return `
-                                <div class="nombre-item mb-1">
-                                    <div class="persona-icon ${empresa}">
-                                        <i class="fas fa-user"></i>
+                // Mostrar cada puesto con sus nombres
+                Object.keys(personasPorPuesto).sort().forEach(puesto => {
+                    const puestoDiv = document.createElement('div');
+                    puestoDiv.className = 'puesto-item mb-4';
+                    
+                    let html = `
+                        <div class="puesto-header mb-2">
+                            <span class="text-lg font-semibold text-gray-700">${puesto}</span>
+                        </div>
+                        <div class="nombres-list">
+                            ${personasPorPuesto[puesto].map(nombre => {
+                                // Determinar si es un objeto o un string
+                                let nombreStr, email, cargo;
+                                
+                                if (typeof nombre === 'object') {
+                                    // Es un objeto con propiedades nombre, cargo, email
+                                    nombreStr = nombre.nombre || '';
+                                    cargo = nombre.cargo || '';
+                                    email = nombre.email || '';
+                                } else {
+                                    // Es un string, intentar extraer la información
+                                    nombreStr = nombre;
+                                    const parts = nombre.split(' ');
+                                    cargo = parts[0];
+                                    email = parts[parts.length - 1].includes('@') ? parts[parts.length - 1] : '';
+                                }
+                                
+                                // Determinar la empresa basada en el cargo y el email
+                                const esCargoADIF = cargo && (cargo.toLowerCase().includes('jefe') || 
+                                                          cargo.toLowerCase().includes('base') || 
+                                                          cargo.toLowerCase().includes('área') || 
+                                                          cargo.toLowerCase().includes('técnico'));
+                                const empresa = esCargoADIF || (email && email.includes('@adif.es')) ? 'adif' : 'ineco';
+                                
+                                return `
+                                    <div class="nombre-item mb-1">
+                                        <div class="persona-icon ${empresa}">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span class="text-gray-600">${nombreStr}</span>
                                     </div>
-                                    <span class="text-gray-600">${persona.nombre}</span>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-                
-                puestoDiv.innerHTML = html;
-                modalContent.appendChild(puestoDiv);
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                    
+                    puestoDiv.innerHTML = html;
+                    container.appendChild(puestoDiv);
+                });
+
+                modalContent.appendChild(container);
             }
             
             modal.classList.add('active');
