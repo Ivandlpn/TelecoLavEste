@@ -26,6 +26,7 @@
             <button id="toggle-single-view-btn">Vista única</button>
             <button id="toggle-time-axis-btn">EJE TIEMPO</button>
             <button id="toggle-counter-btn">CONTADOR</button>
+<button id="toggle-chatbot-btn">CHATBOT</button>
         </div>
 
         <!-- Contenedor de filtros -->
@@ -60,10 +61,6 @@
             <!-- Aquí se renderizará el calendario -->
         </div>
 
-        <!-- Sección de Fechas Destacadas y Eventos -->
-        <div id="special-dates-section">
-            <h2>Fechas Destacadas y Eventos</h2>
-        </div>
 
         <!-- Contenedor para la vista de gráficas (inicialmente oculto) -->
         <div id="charts-container" class="visualization-view hidden">
@@ -73,16 +70,17 @@
              <div id="chart-boxplot-month"></div>
              <!-- Puedes añadir más divs para otros gráficos -->
         </div>
+        <!-- Contenedor para filtros rápidos -->
+        <div id="quick-filters-container" class="quick-filters-container">
+            <h3>Filtros Rápidos</h3>
+            <!-- Los botones de filtro se añadirán con JavaScript -->
+        </div>
 
         <!-- Contenedor para la vista única (inicialmente oculto) -->
         <div id="single-view-container" class="visualization-view hidden">
             <!-- Aquí se renderizará la tabla de vista única -->
             <div id="single-view-table"></div>
             
-            <!-- Sección de Fechas Destacadas y Eventos -->
-            <div id="special-dates-section">
-                <h2>Fechas Destacadas y Eventos</h2>
-            </div>
         </div>
 
         <!-- Contenedor para la vista Eje Tiempo (inicialmente oculto) -->
@@ -179,13 +177,8 @@
                         <div class="event-icon">🔵</div>
                         <div class="timeline-marker"></div>
                         <div class="event-content">
-                            <div class="event-date" id="current-date-display">Cargando fecha...</div>
-
-
                             <h3 class="event-title">En Servicio</h3>
-
-
-
+                            <div class="current-date" id="current-date-display">12 de mayo de 2025</div>
                         </div>
                     </div>
     
@@ -215,6 +208,9 @@
         </div>
 
         <!-- Contenedor para la vista Contador (inicialmente oculto) -->
+<div id="chatbot-container" class="visualization-view hidden">
+    <!-- Aquí se renderizará la vista del chatbot -->
+</div>
         <div id="counter-container" class="visualization-view hidden">
             <!-- Aquí se renderizará la vista del contador -->
         </div>

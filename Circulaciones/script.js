@@ -25,6 +25,10 @@ const toggleTimeAxisButton = d3.select('#toggle-time-axis-btn'); // Nuevo botón
 const timeAxisContainer = d3.select('#time-axis-container'); // Nuevo contenedor EJE TIEMPO
 const toggleCounterButton = d3.select('#toggle-counter-btn');
 const counterContainer = d3.select('#counter-container');
+const toggleChatbotButton = d3.select('#toggle-chatbot-btn');
+const chatbotContainer = d3.select('#chatbot-container');
+// Selección del contenedor de filtros rápidos
+const quickFiltersContainer = d3.select('#quick-filters-container');
 
 // Selección de los selectores de fecha y el botón de filtro
 const startDateInput = d3.select('#start-date');
@@ -126,31 +130,150 @@ async function initializeVisualization() {
 
         renderSpecialDatesSection(specialDatesSection, specialDatesByContractualYear, dataByContractualYear, dateOnlyParser, summaryDateFormatter);
 
-        setupViewToggle(toggleViewButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, visualizationContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, {
-            calendar: () => renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap),
-            charts: () => renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap), // Pasar dailyData, colorScale y specialDatesMap
-            single: () => renderSingleViewTable(singleViewContainer, dailyData, dataByContractualYear, colorScale, specialDatesMap), // Pasar colorScale y specialDatesMap
-            time: () => {
-                // No se necesita renderizar nada, la vista EJE TIEMPO ya está configurada
-                updateCurrentDateDisplay();
-                updateTimelineLinePosition();
-            },
-            counter: () => renderCounterView(counterContainer) // Agregar función para renderizar la vista CONTADOR
-        });
+        setupViewToggle(toggleViewButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, toggleChatbotButton, visualizationContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, chatbotContainer, {
+           calendar: () => {
+               visualizationContainer.classed('hidden', false);
+               chartsContainer.classed('hidden', true);
+               singleViewContainer.classed('hidden', true);
+               timeAxisContainer.classed('hidden', true);
+               counterContainer.classed('hidden', true);
+               quickFiltersContainer.classed('hidden', true); // Hide quick filters
+               specialDatesSection.classed('hidden', false); // Show special dates section
+               renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap);
+           },
+           charts: () => {
+               visualizationContainer.classed('hidden', true);
+               chartsContainer.classed('hidden', false);
+               singleViewContainer.classed('hidden', true);
+               timeAxisContainer.classed('hidden', true);
+               counterContainer.classed('hidden', true);
+               quickFiltersContainer.classed('hidden', false); // Show quick filters
+               specialDatesSection.classed('hidden', true); // Hide special dates section
+               renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap);
+           },
+           single: () => {
+               visualizationContainer.classed('hidden', true);
+               chartsContainer.classed('hidden', true);
+               singleViewContainer.classed('hidden', false);
+               timeAxisContainer.classed('hidden', true);
+               counterContainer.classed('hidden', true);
+               quickFiltersContainer.classed('hidden', true); // Hide quick filters
+               specialDatesSection.classed('hidden', true); // Hide special dates section
+               renderSingleViewTable(singleViewContainer, dailyData, dataByContractualYear, colorScale, specialDatesMap);
+           },
+           time: () => {
+               visualizationContainer.classed('hidden', true);
+               chartsContainer.classed('hidden', true);
+               singleViewContainer.classed('hidden', true);
+               timeAxisContainer.classed('hidden', false);
+               counterContainer.classed('hidden', true);
+               quickFiltersContainer.classed('hidden', true); // Hide quick filters
+               specialDatesSection.classed('hidden', true); // Hide special dates section
+               updateCurrentDateDisplay();
+               updateTimelineLinePosition();
+           },
+           counter: () =>  {
+               visualizationContainer.classed('hidden', true);
+               chartsContainer.classed('hidden', true);
+               singleViewContainer.classed('hidden', true);
+               timeAxisContainer.classed('hidden', true);
+               counterContainer.classed('hidden', false);
+               chatbotContainer.classed('hidden', true);
+               quickFiltersContainer.classed('hidden', true); // Hide quick filters
+               specialDatesSection.classed('hidden', true); // Hide special dates section
+               renderCounterView(counterContainer);
+           },
+           chatbot: () => {
+               visualizationContainer.classed('hidden', true);
+               chartsContainer.classed('hidden', true);
+               singleViewContainer.classed('hidden', true);
+               timeAxisContainer.classed('hidden', true);
+               counterContainer.classed('hidden', true);
+               chatbotContainer.classed('hidden', false);
+               quickFiltersContainer.classed('hidden', true); // Hide quick filters
+               specialDatesSection.classed('hidden', true); // Hide special dates section
+               // Aquí puedes añadir la lógica para renderizar el chatbot
+               renderChatbotView(chatbotContainer);
+           }
+       }, dailyData, monthlySpecialDates, colorScale);
 
-        // Configurar el filtro de fecha
-        setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates); // Pasar dailyData, chartsContainer, colorScale y monthlySpecialDates
+   // Ocultar todas las vistas excepto la vista única al inicio
+   visualizationContainer.classed('hidden', true);
+   chartsContainer.classed('hidden', true);
+   timeAxisContainer.classed('hidden', true);
+   counterContainer.classed('hidden', true);
+   singleViewContainer.classed('hidden', false);
+   toggleSingleViewButton.classed('active', true);
 
-         renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap); // Pasar dailyData, colorScale y specialDatesMap
-
-
-    } catch (error) {
-        console.error("Error al cargar o procesar los datos:", error);
-        visualizationContainer.html("<p>Error al cargar los datos. Por favor, verifica los archivos JSON y el servidor local.</p>");
-         d3.select('.controls').style('display', 'none');
-         specialDatesSection.select('h2').style('display', 'none');
-    }
-}
+        // Configurar el filtro de fecha (esto aplicará el filtro automáticamente)
+        // Configurar el filtro de fechas
+        setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates);
+                // Setup quick filters
+                setupQuickFilters(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDateInput, endDateInput, applyDateFilterAndRender);
+        
+                // Renderizar las gráficas con las fechas por defecto (18/06/2013 a la fecha más reciente)
+                const defaultStartDate = new Date(2013, 5, 18);
+                // Find the last date with non-zero circulation
+                let lastNonZeroCirculationDate = new Date(); // Default to current date if no data found
+                for (let i = dailyData.length - 1; i >= 0; i--) {
+                    if (dailyData[i].circulaciones !== null && dailyData[i].circulaciones > 0) {
+                        lastNonZeroCirculationDate = dailyData[i].date;
+                        break;
+                    }
+                }
+                const defaultEndDate = lastNonZeroCirculationDate;
+                applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, defaultStartDate, defaultEndDate);
+        
+                // No es necesario llamar a renderCharts aquí ya que applyDateFilterAndRender ya se encarga de renderizar las gráficas
+                
+                // Inicializar el procesador del chatbot con los datos cargados
+                console.log('Inicializando chatbot con datos:', dailyData ? dailyData.length : 'null', 'registros');
+                console.log('Inicializando chatbot con fechas especiales:', sortedSpecialDates ? sortedSpecialDates.length : 'null', 'fechas');
+                
+                // Asegurarnos de que los datos están disponibles antes de inicializar
+                if (dailyData && dailyData.length > 0) {
+                    chatbotProcessor.initialize(dailyData, sortedSpecialDates);
+                    console.log('Chatbot inicializado correctamente');
+                } else {
+                    console.error('Error: No hay datos disponibles para inicializar el chatbot');
+                }
+        
+                // Add resize event listener to redraw charts when visible
+                window.addEventListener('resize', () => {
+                    // Check if the charts container is currently visible
+                    if (!chartsContainer.classed('hidden')) {
+                        // Re-render charts with current data and scale
+                        // Need to pass the current filtered data and date range
+                        const startDateStr = startDateInput.property('value');
+                        const endDateStr = endDateInput.property('value');
+                        const startDate = dateOnlyParser(startDateStr);
+                        const endDate = dateOnlyParser(endDateStr);
+        
+                        if (startDate && endDate) {
+                            applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
+                        } else {
+                            // If dates are not set, use defaults (shouldn't happen if initialized correctly)
+                            const defaultStartDate = new Date(2013, 5, 18);
+                            let lastNonZeroCirculationDate = new Date();
+                            for (let i = dailyData.length - 1; i >= 0; i--) {
+                                if (dailyData[i].circulaciones !== null && dailyData[i].circulaciones > 0) {
+                                    lastNonZeroCirculationDate = dailyData[i].date;
+                                    break;
+                                }
+                            }
+                            const defaultEndDate = lastNonZeroCirculationDate;
+                            applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, defaultStartDate, defaultEndDate);
+                        }
+                    }
+                });
+        
+            } catch (error) {
+                console.error("Error al cargar o procesar los datos:", error);
+                visualizationContainer.html("<p>Error al cargar los datos. Por favor, verifica los archivos JSON y el servidor local.</p>");
+                 d3.select('.controls').style('display', 'none');
+                 specialDatesSection.select('h2').style('display', 'none');
+            }
+        }
 
 // --- Funciones de Procesamiento de Datos ---
 function processRawData(data) {
@@ -179,11 +302,13 @@ function processRawData(data) {
              const dayKey = day.toString();
              let circulaciones = 0;
 
-             if (monthEntry.hasOwnProperty(dayKey)) {
+             if (monthEntry.hasOwnProperty(dayKey) && monthEntry[dayKey] !== "") {
                  const circulacionesStr = monthEntry[dayKey];
-                  if (circulacionesStr !== "" && !isNaN(parseInt(circulacionesStr, 10))) {
+                 if (!isNaN(parseInt(circulacionesStr, 10))) {
                      circulaciones = parseInt(circulacionesStr, 10);
-                  }
+                 }
+             } else {
+                 circulaciones = null; // Usar null para días sin datos
              }
 
              flatData.push({ date: date, circulaciones: circulaciones });
@@ -551,46 +676,66 @@ function renderCalendar(container, dataByContractualYear, colorScale, specialDat
 }
 
 
-function renderCharts(container, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap, startDate = null, endDate = null) { // Añadir optional startDate y endDate
+function renderCharts(container, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap, startDate = null, endDate = null) {
+    // Limpiar contenedores de gráficos
     container.select('#chart-trend').selectAll('*').remove();
     container.select('#chart-weekday').selectAll('*').remove();
     container.select('#chart-month').selectAll('*').remove();
 
-    const margin = { top: 100, right: 30, bottom: 60, left: 60 }; // Aumentar el margen superior para el título y asegurar espacio
+    // Configurar márgenes y dimensiones
+    const margin = { top: 100, right: 30, bottom: 60, left: 60 };
     const containerNode = container.node();
-    // Asegurar que containerNode no es null antes de obtener su ancho
     const containerWidth = containerNode ? parseInt(containerNode.getBoundingClientRect().width) : 960;
-    const width = containerWidth - margin.left - margin.right;
-    let height = 300; // Altura base para las gráficas
+    // Calculate width based on container, ensuring it's not negative
+    const width = Math.max(0, containerWidth - margin.left - margin.right);
+    const height = 300; // Altura fija para la gráfica
 
-    let dataToRender = monthlyTotalData;
-    let specialDatesToRender = monthlySpecialDates;
-
-    if (startDate && endDate) {
-        // Ajustar la fecha de fin para incluir todo el día seleccionado
-        const adjustedEndDate = d3.timeDay.offset(endDate, 1);
-
-        // Filtrar los datos diarios por el rango de fechas
-        const filteredDailyData = dailyData.filter(d => d.date >= startDate && d.date < adjustedEndDate);
-
-        if (filteredDailyData.length > 0) {
-             // Recalcular agregaciones mensuales para la gráfica de tendencia con los datos filtrados
-             dataToRender = aggregateMonthlyTotals(filteredDailyData);
-
-             // Filtrar fechas destacadas para el rango de fechas seleccionado
-             specialDatesToRender = monthlySpecialDates.filter(d => d.originalDate >= startDate && d.originalDate < adjustedEndDate);
-        } else {
-             dataToRender = []; // No hay datos en el rango
-             specialDatesToRender = [];
-        }
+    // Establecer fecha de inicio fija: 18 de junio de 2013
+    if (!startDate) {
+        startDate = new Date(2013, 5, 18); // 18 de junio de 2013 (los meses en JavaScript van de 0 a 11)
+        // Asegurarse de que la hora sea 00:00:00 para incluir todo el día
+        startDate.setHours(0, 0, 0, 0);
+    }
+    
+    // Establecer fecha de fin como la más reciente de los datos si no se especifica
+    if (!endDate) {
+        const dates = dailyData.map(d => d.date);
+        endDate = d3.max(dates);
     }
 
+    // Asegurarse de que las fechas sean objetos Date
+    startDate = new Date(startDate);
+    endDate = new Date(endDate);
 
-    // Renderizar la gráfica de tendencia con los datos (filtrados o totales)
-    if (dataToRender && dataToRender.length > 0) {
-        renderTrendChart(container.select('#chart-trend'), dataToRender, specialDatesToRender, margin, width, height); // Usar dataToRender y specialDatesToRender
+    // Ajustar la fecha de fin para incluir todo el día
+    const adjustedEndDate = d3.timeDay.offset(endDate, 1);
+    
+    // Filtrar los datos por el rango de fechas
+    const filteredDailyData = dailyData.filter(d => d.date >= startDate && d.date < adjustedEndDate);
+
+    // Usar los datos filtrados para la gráfica de tendencia
+    let dataToRender = [];
+    let specialDatesToRender = [];
+
+    if (filteredDailyData.length > 0) {
+        dataToRender = filteredDailyData; // Pass daily data directly
+        specialDatesToRender = monthlySpecialDates.filter(d =>
+            d.originalDate >= startDate && d.originalDate < adjustedEndDate
+        );
+
+        renderTrendChart(
+            container.select('#chart-trend'),
+            dataToRender,
+            specialDatesToRender,
+            margin,
+            width,
+            height
+        );
     } else {
-        container.select('#chart-trend').html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de tendencia en el rango seleccionado.</p>'); // Título actualizado
+        // Si no hay datos, mostrar un mensaje claro
+        container.select('#chart-trend').html(
+            '<p class="no-data">No hay datos disponibles para mostrar en la gráfica de tendencia.</p>'
+        );
     }
 
     // Las gráficas de promedio por día de la semana y por mes del año siempre usan los datos completos
@@ -611,39 +756,106 @@ function renderTrendChart(container, data, specialDates, margin, width, height) 
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
+    // Asegurarse de que las fechas estén ordenadas
+    const sortedData = [...data].sort((a, b) => a.date - b.date);
+
     const x = d3.scaleTime()
-        .domain(d3.extent(data, d => d.date))
+        .domain(d3.extent(sortedData, d => d.date))
         .range([0, width]);
 
+    // Calcular el dominio Y con un margen del 10% en la parte superior
+    const yMin = d3.min(sortedData, d => d.circulaciones || d.total);
+    const yMax = d3.max(sortedData, d => d.circulaciones || d.total);
+    const yPadding = (yMax - yMin) * 0.1; // 10% de padding
+    
     const y = d3.scaleLinear()
-        .domain([Math.max(0, (d3.min(data, d => d.circulaciones) || 0) * 0.95), (d3.max(data, d => d.circulaciones) || 10) * 1.1]) // Dominio basado en el mínimo y máximo de circulaciones
+        .domain([Math.max(0, yMin - yPadding), yMax + yPadding])
         .nice()
         .range([height, 0]);
 
     const line = d3.line()
         .x(d => x(d.date))
-        .y(d => y(d.circulaciones)); // Usar circulaciones diarias para la línea
+        .y(d => y(d.circulaciones || d.total)) // Usar circulaciones o total, lo que esté disponible
 
+    // Agregar área debajo de la línea
+    const area = d3.area()
+        .x(d => x(d.date))
+        .y0(height)
+        .y1(d => y(d.circulaciones || d.total));
+
+    // Área con degradado
+    svg.append('defs').append('linearGradient')
+        .attr('id', 'area-gradient')
+        .attr('gradientUnits', 'userSpaceOnUse')
+        .attr('x1', 0).attr('y1', 0)
+        .attr('x2', 0).attr('y2', height)
+        .selectAll('stop')
+        .data([
+            {offset: '0%', color: 'rgba(70, 130, 180, 0.3)'},
+            {offset: '100%', color: 'rgba(70, 130, 180, 0.0)'}
+        ])
+        .enter().append('stop')
+        .attr('offset', d => d.offset)
+        .attr('stop-color', d => d.color);
+
+    // Dibujar el área
     svg.append('path')
-        .datum(data)
+        .datum(sortedData)
+        .attr('fill', 'url(#area-gradient)')
+        .attr('stroke', 'none')
+        .attr('d', area);
+
+    // Dibujar la línea
+    svg.append('path')
+        .datum(sortedData)
         .attr('fill', 'none')
         .attr('stroke', 'steelblue')
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 2)
         .attr('d', line);
 
-    // Eje X
-    svg.append('g')
+    // Determinar el intervalo de ticks basado en el rango de fechas
+    const dateRange = d3.extent(data, d => d.date);
+    const durationInDays = (dateRange[1] - dateRange[0]) / (1000 * 60 * 60 * 24);
+
+    let tickInterval;
+    if (durationInDays < 60) { // Menos de 2 meses
+        tickInterval = d3.timeWeek.every(1); // Ticks semanales
+    } else if (durationInDays < 365) { // Menos de 1 año
+        tickInterval = d3.timeMonth.every(1); // Ticks mensuales
+    } else { // 1 año o más
+        tickInterval = d3.timeMonth.every(3); // Ticks cada 3 meses
+    }
+
+    const xAxis = d3.axisBottom(x)
+        .tickFormat(d3.timeFormat('%b %Y')) // Formato más corto: Mes Año
+        .ticks(tickInterval);
+
+    const xAxisGroup = svg.append('g')
+        .attr('class', 'x axis')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat(d3.timeFormat('%d/%m/%Y'))) // Formato de fecha para días con año
-        .selectAll('text')
+        .call(xAxis);
+
+    // Rotar etiquetas del eje X
+    xAxisGroup.selectAll('text')
         .style('text-anchor', 'end')
         .attr('dx', '-.8em')
         .attr('dy', '.15em')
         .attr('transform', 'rotate(-45)');
 
-    // Eje Y
-    svg.append('g')
-        .call(d3.axisLeft(y));
+    // Eje Y con formato mejorado
+    const yAxis = d3.axisLeft(y)
+        .tickFormat(d3.format('~s')); // Formato de números grandes con sufijos K, M, etc.
+
+
+    const yAxisGroup = svg.append('g')
+        .attr('class', 'y axis')
+        .call(yAxis);
+
+    // Añadir línea de cuadrícula horizontal
+    yAxisGroup.call(g => g.selectAll('.tick line')
+        .clone()
+        .attr('x2', width)
+        .attr('stroke-opacity', 0.1));
 
     // Título del eje Y
     svg.append("text")
@@ -655,192 +867,74 @@ function renderTrendChart(container, data, specialDates, margin, width, height) 
         .text("Circulaciones Diarias"); // Título actualizado
 
     // Puntos para eventos destacados
-    svg.selectAll(".event-dot")
-        .data(specialDates) // Usar specialDates directamente
-        .enter().append("circle")
-        .attr("class", "event-dot")
-        .attr("cx", d => x(d.originalDate)) // Usar la fecha original del evento
-        .attr("cy", d => {
-             // Encontrar el punto de datos diario correspondiente para obtener la altura correcta
-             const dailyDataPoint = data.find(item => item.date.getTime() === d.originalDate.getTime());
-             return dailyDataPoint ? y(dailyDataPoint.circulaciones) : -100; // Posición fuera si no se encuentra
-        })
-        .attr("r", 5)
-        .attr("fill", "red")
-        .attr("stroke", "white")
-        .on("mouseover", function(event, d) {
-             const dailyDataPoint = data.find(item => item.date.getTime() === d.originalDate.getTime());
-             if (!dailyDataPoint) return;
+    if (specialDates && specialDates.length > 0) {
+        const eventDots = svg.selectAll(".event-dot")
+            .data(specialDates)
+            .enter().append("g");
 
-             const tooltipHtml = `<strong>${fullDateFormatter(d.originalDate)}</strong><br>Circulaciones: ${dailyDataPoint.circulaciones}<br>Evento: ${d.eventInfo}`; // Mostrar circulaciones diarias
-             tooltip.html(tooltipHtml)
-                 .style('display', 'block')
-                 .style('left', `${event.pageX + 10}px`)
-                 .style('top', `${event.pageY - 20}px`);
-        })
-        .on("mouseout", function() {
-             tooltip.style('display', 'none');
-        });
+        // Línea que va desde el punto hasta el eje X
+        eventDots.append("line")
+            .attr("class", "event-line")
+            .attr("x1", d => x(d.originalDate))
+            .attr("x2", d => x(d.originalDate))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", "#ff6b6b")
+            .attr("stroke-width", 1)
+            .attr("stroke-dasharray", "3,3")
+            .attr("opacity", 0.5);
 
-     // Título de la gráfica
-     svg.append("text")
-         .attr("x", (width / 2))
-         .attr("y", margin.top / 2)
-         .attr("text-anchor", "middle")
-         .style("font-size", "1.2em")
-         .style("font-weight", "bold")
-         .text("Tendencia Diaria de Circulaciones"); // Título actualizado
-}
+        // Punto del evento
+        const eventCircles = eventDots.append("circle")
+            .attr("class", "event-dot")
+            .attr("cx", d => x(d.originalDate)) // Posición X basada en la fecha original del evento
+            .attr("cy", d => {
+                // Encontrar el punto de datos diario correspondiente a la fecha exacta del evento
+                const dataPoint = data.find(item =>
+                    item.date.getTime() === d.originalDate.getTime()
+                );
+                // Usar el valor de circulaciones diarias para la posición Y
+                return dataPoint ? y(dataPoint.circulaciones) : -100; // Usar -100 o similar si no hay datos para esa fecha
+            })
+            .attr("r", 5)
+            .attr("fill", "#ff6b6b")
+            .attr("stroke", "white")
+            .attr("stroke-width", 1.5)
+            .attr("cursor", "pointer")
+            .on("mouseover", function(event, d) {
+                const dataPoint = data.find(item => 
+                    item.date.getFullYear() === d.originalDate.getFullYear() &&
+                    item.date.getMonth() === d.originalDate.getMonth()
+                );
+                if (!dataPoint) return;
 
-
-function renderWeekdayAvgChart(container, data, margin, width, height) {
-    container.selectAll('*').remove(); // Limpiar contenedor
-
-    if (!data || data.length === 0) {
-        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por día de la semana.</p>');
-        return;
+                const tooltipHtml = `<strong>${fullDateFormatter(d.originalDate)}</strong><br>Circulaciones: ${dataPoint.circulaciones || dataPoint.total}<br>Evento: ${d.eventInfo || 'Sin descripción'}`;
+                tooltip.html(tooltipHtml)
+                    .style('display', 'block')
+                    .style('left', `${event.pageX + 10}px`)
+                    .style('top', `${event.pageY - 20}px`);
+            })
+            .on("mouseout", function() {
+                tooltip.style('display', 'none');
+            });
     }
 
-    const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const x = d3.scaleBand()
-        .domain(data.map(d => d.weekdayName))
-        .range([0, width])
-        .padding(0.1);
-
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.average) || 10]) // Asegurar dominio mínimo de 10
-        .nice()
-        .range([height, 0]);
-
-    svg.selectAll('.bar')
-        .data(data)
-        .enter().append('rect')
-        .attr('class', 'bar')
-        .attr('x', d => x(d.weekdayName))
-        .attr('y', d => y(d.average))
-        .attr('width', x.bandwidth())
-        .attr('height', d => height - y(d.average))
-        .attr('fill', 'steelblue')
-         .on("mouseover", function(event, d) {
-             const tooltipHtml = `<strong>${d.weekdayName}</strong><br>Promedio: ${d.average.toFixed(2)}`;
-             tooltip.html(tooltipHtml)
-                 .style('display', 'block')
-                 .style('left', `${event.pageX + 10}px`)
-                 .style('top', `${event.pageY - 20}px`);
-         })
-         .on("mouseout", function() {
-             tooltip.style('display', 'none');
-         });
-
-    // Eje X
-    svg.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x));
-
-    // Eje Y
-    svg.append('g')
-        .call(d3.axisLeft(y));
-
-     // Título del eje Y
-     svg.append("text")
-         .attr("transform", "rotate(-90)")
-         .attr("y", 0 - margin.left)
-         .attr("x", 0 - (height / 2))
-         .attr("dy", "1em")
-         .style("text-anchor", "middle")
-         .text("Promedio Diario de Circulaciones");
-
-     // Título de la gráfica
-     svg.append("text")
-         .attr("x", (width / 2))
-         .attr("y", 0 - (margin.top / 2))
-         .attr("text-anchor", "middle")
-         .style("font-size", "1.2em")
-         .style("font-weight", "bold")
-         .text("Promedio de Circulaciones por Día de la Semana");
+    // Cuadrícula horizontal
+    svg.append("g")
+        .attr("class", "grid")
+        .call(d3.axisLeft(y)
+            .tickSize(-width)
+            .tickFormat("")
+        )
+        .selectAll(".tick line")
+        .attr("stroke", "#e0e0e0")
+        .attr("stroke-opacity", 0.5);
 }
 
-function renderMonthAvgChart(container, data, margin, width, height) {
-    container.selectAll('*').remove(); // Limpiar contenedor
 
-    if (!data || data.length === 0) {
-        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de promedio por mes del año.</p>');
-        return;
-    }
+// Función eliminada: renderWeekdayAvgChart no se utiliza
 
-    const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const x = d3.scaleBand()
-        .domain(data.map(d => d.monthName))
-        .range([0, width])
-        .padding(0.1);
-
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.average) || 10]) // Asegurar dominio mínimo de 10
-        .nice()
-        .range([height, 0]);
-
-    svg.selectAll('.bar')
-        .data(data)
-        .enter().append('rect')
-        .attr('class', 'bar')
-        .attr('x', d => x(d.monthName))
-        .attr('y', d => y(d.average))
-        .attr('width', x.bandwidth())
-        .attr('height', d => height - y(d.average))
-        .attr('fill', 'steelblue')
-         .on("mouseover", function(event, d) {
-             const tooltipHtml = `<strong>${d.monthName}</strong><br>Promedio: ${d.average.toFixed(2)}`;
-             tooltip.html(tooltipHtml)
-                 .style('display', 'block')
-                 .style('left', `${event.pageX + 10}px`)
-                 .style('top', `${event.pageY - 20}px`);
-         })
-         .on("mouseout", function() {
-             tooltip.style('display', 'none');
-         });
-
-    // Eje X
-    svg.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll('text')
-        .style('text-anchor', 'end')
-        .attr('dx', '-.8em')
-        .attr('dy', '.15em')
-        .attr('transform', 'rotate(-45)');
-
-    // Eje Y
-    svg.append('g')
-        .call(d3.axisLeft(y));
-
-     // Título del eje Y
-     svg.append("text")
-         .attr("transform", "rotate(-90)")
-         .attr("y", 0 - margin.left)
-         .attr("x", 0 - (height / 2))
-         .attr("dy", "1em")
-         .style("text-anchor", "middle")
-         .text("Promedio Diario de Circulaciones");
-
-     // Título de la gráfica
-     svg.append("text")
-         .attr("x", (width / 2))
-         .attr("y", 0 - (margin.top / 2))
-         .attr("text-anchor", "middle")
-         .style("font-size", "1.2em")
-         .style("font-weight", "bold")
-         .text("Promedio de Circulaciones por Mes del Año");
-}
+// Función eliminada: renderMonthAvgChart no se utiliza
 
 
 function renderLegend(container, colorScale, minCirc, maxCirc) {
@@ -905,168 +999,7 @@ function renderLegend(container, colorScale, minCirc, maxCirc) {
              <span>0 circulaciones</span>
          `);
 }
-
-// --- Función de Renderizado (Gráfica de Caja y Bigotes por Mes) ---
-
-
-
-// --- Función de Renderizado (Gráfica de Caja y Bigotes por Mes) ---
-
-function renderBoxPlotMonthChart(container, dailyData, margin, width, height) {
-    container.selectAll('*').remove(); // Limpiar contenedor
-
-    if (!dailyData || dailyData.length === 0) {
-        container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de caja y bigotes por mes.</p>');
-        return;
-    }
-
-    const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    // Agrupar datos por mes para el box plot
-    const dataByMonth = Array.from(d3.group(dailyData, d => d.date.getMonth()), ([key, values]) => ({
-        monthIndex: key,
-        monthName: esLocale.format('%B')(new Date(2000, key, 1)), // Usar el nombre del mes
-        circulaciones: values.map(v => v.circulaciones).sort(d3.ascending) // Obtener y ordenar circulaciones
-    })).sort((a, b) => a.monthIndex - b.monthIndex); // Ordenar por índice de mes
-
-    // Calcular estadísticas para el box plot (cuartiles, mediana, bigotes)
-    const boxPlotData = dataByMonth.map(d => {
-        const q1 = d3.quantile(d.circulaciones, 0.25);
-        const median = d3.quantile(d.circulaciones, 0.5);
-        const q3 = d3.quantile(d.circulaciones, 0.75);
-        const interQuartileRange = q3 - q1;
-        const lowerWhisker = d3.max([d3.min(d.circulaciones), q1 - 1.5 * interQuartileRange]);
-        const upperWhisker = d3.min([d3.max(d.circulaciones), q3 + 1.5 * interQuartileRange]);
-
-        return {
-            monthName: d.monthName,
-            q1: q1,
-            median: median,
-            q3: q3,
-            interQuartileRange: interQuartileRange,
-            lowerWhisker: lowerWhisker,
-            upperWhisker: upperWhisker,
-            outliers: d.circulaciones.filter(v => v < lowerWhisker || v > upperWhisker) // Identificar outliers
-        };
-    });
-
-    // Escalas
-    const x = d3.scaleBand()
-        .domain(boxPlotData.map(d => d.monthName))
-        .range([0, width])
-        .padding(0.3); // Ajustar padding para las cajas
-
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(boxPlotData, d => d.upperWhisker) * 1.1 || 10]) // Dominio basado en el bigote superior
-        .nice()
-        .range([height, 0]);
-
-    // Eje X
-    svg.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll('text')
-        .style('text-anchor', 'end')
-        .attr('dx', '-.8em')
-        .attr('dy', '.15em')
-        .attr('transform', 'rotate(-45)');
-
-    // Eje Y
-    svg.append('g')
-        .call(d3.axisLeft(y));
-
-    // Título del eje Y
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - (height / 2))
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Circulaciones Diarias");
-
-    // Dibujar las cajas
-    const boxWidth = x.bandwidth();
-    svg.selectAll(".box")
-        .data(boxPlotData)
-        .enter().append("rect")
-        .attr("class", "box")
-        .attr("x", d => x(d.monthName) + boxWidth / 4) // Centrar la caja
-        .attr("y", d => y(d.q3))
-        .attr("height", d => y(d.q1) - y(d.q3))
-        .attr("width", boxWidth / 2) // Ancho de la caja
-        .attr("stroke", "black")
-        .attr("fill", "#69b3a2"); // Color de la caja
-
-    // Dibujar la línea de la mediana
-    svg.selectAll(".median-line")
-        .data(boxPlotData)
-        .enter().append("line")
-        .attr("class", "median-line")
-        .attr("x1", d => x(d.monthName) + boxWidth / 4)
-        .attr("x2", d => x(d.monthName) + boxWidth * 3 / 4)
-        .attr("y1", d => y(d.median))
-        .attr("y2", d => y(d.median))
-        .attr("stroke", "black")
-        .attr("stroke-width", 2);
-
-    // Dibujar los bigotes
-    svg.selectAll(".whisker-line")
-        .data(boxPlotData)
-        .enter().append("line")
-        .attr("class", "whisker-line")
-        .attr("x1", d => x(d.monthName) + boxWidth / 2) // Centrar la línea del bigote
-        .attr("x2", d => x(d.monthName) + boxWidth / 2)
-        .attr("y1", d => y(d.upperWhisker))
-        .attr("y2", d => y(d.lowerWhisker))
-        .attr("stroke", "black")
-        .attr("stroke-dasharray", "2,2"); // Línea discontinua
-
-    // Dibujar los extremos de los bigotes
-     svg.selectAll(".whisker-cap-top")
-         .data(boxPlotData)
-         .enter().append("line")
-         .attr("class", "whisker-cap")
-         .attr("x1", d => x(d.monthName) + boxWidth / 4)
-         .attr("x2", d => x(d.monthName) + boxWidth * 3 / 4)
-         .attr("y1", d => y(d.upperWhisker))
-         .attr("y2", d => y(d.upperWhisker))
-         .attr("stroke", "black");
-
-     svg.selectAll(".whisker-cap-bottom")
-         .data(boxPlotData)
-         .enter().append("line")
-         .attr("class", "whisker-cap")
-         .attr("x1", d => x(d.monthName) + boxWidth / 4)
-         .attr("x2", d => x(d.monthName) + boxWidth * 3 / 4)
-         .attr("y1", d => y(d.lowerWhisker))
-         .attr("y2", d => y(d.lowerWhisker))
-         .attr("stroke", "black");
-
-
-    // Dibujar los outliers
-    svg.selectAll(".outlier-dot")
-        .data(boxPlotData.flatMap(d => d.outliers.map(o => ({ monthName: d.monthName, value: o })))) // Aplanar outliers
-        .enter().append("circle")
-        .attr("class", "outlier-dot")
-        .attr("cx", d => x(d.monthName) + boxWidth / 2) // Centrar el punto
-        .attr("cy", d => y(d.value))
-        .attr("r", 3) // Radio del punto
-        .attr("fill", "red") // Color rojo para outliers
-        .attr("stroke", "white");
-
-    // Título de la gráfica
-    svg.append("text")
-        .attr("x", (width / 2))
-        .attr("y", 0 - (margin.top / 2))
-        .attr("text-anchor", "middle")
-        .style("font-size", "1.2em")
-        .style("font-weight", "bold")
-        .text("Distribución de Circulaciones Diarias por Mes");
-}
+// Función eliminada: renderBoxPlotMonthChart no se utiliza
 
 
 function setupYearSelector(selector, dataByContractualYear, toggleChartsButton, calendarContainer, chartsContainer, dailyData, monthlySpecialDates) { // Añadir dailyData y monthlySpecialDates
@@ -1170,22 +1103,24 @@ function renderSpecialDatesSection(container, specialDatesByContractualYear, dat
      });
 }
 
-function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, calendarContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, renderFunctions) {
-    let currentView = 'calendar';
+function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, toggleChatbotButton, calendarContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, chatbotContainer, renderFunctions, dailyData, monthlySpecialDates, colorScale) {
+    let currentView = 'single';
 
     const updateViewVisibility = () => {
-        // Ocultar todos los contenedores de vista
+        // Ocultar todas las vistas
         calendarContainer.classed('hidden', true);
         chartsContainer.classed('hidden', true);
         singleViewContainer.classed('hidden', true);
         timeAxisContainer.classed('hidden', true);
         counterContainer.classed('hidden', true);
+        chatbotContainer.classed('hidden', true);
 
         // Ocultar todos los botones de vista inicialmente
         toggleChartsButton.style('display', 'none');
         toggleSingleViewButton.style('display', 'none');
         toggleTimeAxisButton.style('display', 'none');
         toggleCounterButton.style('display', 'none');
+        toggleChatbotButton.style('display', 'none');
 
         // Ocultar el filtro de fecha, el selector de año y la leyenda por defecto
         dateFilterContainer.style('display', 'none');
@@ -1199,6 +1134,7 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
                 toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
                 toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
                 toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
                 
                 // Mostrar el selector de año solo en la vista de calendario
                 yearSelectorContainer.style('display', 'block');
@@ -1215,18 +1151,23 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
                 toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
                 toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
                 toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
-                
+                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
+
                 // Mostrar el filtro de fecha solo en la vista de gráficas
                 dateFilterContainer.style('display', 'flex');
-                
-                // Asegurarse de que el filtro de fecha muestra el rango completo al entrar a gráficas
-                const minDate = d3.min(dailyData, d => d.date);
-                const maxDate = d3.max(dailyData, d => d.date);
-                startDateInput.property('value', minDate ? esLocale.format('%Y-%m-%d')(minDate) : '');
-                endDateInput.property('value', maxDate ? esLocale.format('%Y-%m-%d')(maxDate) : '');
-                
-                // Aplicar el filtro de fecha actual
-                applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDateInput.property('value'), endDateInput.property('value'));
+
+                if (dailyData && dailyData.length > 0) {
+                    const minDate = d3.min(dailyData, d => d.date);
+                    const maxDate = d3.max(dailyData, d => d.date);
+                    const startDate = startDateInput.node().value || (minDate ? esLocale.format('%Y-%m-%d')(minDate) : '');
+                    const endDate = endDateInput.node().value || (maxDate ? esLocale.format('%Y-%m-%d')(maxDate) : '');
+
+                    startDateInput.property('value', startDate);
+                    endDateInput.property('value', endDate);
+
+                    // Aplicar el filtro de fecha actual
+                    applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
+                }
                 break;
             case 'single':
                 singleViewContainer.classed('hidden', false);
@@ -1234,6 +1175,7 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
                 toggleSingleViewButton.style('display', 'inline-block').text('GRAFICOS');
                 toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
                 toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
                 
                 // Mostrar la leyenda en la vista única
                 d3.select('#legend').style('display', 'block');
@@ -1247,6 +1189,7 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
                 toggleSingleViewButton.style('display', 'inline-block').text('GRAFICOS');
                 toggleTimeAxisButton.style('display', 'inline-block').text('VISTA UNICA');
                 toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
                 
                 // No mostrar la leyenda en la vista de eje tiempo
                 d3.select('#legend').style('display', 'none');
@@ -1257,8 +1200,20 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
                 toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
                 toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
                 toggleCounterButton.style('display', 'inline-block').text('GRAFICOS');
+                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
                 
                 // No mostrar la leyenda en la vista de contador
+                d3.select('#legend').style('display', 'none');
+                break;
+            case 'chatbot':
+                chatbotContainer.classed('hidden', false);
+                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
+                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
+                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
+                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
+                toggleChatbotButton.style('display', 'inline-block').text('GRAFICOS');
+                
+                // No mostrar la leyenda en la vista de chatbot
                 d3.select('#legend').style('display', 'none');
                 break;
         }
@@ -1284,6 +1239,9 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
             case 'CONTADOR':
                 targetView = 'counter';
                 break;
+            case 'CHATBOT':
+                targetView = 'chatbot';
+                break;
         }
 
         if (targetView !== currentView) {
@@ -1297,6 +1255,7 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
     toggleSingleViewButton.on('click', handleViewButtonClick);
     toggleTimeAxisButton.on('click', handleViewButtonClick);
     toggleCounterButton.on('click', handleViewButtonClick);
+    toggleChatbotButton.on('click', handleViewButtonClick);
 
     // Inicializar la vista
     updateViewVisibility();
@@ -1388,15 +1347,18 @@ function renderSingleViewTable(container, dailyData, dataByContractualYear, colo
                     const eventInfo = specialDatesMap.get(dateStr);
                     const isHighlighted = specialDatesMap.has(dateStr);
 
-                    cell.text(circulaciones !== undefined ? circulaciones : ''); // Mostrar vacío si no hay datos para ese día
-                    if (day === 1) { // Add this condition
-                        cell.classed('day-1-cell', true); // Add a class for day 1
+                    // Mostrar vacío si no hay datos para ese día (null o undefined)
+                    cell.text(circulaciones === null || circulaciones === undefined || circulaciones === '' ? '' : circulaciones);
+                    
+                    if (day === 1) {
+                        cell.classed('day-1-cell', true); // Añadir clase para el primer día del mes
                     }
+                    
                     cell.style('background-color', () => {
-                        if (circulaciones === undefined || circulaciones === 0) {
-                            return '#ffffff'; // Blanco para 0 circulaciones o sin datos
+                        if (circulaciones === null || circulaciones === undefined || circulaciones === '') {
+                            return '#ffffff'; // Blanco para celdas sin datos
                         }
-                        return colorScale(circulaciones); // Usar la escala de color para > 0 circulaciones
+                        return circulaciones === 0 ? '#f0f0f0' : colorScale(circulaciones); // Gris claro para 0, escala de color para > 0
                     });
 
                     if (isHighlighted) {
@@ -1405,7 +1367,7 @@ function renderSingleViewTable(container, dailyData, dataByContractualYear, colo
 
                     // Añadir event listeners para el tooltip
                     cell.on('mouseover', function(event) {
-                        let tooltipHtml = `<strong>${esLocale.format('%A, %d de %B de %Y')(date)}</strong><br>Circulaciones: ${circulaciones !== undefined ? circulaciones : 'N/D'}`;
+                        let tooltipHtml = `<strong>${esLocale.format('%A, %d de %B de %Y')(date)}</strong><br>Circulaciones: ${(circulaciones === undefined || circulaciones === '') ? 'N/D' : circulaciones}`;
                         if (eventInfo) {
                             tooltipHtml = `⚠️ ${tooltipHtml}<div class="event-info">${eventInfo}</div>`;
                         }
@@ -1438,6 +1400,406 @@ function renderSingleViewTable(container, dailyData, dataByContractualYear, colo
     });
 }
 
+// Funciones para procesar consultas del chatbot
+const chatbotProcessor = {
+    // Datos globales que se actualizarán cuando se carguen los datos
+    data: null,
+    specialDates: null,
+    
+    // Inicializar el procesador con los datos
+    initialize: function(dailyData, specialDatesData) {
+        this.data = dailyData;
+        this.specialDates = specialDatesData;
+        console.log('Chatbot processor initialized with data:', this.data ? this.data.length : 'null', 'records');
+        console.log('Chatbot processor initialized with special dates:', this.specialDates ? this.specialDates.length : 'null', 'records');
+        
+        // Verificar que los datos tengan la estructura esperada
+        if (this.data && this.data.length > 0) {
+            console.log('Muestra de datos:', this.data[0]);
+        }
+    },
+    
+    // Procesar una consulta y devolver una respuesta
+    processQuery: function(query) {
+        console.log('Procesando consulta:', query);
+        console.log('Estado de los datos:', this.data ? `${this.data.length} registros disponibles` : 'Sin datos');
+        console.log('Estado de fechas especiales:', this.specialDates ? `${this.specialDates.length} fechas especiales disponibles` : 'Sin fechas especiales');
+        
+        // Convertir la consulta a minúsculas para facilitar la comparación
+        const lowerQuery = query.toLowerCase();
+        console.log('Consulta en minúsculas:', lowerQuery);
+        
+        // Patrones de consulta comunes (respuestas independientes de los datos)
+        if (lowerQuery.includes('hola') || lowerQuery.includes('buenos días') || lowerQuery.includes('buenas tardes') || lowerQuery.includes('buenas noches')) {
+            return '¡Hola! Soy el asistente virtual de circulaciones. ¿En qué puedo ayudarte?';
+        }
+        
+        if (lowerQuery.includes('ayuda') || lowerQuery.includes('qué puedes hacer')) {
+            return 'Puedo responder preguntas sobre las circulaciones de trenes entre Albacete y Alicante. Por ejemplo, puedes preguntarme sobre el número total de circulaciones, promedios por mes, días con más circulaciones, etc.';
+        }
+        
+        // Verificar si los datos están disponibles
+        if (!this.data || this.data.length === 0) {
+            console.log('Error: No hay datos disponibles');
+            return 'Lo siento, no tengo acceso a los datos en este momento. Prueba a preguntar "¿qué puedes hacer?" para ver las opciones disponibles.';
+        }
+        
+        // Patrones de consulta comunes
+        if (lowerQuery.includes('hola') || lowerQuery.includes('buenos días') || lowerQuery.includes('buenas tardes') || lowerQuery.includes('buenas noches')) {
+            return '¡Hola! Soy el asistente virtual de circulaciones. ¿En qué puedo ayudarte?';
+        }
+        
+        if (lowerQuery.includes('ayuda') || lowerQuery.includes('qué puedes hacer')) {
+            return 'Puedo responder preguntas sobre las circulaciones de trenes entre Albacete y Alicante. Por ejemplo, puedes preguntarme sobre el número total de circulaciones, promedios por mes, días con más circulaciones, etc.';
+        }
+        
+        // Consultas sobre datos totales
+        if (lowerQuery.includes('total') && lowerQuery.includes('circulaciones')) {
+            const total = this.getTotalCirculations();
+            return `El número total de circulaciones registradas es de ${total}.`;
+        }
+        
+        // Consultas sobre promedios
+        if (lowerQuery.includes('promedio') || lowerQuery.includes('media')) {
+            if (lowerQuery.includes('diario') || lowerQuery.includes('día') || lowerQuery.includes('por día')) {
+                const avg = this.getAverageCirculationsPerDay();
+                return `El promedio diario de circulaciones es de ${avg.toFixed(2)} trenes.`;
+            }
+            
+            if (lowerQuery.includes('mensual') || lowerQuery.includes('mes') || lowerQuery.includes('por mes')) {
+                const avg = this.getAverageCirculationsPerMonth();
+                return `El promedio mensual de circulaciones es de ${avg.toFixed(2)} trenes.`;
+            }
+        }
+        
+        // Consultas sobre máximos y mínimos
+        if (lowerQuery.includes('máximo') || lowerQuery.includes('máxima') || lowerQuery.includes('más')) {
+            if (lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) {
+                const max = this.getMaxCirculationsDay();
+                return `El día con más circulaciones fue el ${max.date}, con ${max.count} trenes.`;
+            }
+        }
+        
+        if (lowerQuery.includes('mínimo') || lowerQuery.includes('mínima') || lowerQuery.includes('menos')) {
+            if (lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) {
+                const min = this.getMinCirculationsDay();
+                return `El día con menos circulaciones (excluyendo días sin servicio) fue el ${min.date}, con ${min.count} trenes.`;
+            }
+        }
+        
+        // Consultas sobre fechas específicas
+        const dateMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:el|del|en el|en)\s+(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?/);
+        if (dateMatch) {
+            const day = parseInt(dateMatch[1]);
+            const monthName = dateMatch[2];
+            const year = dateMatch[3] ? parseInt(dateMatch[3]) : new Date().getFullYear();
+            
+            const monthMap = {
+                'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+            };
+            
+            const month = monthMap[monthName];
+            const dateInfo = this.getCirculationsForDate(day, month, year);
+            
+            if (dateInfo) {
+                return `El ${day} de ${monthName} de ${year} hubo ${dateInfo.count} circulaciones.`;
+            } else {
+                return `No tengo información sobre circulaciones para el ${day} de ${monthName} de ${year}.`;
+            }
+        }
+        
+        // Consultas sobre meses específicos
+        const monthMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:en|de|durante)\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?/);
+        if (monthMatch) {
+            const monthName = monthMatch[1];
+            const year = monthMatch[2] ? parseInt(monthMatch[2]) : new Date().getFullYear();
+            
+            const monthMap = {
+                'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+            };
+            
+            const month = monthMap[monthName];
+            const monthInfo = this.getCirculationsForMonth(month, year);
+            
+            if (monthInfo && monthInfo.total > 0) {
+                return `En ${monthName} de ${year} hubo un total de ${monthInfo.total} circulaciones, con un promedio diario de ${monthInfo.average.toFixed(2)} trenes.`;
+            } else {
+                return `No tengo información sobre circulaciones para ${monthName} de ${year}.`;
+            }
+        }
+        
+        // Consultas sobre años específicos
+        const yearMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:en|de|durante)\s+(?:el año|el|año)?\s+(\d{4})/);
+        if (yearMatch) {
+            const year = parseInt(yearMatch[1]);
+            const yearInfo = this.getCirculationsForYear(year);
+            
+            if (yearInfo && yearInfo.total > 0) {
+                return `En el año ${year} hubo un total de ${yearInfo.total} circulaciones, con un promedio mensual de ${yearInfo.monthlyAverage.toFixed(2)} trenes.`;
+            } else {
+                return `No tengo información sobre circulaciones para el año ${year}.`;
+            }
+        }
+        
+        // Consultas sobre fechas destacadas
+        if (lowerQuery.includes('fecha') && (lowerQuery.includes('destacada') || lowerQuery.includes('especial') || lowerQuery.includes('importante'))) {
+            const specialDateInfo = this.getSpecialDatesInfo();
+            return specialDateInfo;
+        }
+        
+        // Si no se reconoce la consulta
+        return 'Lo siento, no entiendo tu consulta. Puedes preguntarme sobre el número total de circulaciones, promedios por mes, días con más circulaciones, etc.';
+    },
+    
+    // Métodos para obtener información específica
+    getTotalCirculations: function() {
+        return this.data.reduce((total, d) => total + d.circulaciones, 0);
+    },
+    
+    getAverageCirculationsPerDay: function() {
+        const totalDays = this.data.filter(d => d.circulaciones > 0).length;
+        const totalCirculations = this.getTotalCirculations();
+        return totalCirculations / totalDays;
+    },
+    
+    getAverageCirculationsPerMonth: function() {
+        // Agrupar por mes y año
+        const monthlyData = d3.nest()
+            .key(d => d.date.getFullYear() + '-' + (d.date.getMonth() + 1))
+            .rollup(values => d3.sum(values, d => d.circulaciones))
+            .entries(this.data);
+        
+        // Calcular el promedio
+        const totalMonths = monthlyData.length;
+        const totalCirculations = this.getTotalCirculations();
+        return totalCirculations / totalMonths;
+    },
+    
+    getMaxCirculationsDay: function() {
+        const maxDay = d3.max(this.data, d => d.circulaciones);
+        const maxDayData = this.data.find(d => d.circulaciones === maxDay);
+        
+        if (maxDayData) {
+            const dateFormatter = d3.timeFormat('%d de %B de %Y');
+            return {
+                date: dateFormatter(maxDayData.date),
+                count: maxDayData.circulaciones
+            };
+        }
+        
+        return { date: 'desconocido', count: 0 };
+    },
+    
+    getMinCirculationsDay: function() {
+        // Filtrar días con circulaciones > 0
+        const daysWithService = this.data.filter(d => d.circulaciones > 0);
+        const minDay = d3.min(daysWithService, d => d.circulaciones);
+        const minDayData = daysWithService.find(d => d.circulaciones === minDay);
+        
+        if (minDayData) {
+            const dateFormatter = d3.timeFormat('%d de %B de %Y');
+            return {
+                date: dateFormatter(minDayData.date),
+                count: minDayData.circulaciones
+            };
+        }
+        
+        return { date: 'desconocido', count: 0 };
+    },
+    
+    getCirculationsForDate: function(day, month, year) {
+        const targetDate = new Date(year, month, day);
+        const dateFormatter = d3.timeFormat('%Y-%m-%d');
+        const targetDateStr = dateFormatter(targetDate);
+        
+        const dayData = this.data.find(d => dateFormatter(d.date) === targetDateStr);
+        
+        if (dayData) {
+            return {
+                count: dayData.circulaciones
+            };
+        }
+        
+        return null;
+    },
+    
+    getCirculationsForMonth: function(month, year) {
+        // Filtrar datos para el mes y año especificados
+        const monthData = this.data.filter(d => d.date.getMonth() === month && d.date.getFullYear() === year);
+        
+        if (monthData.length > 0) {
+            const total = monthData.reduce((sum, d) => sum + d.circulaciones, 0);
+            const average = total / monthData.length;
+            
+            return {
+                total: total,
+                average: average
+            };
+        }
+        
+        return null;
+    },
+    
+    getCirculationsForYear: function(year) {
+        // Filtrar datos para el año especificado
+        const yearData = this.data.filter(d => d.date.getFullYear() === year);
+        
+        if (yearData.length > 0) {
+            const total = yearData.reduce((sum, d) => sum + d.circulaciones, 0);
+            
+            // Calcular promedio mensual
+            const monthlyData = d3.nest()
+                .key(d => d.date.getMonth())
+                .rollup(values => d3.sum(values, d => d.circulaciones))
+                .entries(yearData);
+            
+            const monthlyAverage = total / monthlyData.length;
+            
+            return {
+                total: total,
+                monthlyAverage: monthlyAverage
+            };
+        }
+        
+        return null;
+    },
+    
+    getSpecialDatesInfo: function() {
+        if (!this.specialDates || this.specialDates.length === 0) {
+            return 'No hay información sobre fechas destacadas.';
+        }
+        
+        // Obtener la fecha más reciente
+        const latestSpecialDate = this.specialDates.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))[0];
+        
+        if (latestSpecialDate) {
+            const dateFormatter = d3.timeFormat('%d de %B de %Y');
+            const date = dateOnlyParser(latestSpecialDate.fecha);
+            
+            return `La fecha destacada más reciente es el ${dateFormatter(date)}: ${latestSpecialDate.descripcion}`;
+        }
+        
+        return 'No hay información sobre fechas destacadas.';
+    }
+};
+
+function renderChatbotView(container) {
+    // Limpiar el contenedor
+    container.html('');
+    
+    // Crear la estructura del chatbot
+    const chatbotHeader = container.append('div')
+        .attr('class', 'chatbot-header')
+        .html('<h2>Asistente Virtual de Circulaciones</h2>');
+    
+    // Contenedor de mensajes
+    const chatMessages = container.append('div')
+        .attr('class', 'chat-messages');
+    
+    // Mensaje de bienvenida
+    const welcomeMessage = chatMessages.append('div')
+        .attr('class', 'chat-message bot-message');
+        
+    welcomeMessage.append('div')
+        .attr('class', 'chat-avatar bot-avatar')
+        .html('🤖');
+        
+    welcomeMessage.append('div')
+        .attr('class', 'message-content')
+        .html('<p>Bienvenido al asistente virtual de circulaciones. ¿En qué puedo ayudarte?</p>');
+    
+    // Área de entrada
+    const inputArea = container.append('div')
+        .attr('class', 'chat-input-area');
+    
+    const chatInput = inputArea.append('input')
+        .attr('type', 'text')
+        .attr('placeholder', 'Escribe tu pregunta aquí...')
+        .attr('id', 'chat-input');
+    
+    const sendButton = inputArea.append('button')
+        .attr('id', 'send-chat')
+        .text('Enviar');
+    
+    // Funcionalidad para enviar mensajes
+    function sendMessage() {
+        const message = chatInput.property('value').trim();
+        if (message) {
+            // Añadir mensaje del usuario
+            const userMessageDiv = chatMessages.append('div')
+                .attr('class', 'chat-message user-message');
+                
+            userMessageDiv.append('div')
+                .attr('class', 'chat-avatar user-avatar')
+                .html('U');
+                
+            userMessageDiv.append('div')
+                .attr('class', 'message-content')
+                .html(`<p>${message}</p>`);
+            
+            // Limpiar input
+            chatInput.property('value', '');
+            
+            // Mostrar indicador de escritura
+            const typingIndicator = chatMessages.append('div')
+                .attr('class', 'chat-message bot-message typing-message');
+                
+            typingIndicator.append('div')
+                .attr('class', 'chat-avatar bot-avatar')
+                .html('🤖');
+                
+            const typingContent = typingIndicator.append('div')
+                .attr('class', 'message-content');
+                
+            typingContent.append('div')
+                .attr('class', 'typing-indicator')
+                .html('<span></span><span></span><span></span>');
+            
+            // Hacer scroll hacia abajo para mostrar el indicador de escritura
+            const messagesContainer = document.querySelector('.chat-messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Procesar la consulta y obtener la respuesta
+            setTimeout(() => {
+                // Eliminar el indicador de escritura
+                typingIndicator.remove();
+                
+                // Obtener respuesta del procesador de chatbot
+                const response = chatbotProcessor.processQuery(message);
+                
+                // Añadir respuesta del bot
+                const botMessageDiv = chatMessages.append('div')
+                    .attr('class', 'chat-message bot-message');
+                    
+                botMessageDiv.append('div')
+                    .attr('class', 'chat-avatar bot-avatar')
+                    .html('🤖');
+                    
+                botMessageDiv.append('div')
+                    .attr('class', 'message-content')
+                    .html(`<p>${response}</p>`);
+                
+                // Hacer scroll hacia abajo para mostrar el último mensaje
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 2000);
+        }
+    }
+    
+    // Event listeners
+    sendButton.on('click', sendMessage);
+    
+    chatInput.on('keypress', function(event) {
+        // Usar el evento nativo o el evento d3 según la versión
+        const keyCode = event.keyCode || d3.event.keyCode || event.which;
+        if (keyCode === 13) { // Enter key
+            event.preventDefault(); // Prevenir el comportamiento por defecto
+            sendMessage();
+        }
+    });
+}
+
 function renderCounterView(container) {
     container.selectAll('*').remove(); // Limpiar contenedor
 
@@ -1458,27 +1820,30 @@ function renderCounterView(container) {
         .attr('x', 400)
         .attr('y', 50)
         .attr('text-anchor', 'middle')
-        .attr('font-size', '24px')
+        .attr('font-size', '30px')
+        .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', 'bold')
         .text('Días de Servicio Ininterrumpido');
 
     // Número grande (con animación)
     const counterText = svg.append('text')
         .attr('x', 400)
-        .attr('y', 150)
+        .attr('y', 160)
         .attr('text-anchor', 'middle')
-        .attr('font-size', '120px')
+        .attr('font-size', '130px')
+        .attr('font-family', 'Arial, sans-serif')
         .attr('font-weight', 'bold')
-        .style('fill', '#357ABD')
+        .style('fill', '#20639B')
         .text('0'); // Empezar desde 0
 
     // Subtítulo
     svg.append('text')
         .attr('x', 400)
-        .attr('y', 200) // Cambiado de 250 a 200 para acercarlo al número
+        .attr('y', 210) // Cambiado de 250 a 200 para acercarlo al número
         .attr('text-anchor', 'middle')
-        .attr('font-size', '24px')
-        .style('fill', '#666')
+        .attr('font-size', '26px')
+        .attr('font-family', 'Arial, sans-serif')
+        .style('fill', '#495057')
         .text('desde la inauguración el 17 de junio de 2013');
 
     // Animación del contador
@@ -1527,9 +1892,17 @@ function renderCounterView(container) {
             .attr('height', 120)
             .attr('rx', 15)
             .attr('ry', 15)
-            .attr('fill', '#f8f9fa')
-            .attr('stroke', '#dee2e6')
-            .attr('stroke-width', 2);
+            .attr('fill', '#d1d5db')
+            .attr('stroke', '#64748b')
+            .attr('stroke-width', 2)
+            .attr('filter', 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))')
+            .style('transition', 'transform 0.2s ease-in-out')
+            .on('mouseover', function() {
+                d3.select(this).style('transform', 'scale(1.02)');
+            })
+            .on('mouseout', function() {
+                d3.select(this).style('transform', 'scale(1)');
+            });
             
         // Título de la tarjeta del total
         svg.append('text')
@@ -1562,7 +1935,28 @@ function renderCounterView(container) {
                 };
             })
             .ease(d3.easeCubicOut);
-            
+
+        // Encontrar la última fecha con datos diferentes de 0
+        let lastDateWithData = null;
+        for (let i = dailyData.length - 1; i >= 0; i--) {
+            if (dailyData[i].circulaciones > 0) {
+                lastDateWithData = dailyData[i].date;
+                break;
+            }
+        }
+
+        // Formatear la última fecha con datos
+        const lastDateFormatted = lastDateWithData ? esLocale.format('%d de %B de %Y')(lastDateWithData) : 'No hay datos';
+
+        // Mostrar la última fecha con datos
+        svg.append('text')
+            .attr('x', 240)  // Ajustado al centro de la primera tarjeta
+            .attr('y', 380)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '14px')
+            .style('fill', '#6c757d')
+            .text(`Datos hasta: ${lastDateFormatted}`);
+
         // Crear un rectángulo para la tarjeta del día máximo
         svg.append('rect')
             .attr('x', 420)  // Posicionado a la derecha con espacio simétrico entre tarjetas
@@ -1571,9 +1965,17 @@ function renderCounterView(container) {
             .attr('height', 120)
             .attr('rx', 15)
             .attr('ry', 15)
-            .attr('fill', '#f8f9fa')
-            .attr('stroke', '#dee2e6')
-            .attr('stroke-width', 2);
+            .attr('fill', '#d1d5db')
+            .attr('stroke', '#64748b')
+            .attr('stroke-width', 2)
+                        .attr('filter', 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))')
+                        .style('transition', 'transform 0.2s ease-in-out')
+                        .on('mouseover', function() {
+                            d3.select(this).style('transform', 'scale(1.02)');
+                        })
+                        .on('mouseout', function() {
+                            d3.select(this).style('transform', 'scale(1)');
+                        });
             
         // Título de la tarjeta del día máximo
         svg.append('text')
@@ -1588,7 +1990,7 @@ function renderCounterView(container) {
         // Mostrar el número máximo de trenes
         svg.append('text')
             .attr('x', 560)  // Ajustado al centro de la segunda tarjeta
-            .attr('y', 340)
+            .attr('y', 350)
             .attr('text-anchor', 'middle')
             .attr('font-size', '36px')
             .attr('font-weight', 'bold')
@@ -1598,7 +2000,7 @@ function renderCounterView(container) {
         // Mostrar la fecha del día máximo
         svg.append('text')
             .attr('x', 560)  // Ajustado al centro de la segunda tarjeta
-            .attr('y', 370)
+            .attr('y', 380)
             .attr('text-anchor', 'middle')
             .attr('font-size', '14px')
             .style('fill', '#6c757d')
@@ -1613,9 +2015,17 @@ function renderCounterView(container) {
             .attr('height', 120)
             .attr('rx', 15)
             .attr('ry', 15)
-            .attr('fill', '#f8f9fa')
-            .attr('stroke', '#dee2e6')
-            .attr('stroke-width', 2);
+            .attr('fill', '#d1d5db')
+            .attr('stroke', '#64748b')
+            .attr('stroke-width', 2)
+                        .attr('filter', 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))')
+                        .style('transition', 'transform 0.2s ease-in-out')
+                        .on('mouseover', function() {
+                            d3.select(this).style('transform', 'scale(1.02)');
+                        })
+                        .on('mouseout', function() {
+                            d3.select(this).style('transform', 'scale(1)');
+                        });
             
         svg.append('text')
             .attr('x', 270)
@@ -1693,7 +2103,7 @@ function applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthl
 
 
 // Función para configurar el filtro de fecha
-function setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates) { // Añadir monthlySpecialDates
+function setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates) {
     // Determinar la primera y última fecha disponible en los datos
     const firstAvailableDate = dailyData.length > 0 ? dailyData[0].date : new Date();
     const lastAvailableDate = dailyData.length > 0 ? dailyData[dailyData.length - 1].date : new Date();
@@ -1706,7 +2116,28 @@ function setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialD
     endDateInput.attr('min', minDateString);
     endDateInput.attr('max', maxDateString);
 
-    applyDateFilterButton.on('click', () => {
+    // Establecer fechas por defecto (18/06/2013 a la fecha más reciente)
+    const defaultStartDate = new Date(2013, 5, 18); // 18 de junio de 2013
+
+    // Find the last date with non-zero circulation for the default end date
+    let lastNonZeroCirculationDateForDefault = new Date(); // Default to current date if no data found
+    for (let i = dailyData.length - 1; i >= 0; i--) {
+        if (dailyData[i].circulaciones !== null && dailyData[i].circulaciones > 0) {
+            lastNonZeroCirculationDateForDefault = dailyData[i].date;
+            break;
+        }
+    }
+    const defaultEndDate = lastNonZeroCirculationDateForDefault;
+
+    // Formatear fechas para los inputs
+    const formatDateForInput = (date) => date.toISOString().split('T')[0];
+
+    // Establecer valores en los inputs
+    startDateInput.property('value', formatDateForInput(defaultStartDate));
+    endDateInput.property('value', formatDateForInput(defaultEndDate));
+
+    // Función para aplicar el filtro
+    const applyFilter = () => {
         const startDateStr = startDateInput.property('value');
         const endDateStr = endDateInput.property('value');
 
@@ -1714,17 +2145,68 @@ function setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialD
         const endDate = dateOnlyParser(endDateStr);
 
         if (!startDate || !endDate) {
-            alert("Por favor, selecciona una fecha de inicio y una fecha de fin válidas.");
+            console.warn("Fechas inválidas");
             return;
         }
+
 
         if (startDate > endDate) {
-            alert("La fecha de inicio no puede ser posterior a la fecha de fin.");
+            console.warn("La fecha de inicio no puede ser posterior a la fecha de fin");
             return;
         }
 
+
         applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
-    });
+    };
+
+    // Configurar evento del botón
+    applyDateFilterButton.on('click', applyFilter);
+    
+    // Aplicar el filtro automáticamente después de un breve retraso
+    setTimeout(applyFilter, 100);
+}
+
+// Función para configurar los filtros rápidos
+function setupQuickFilters(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDateInput, endDateInput, applyDateFilterAndRender) {
+    const quickFiltersContainer = d3.select('#quick-filters-container');
+    if (quickFiltersContainer.empty()) {
+        console.warn("Contenedor de filtros rápidos no encontrado.");
+        return;
+    }
+
+    // Define los filtros rápidos con sus rangos de fecha
+    const quickFilters = [
+        { label: "Inauguración - Pre-Pandemia", startDate: "2013-06-17", endDate: "2020-03-13" },
+        { label: "1er Estado Alarma COVID-19", startDate: "2020-02-13", endDate: "2020-06-20" },
+        { label: "Recuperación Post-Alarma", startDate: "2020-05-20", endDate: "2023-03-26" },
+        { label: "Entrada nuevos Operadores", startDate: "2022-11-20", endDate: "2023-07-23" },
+        { label: "Temporal Filomena", startDate: "2021-01-04", endDate: "2021-01-15" },
+        { label: "Incidencia Catenaria Oct 2023", startDate: "2023-09-13", endDate: "2023-11-13" }
+    ];
+
+    // Crear botones para cada filtro
+    const filterButtons = quickFiltersContainer.selectAll(".quick-filter-button")
+        .data(quickFilters)
+        .enter().append("button")
+        .attr("class", "quick-filter-button") // Clase CSS para estilizar como burbuja
+        .text(d => d.label)
+        .on("click", function(event, d) {
+            // Aplicar el filtro al hacer clic
+            const startDate = dateOnlyParser(d.startDate);
+            const endDate = dateOnlyParser(d.endDate);
+
+            if (startDate && endDate) {
+                // Actualizar los inputs de fecha en la interfaz
+                const formatDateForInput = (date) => date.toISOString().split('T')[0];
+                startDateInput.property('value', formatDateForInput(startDate));
+                endDateInput.property('value', formatDateForInput(endDate));
+
+                // Aplicar el filtro y redibujar las gráficas
+                applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
+            } else {
+                console.error("Fechas inválidas para el filtro rápido:", d.label);
+            }
+        });
 }
 
 
