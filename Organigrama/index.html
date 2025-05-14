@@ -6,8 +6,25 @@
     <title>Organigrama LAV ESTE</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        header {
+            background: linear-gradient(to right, #e0f7f7, #008080, #e0f7f7); /* Fondo degradado con tonos verde azulado */
+            color: #333; /* Color de texto oscuro por defecto para mejor contraste */
+            padding: 20px; /* Añadir padding */
+            text-align: center; /* Centrar texto */
+        }
+
+        header h1, header a {
+            font-family: 'Montserrat', sans-serif;
+            color: white; /* Título principal en blanco */
+        }
+
+        header h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: #cccccc; /* Subtítulo en gris claro */
+        }
         .org-unit {
             background-color: #f5f5dc;
             border-radius: 8px;
@@ -140,7 +157,7 @@
             <h1 class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#008080] transition-colors">MANTENIMIENTO LAV ESTE<br>Organigrama</h1>
         </header>
 
-        <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+        <div class="bg-white shadow-lg rounded-lg p-4 mb-6 border border-gray-300">
             <div class="flex justify-center">
                 <div class="flex gap-4">
                     <button onclick="window.location.href='directorio.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">

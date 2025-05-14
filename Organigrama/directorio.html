@@ -6,10 +6,27 @@
     <title>Directorio LAV ESTE</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/@tailwindcss/typography@0.5.9/dist/typography.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
     <style>
+        header {
+            background: linear-gradient(to right, #e0f7f7, #008080, #e0f7f7); /* Fondo degradado con tonos verde azulado */
+            color: #333; /* Color de texto oscuro por defecto para mejor contraste */
+            padding: 20px; /* Añadir padding */
+            text-align: center; /* Centrar texto */
+        }
+
+        header a {
+            font-family: 'Montserrat', sans-serif;
+            color: white; /* Título principal en blanco */
+        }
+
+        header h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: #cccccc; /* Subtítulo en gris claro */
+        }
         /* Estilos para los logos */
         .logo-adif {
             position: absolute;
@@ -19,7 +36,7 @@
             height: auto;
             z-index: 20;
         }
-        
+
         .logo-ineco {
             position: absolute;
             top: 20px;
@@ -28,32 +45,32 @@
             height: auto;
             z-index: 20;
         }
-        
+
         .adif-logo {
             background-image: url('https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
         }
-        
+
         .ineco-logo {
             background-image: url('https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
         }
-        
+
         .location-header {
             background: linear-gradient(90deg, rgba(0,82,147,1) 0%, rgba(0,128,128,1) 100%);
             color: white;
             transition: all 0.3s ease;
         }
-        
+
         .location-header:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
-        
+
         .contact-card {
             padding: 1.5rem;
             border-radius: 1rem;
@@ -73,7 +90,7 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 12px rgba(0,0,0,0.1);
         }
-        
+
         .company-logo {
             position: absolute;
             top: -1rem;
@@ -82,7 +99,7 @@
             height: 6rem;
             border-radius: 1rem;
         }
-        
+
         .contact-avatar {
             width: 4rem;
             height: 4rem;
@@ -96,33 +113,33 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
-        
+
         .contact-avatar:hover {
             background-color: #005293;
             transform: scale(1.1);
         }
-        
+
         .contact-info {
             margin-left: 1rem;
             flex: 1;
         }
-        
+
         .contact-name {
             font-size: 1.125rem;
             font-weight: 600;
         }
-        
+
         .contact-position {
             color: #64748b;
             font-size: 0.875rem;
         }
-        
+
         .contact-details {
             margin-top: 0.5rem;
             color: #64748b;
             font-size: 0.875rem;
         }
-        
+
         .contact-badge {
             display: inline-flex;
             align-items: center;
@@ -131,79 +148,79 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
-        
+
         .badge-adif {
             background-color: #008080;
             color: white;
         }
-        
+
         .badge-ineco {
             background-color: #2196F3;
             color: white;
         }
-        
+
         .contact-card:hover {
             transform: translateY(-5px) rotateX(2deg);
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
             background: rgba(255, 255, 255, 0.95);
         }
-        
+
         .search-container {
             background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
             border-radius: 12px;
             padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        
+
         .search-input {
             @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005293] focus:border-[#005293] transition;
         }
-        
+
         .search-suggestion {
             @apply px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition cursor-pointer;
         }
-        
+
         .contact-card {
             @apply p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 bg-white;
         }
-        
+
         .contact-card-header {
             @apply flex items-center justify-between mb-3;
         }
-        
+
         .contact-avatar {
             @apply w-12 h-12 rounded-full flex items-center justify-center bg-[#008080] text-white text-xl font-bold;
         }
-        
+
         .contact-info {
             @apply space-y-2;
         }
-        
+
         .contact-details {
             @apply grid grid-cols-2 gap-2 text-sm;
         }
-        
+
         .contact-detail-label {
             @apply font-medium text-gray-600;
         }
-        
+
         .contact-detail-value {
             @apply text-gray-900;
         }
-        
+
         .contact-actions {
             @apply flex gap-2 mt-4;
         }
-        
+
         .action-button {
             @apply px-3 py-1 rounded-md text-sm hover:bg-gray-100 transition;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out forwards;
         }
@@ -221,7 +238,7 @@
             <div class="w-24 h-1 bg-[#008080] mx-auto mt-4 rounded-full"></div>
         </header>
 
-        <div class="flex justify-center mb-6">
+        <div class="flex justify-center mb-6 border border-gray-300 shadow-lg rounded-lg p-4">
             <div class="flex gap-4">
                 <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">
                     ORGANIGRAMA
@@ -240,7 +257,7 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <input type="text" id="searchInput" placeholder="Buscar por nombre, puesto, ubicación..." 
+                        <input type="text" id="searchInput" placeholder="Buscar por nombre, puesto, ubicación..."
                                class="pl-10 pr-10 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005293] focus:border-[#005293] transition">
                         <button type="button" id="clearSearch" class="absolute inset-y-0 right-0 w-8 h-8 flex items-center justify-center cursor-pointer text-gray-500 hover:text-red-500 transition-colors duration-200 rounded-r-lg border border-transparent hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#005293] focus:ring-offset-2">
                             <i class="fas fa-times"></i>
@@ -275,23 +292,23 @@
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">Técnico Documentalista</button>
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">Teleco</button>
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">II.SS.</button>
-                
+
                 <!-- Empresas -->
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">INECO</button>
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">ADIF</button>
-                
+
                 <!-- Términos comunes -->
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">Coordinador</button>
                 <button class="search-suggestion px-3 py-1 bg-gray-100 text-sm rounded-full hover:bg-[#005293] hover:text-white transition">C.T. Ingeniería Civil</button>
             </div>
         </div>
-        
+
         <div id="contactsContainer">
             <div id="contactsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Contacts will be dynamically inserted here by JavaScript -->
             </div>
         </div>
-        
+
         <div id="noResults" class="hidden text-center py-10">
             <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
             <h3 class="text-xl font-medium text-gray-500">No se encontraron resultados</h3>
@@ -299,7 +316,7 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
         // Función para generar avatar inicial
         function getAvatarInitials(name) {
             return name.split(' ').map(word => word[0].toUpperCase()).join('');
@@ -310,622 +327,69 @@
             return phone.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         }
 
-        const contacts = [
-            // Madrid - Paseo del Rey
-            {
-                ubicacion: "Madrid - Paseo del Rey",
-                nombre: "Mario García Aguado",
-                puesto: "Jefe de Área",
-                correo: "mgarciaaguado@adif.es",
-                telefono: "647923080",
-                empresa: "ADIF"
-            },
-            {
-                ubicacion: "Madrid - Paseo del Rey",
-                nombre: "Lourdes Mirasierra Pérez",
-                puesto: "Secretaria",
-                correo: "lmirasierra@externos.adif.es",
-                telefono: "628895465"
-            },
-            {
-                ubicacion: "Madrid - Paseo del Rey",
-                nombre: "Pedro Luis Miguel Sánchez",
-                puesto: "Coordinador de Línea",
-                correo: "pedro.miguel@ineco.com",
-                telefono: "661287618"
-            },
-            {
-                ubicacion: "Madrid - Paseo del Rey",
-                nombre: "Manuel Tirado Domínguez",
-                puesto: "Técnico II.SS.",
-                correo: "mtirado@adif.es",
-                telefono: "647615303"
-            },
-            {
-                ubicacion: "Madrid - Paseo del Rey",
-                nombre: "Samuel García Chaparro",
-                puesto: "Técnico Telecomunicaciones",
-                correo: "sgarciac@adif.es",
-                telefono: "647813678"
-            },
-            {
-                ubicacion: "Madrid - Paseo del Rey",
-                nombre: "Héctor Sanz Mateos",
-                puesto: "Técnico Infra y Vía Línea",
-                correo: "hector.sanz@ineco.com",
-                telefono: "687940736"
-            },
-            
-            // Madrid Sur
-            {
-                ubicacion: "Madrid Sur",
-                nombre: "Alberto Sanz Berges",
-                puesto: "Técnico Energía",
-                correo: "alberto.berges@ineco.com",
-                telefono: "662676920"
-            },
-            {
-                ubicacion: "Madrid Sur",
-                nombre: "David Moreta Jiménez",
-                puesto: "Técnico II.SS.",
-                correo: "david.moreta@ineco.com",
-                telefono: "661262136"
-            },
-            {
-                ubicacion: "Madrid Sur",
-                nombre: "David Garcia Pérez",
-                puesto: "Técnico de Proteccion Civil",
-                correo: "david.garcia2@ineco.com",
-                telefono: "618990207"
-            },
-            
-            // BM Villarrubia
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "PTE NOMBRAMIENTO",
-                puesto: "Pendiente de nombramiento",
-                correo: "Pendiente de nombramiento",
-                telefono: "Pendiente de nombramiento"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Javier Gambin Ortuño",
-                puesto: "C.T. Ingeniería Civil",
-                correo: "javier.gambin@adif.es",
-                telefono: "610165651"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Juan José Recio Lanchas",
-                puesto: "Jefe de Unidad",
-                correo: "juan.recio@ineco.com",
-                telefono: "659727779"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Silvia García Maroto",
-                puesto: "Técnico Documentalista",
-                correo: "silvia.maroto@ineco.com",
-                telefono: "683656405"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Manuel García Díaz",
-                puesto: "Técnico De Inversiones",
-                correo: "mgarcia.diaz@ineco.com",
-                telefono: "610670612"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Jesús Fernández Avilés",
-                puesto: "Técnico Proyectos y Explanaciones",
-                correo: "jesus.garciadelarosa@ineco.com",
-                telefono: "690110855"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Felix Pestana",
-                puesto: "Técnico De Infra y Vía",
-                correo: "ruben.anton@ineco.com",
-                telefono: "628715029"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Víctor Solana Ortíz",
-                puesto: "Técnico De Infra y Vía",
-                correo: "victor.solana@ineco.com",
-                telefono: "676655220"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Gregorio Ramos Córdoba",
-                puesto: "Técnico De Infra y Vía",
-                correo: "gregorio.ramos@ineco.com",
-                telefono: "670555183"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Luis Martín del Valle Soria",
-                puesto: "Técnico De Infra y Vía",
-                correo: "luis.martin@ineco.com",
-                telefono: "660722020"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "Álvaro Barahona Serrano",
-                puesto: "Técnico De Infra y Vía",
-                correo: "alvaro.barahona@ineco.com",
-                telefono: "647985585"
-            },
-            {
-                ubicacion: "BM Villarrubia",
-                nombre: "José A. De la Casa",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jose.delacasa@ineco.com",
-                telefono: "661242679"
-            },
-            
-            // BM Requena
-            {
-                ubicacion: "BM Requena",
-                nombre: "Jesús Valero Núñez",
-                puesto: "Jefe de Base",
-                correo: "jvaleronunez@adif.es",
-                telefono: "678281833"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Santiago Ferri Mateu",
-                puesto: "C.T. Ingeniería Civil",
-                correo: "sferri@adif.es",
-                telefono: "610165643"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Ramiro De Arriba Ramírez",
-                puesto: "Jefe de Unidad",
-                correo: "ramiro.arriba@ineco.com",
-                telefono: "629156879"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Antonio Pérez Gil",
-                puesto: "Técnico Proyectos y Explanaciones",
-                correo: "antonio.gil@ineco.com",
-                telefono: "636276615"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "José Molto Gallego",
-                puesto: "Técnico De Inversiones",
-                correo: "jose.molto@ineco.com",
-                telefono: "647392942"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Marco Salinas Medina",
-                puesto: "Técnico Documentalista",
-                correo: "marco.salinas@ineco.com",
-                telefono: "670566166"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "José Ramón Hernández Vaquero",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jose.vaquero@ineco.com",
-                telefono: "674816629"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Jose Rafael Rodríguez Álvarez",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jrafael.rodriguez@ineco.com",
-                telefono: "661214168"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Santiago Morán Pérez",
-                puesto: "Técnico De Infra y Vía",
-                correo: "santiago.moran@ineco.com",
-                telefono: "696511081"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Antonio Valero Arrazola",
-                puesto: "Técnico De Infra y Vía",
-                correo: "antonio.valero@ineco.com",
-                telefono: "627788481"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "José Martínez Gómez",
-                puesto: "Técnico De Infra y Vía",
-                correo: "luis.martinez@ineco.com",
-                telefono: "696874294"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Jorge García-Bermejo Morcillo",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jorge.garcia-bermejo@ineco.com",
-                telefono: "662078928"
-            },
-            {
-                ubicacion: "BM Requena",
-                nombre: "Manuel Jesús Del Pino García",
-                puesto: "Técnico Energía",
-                correo: "manueljesus.delpino@ineco.com",
-                telefono: "647982300"
-            },
-            
-            // BM Gabaldón
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Jesús Peña Cañada",
-                puesto: "Jefe de Base",
-                correo: "jpenacanada@adif.es",
-                telefono: "647981929"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Vicente Tortajada Rosa",
-                puesto: "C.T. Ingeniería Civil",
-                correo: "vtortajada@adif.es",
-                telefono: "610165636"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "José Luis López Marco",
-                puesto: "Jefe de Unidad",
-                correo: "jose.marco@ineco.com",
-                telefono: "687940499"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Roberto Díaz Herráiz",
-                puesto: "Técnico De Inversiones",
-                correo: "rdiaz.herraiz@ineco.com",
-                telefono: "630742491"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Antonio Olivares Nieto",
-                puesto: "Técnico De Inversiones",
-                correo: "antonio.olivares@ineco.com",
-                telefono: "608420275"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Jaime Checa Migallón",
-                puesto: "Técnico Proyectos y Explanaciones",
-                correo: "jaime.checa@ineco.com",
-                telefono: "689177492"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Patricia Macías de la Cuadra",
-                puesto: "Técnico Documentalista",
-                correo: "patricia.macias@ineco.com",
-                telefono: "663938459"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Antonio Briz Piqueras",
-                puesto: "Técnico De Infra y Vía",
-                correo: "antonio.briz@ineco.com",
-                telefono: "661253512"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Jose Luis Escobar",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jose.escobar@ineco.com",
-                telefono: "671335029"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "José Núñez González",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jose.nuñez@ineco.com",
-                telefono: "661283459"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Juan Luis Campos Pareja",
-                puesto: "Técnico De Infra y Vía",
-                correo: "juan.campos@ineco.com",
-                telefono: "661302486"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Mario Viejobueno",
-                puesto: "Técnico De Infra y Vía",
-                correo: "mario.viejobueno@ineco.com",
-                telefono: "626906332"
-            },
-            {
-                ubicacion: "BM Gabaldón",
-                nombre: "Vicente Gómez Morcillo",
-                puesto: "Técnico De Infra y Vía",
-                correo: "vicente.morcillo@ineco.com",
-                telefono: "680759505"
-            },
-            
-            // Estación Valencia
-            {
-                ubicacion: "Estación Valencia",
-                nombre: "Esther Lorente Llenderrozas",
-                puesto: "Técnico II.SS.",
-                correo: "elorente@adif.es",
-                telefono: "610541772"
-            },
-            
-            // ET Valencia
-            {
-                ubicacion: "ET Valencia",
-                nombre: "Raul Ureña Marcos",
-                puesto: "Técnico Telecomunicaciones",
-                correo: "raul.urena@ineco.com",
-                telefono: "661279273"
-            },
-            
-            // Villaverde
-            {
-                ubicacion: "Villaverde",
-                nombre: "Carlos Barrera Piqueres",
-                puesto: "Técnico Telecomunicaciones",
-                correo: "carlos.barrera@ineco.com",
-                telefono: "649129443"
-            },
-            
-            // ET Valencia
-            {
-                ubicacion: "ET Valencia",
-                nombre: "José Antonio García López",
-                puesto: "Técnico II.SS.",
-                correo: "antonio.lopez@ineco.com",
-                telefono: "680740828"
-            },
-            
-            // ET Albacete
-            {
-                ubicacion: "ET Albacete",
-                nombre: "Jose Manuel Señorans Rodriguez",
-                puesto: "Técnico Energía",
-                correo: "jsenorans@adif.es",
-                telefono: "647377997"
-            },
-            {
-                ubicacion: "ET Albacete",
-                nombre: "Victor José Castillo Arenas",
-                puesto: "C.T. Ingeniería Industrial",
-                correo: "victorjose.castillo@adif.es",
-                telefono: "610165678"
-            },
-            {
-                ubicacion: "ET Albacete",
-                nombre: "Juan Gil Fernández",
-                puesto: "Técnico Análisis Incidencias",
-                correo: "juan.fernandez@ineco.com",
-                telefono: "687430767"
-            },
-            {
-                ubicacion: "ET Albacete",
-                nombre: "Ramón Rada Collado",
-                puesto: "Técnico Energía",
-                correo: "ramon.rada@ineco.com",
-                telefono: "661281078"
-            },
-            
-            // BM Monforte
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Juan Pablo Rodriguez De La Fuente",
-                puesto: "Jefe de Base",
-                correo: "jrodriguezdelafuente@adif.es",
-                telefono: "609120363"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Iván De La Paz Notario",
-                puesto: "Técnico Telecomunicaciones",
-                correo: "ivan.delapaz@ineco.com",
-                telefono: "661350124"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Pascual Terol Ramos",
-                puesto: "Técnico II.SS.",
-                correo: "pascual.terol@ineco.com",
-                telefono: "669488342"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Ernesto Botella Diez",
-                puesto: "Jefe de Unidad",
-                correo: "ernesto.botella@ineco.com",
-                telefono: "609645159"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Gloria Jover Escolano",
-                puesto: "Técnico De Inversiones",
-                correo: "maria.jover@ineco.com",
-                telefono: "619821783"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Irene Cuerda Berbel",
-                puesto: "Técnico Documentalista",
-                correo: "irene.cuerda@ineco.com",
-                telefono: "699173798"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "José Luis Martín Mendoza",
-                puesto: "Técnico Proyectos y Explanaciones",
-                correo: "jose.mendoza@ineco.com",
-                telefono: "661350175"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Jose Antonio Córdoba Vega",
-                puesto: "Técnico De Infra y Vía",
-                correo: "jose.cordoba@ineco.com",
-                telefono: "661350206"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Raúl Delgado Sánchez",
-                puesto: "Técnico De Infra y Vía",
-                correo: "raul.delgado@ineco.com",
-                telefono: "619382698"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Manuel Ureña Muñoz",
-                puesto: "Técnico De Infra y Vía",
-                correo: "manuel.urena@ineco.com",
-                telefono: "620830193"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Eduardo Cremades Henche",
-                puesto: "Técnico De Infra y Vía",
-                correo: "eduardo.cremades@ineco.com",
-                telefono: "647372545"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Ana Mª Codes Alarcón",
-                puesto: "Técnico De Infra y Vía",
-                correo: "ana.codes@ineco.com",
-                telefono: "662515177"
-            },
-            {
-                ubicacion: "BM Monforte",
-                nombre: "Iván Álvarez Pérez",
-                puesto: "Técnico De Infra y Vía",
-                correo: "ivan.alvarez@ineco.com",
-                telefono: "682200164"
-            },
-            
-            // CRC Albacete
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "José María Bañón Honrubia",
-                puesto: "Operador CSI",
-                correo: "jose.honrubia@ineco.com",
-                telefono: "967539504"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "José Ángel Cerezuela Rodenas",
-                puesto: "Operador CSI",
-                correo: "jose.cerezuela@ineco.com",
-                telefono: "967539504"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Gabriel García Morote",
-                puesto: "Operador CSI",
-                correo: "gabriel.morote@ineco.com",
-                telefono: "967539504"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Catalina Alexandra Mendoza López",
-                puesto: "Operador CSI",
-                correo: "catalina.mendoza@ineco.com",
-                telefono: "967539504"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Adrián Ortega Iglesias",
-                puesto: "Operador CSI",
-                correo: "adrian.iglesias@ineco.com",
-                telefono: "967539504"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Rada Collado Pablo Roberto",
-                puesto: "Operador CSI",
-                correo: "pablo.rada@ineco.com",
-                telefono: "967539504"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Óscar Játiva Paterna",
-                puesto: "Operador Telemando",
-                correo: "oscar.jativa@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Alberto López Lorenzo",
-                puesto: "Operador Telemando",
-                correo: "alberto.lopez@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Gracia Requena Pérez",
-                puesto: "Operador Telemando",
-                correo: "gracia.requena@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Gerardo Moya Ortiz",
-                puesto: "Operador Telemando",
-                correo: "gerardo.moya@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Jorge Jarabo Tevar",
-                puesto: "Operador Telemando",
-                correo: "jorge.jarabo@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Isabel María García Morote",
-                puesto: "Operador Telemando",
-                correo: "isabel.garcia@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Vicent Moreno",
-                puesto: "Operador Telemando",
-                correo: "vicent.moreno@ineco.com",
-                telefono: "967539503"
-            },
-            {
-                ubicacion: "CRC Albacete",
-                nombre: "Jesús Gómez Castillo",
-                puesto: "Operador Telemando",
-                correo: "jesus.castillo@ineco.com",
-                telefono: "967539503"
-            },  
-            {
-                ubicacion: "CRC Albacete",
-                        nombre: "Pedro Juan Valero Escribano",
-                        puesto: "GTM",
-                        correo: "pedro.valero@ineco.com",
-                        telefono: "663938853"
-                    },
-                    {
-                        ubicacion: "CRC Albacete",
-                        nombre: "María Jesús Bausela Porrero",
-                        puesto: "GTM",
-                        correo: "maria.bausela@ineco.com",
-                        telefono: "647957307"
-                    },
-                     
+        let contacts = []; // Declare contacts variable here
+        const searchInput = document.getElementById('searchInput');
+        const clearSearch = document.getElementById('clearSearch');
+        const locationFilter = document.getElementById('locationFilter');
 
-        ];
+
+        // Fetch data from unified_data.json
+        fetch('./unified_data.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Flatten the data structure to get a single array of contacts
+                contacts = data.flatMap(location => location.personas.map(person => ({
+                    ...person,
+                    ubicacion: location.nombre_centro // Add location to each person object
+                })));
+                renderContacts(); // Render contacts after data is loaded
+                initializeAutoComplete(contacts); // Initialize autocomplete with loaded data
+            })
+            .catch(error => {
+                console.error('Error fetching unified data:', error);
+                document.getElementById('contactsContainer').innerHTML = '<p class="text-red-500 text-center">Error al cargar los datos de contacto.</p>';
+            });
+
+        // Function to initialize autocomplete (moved here to use fetched data)
+        function initializeAutoComplete(contactsData) {
+            const autoCompleteInstance = new autoComplete({
+                data: {
+                    src: function(term, suggest) {
+                        const suggestions = contactsData.filter(contact => {
+                            const normalize = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+                            const searchTerm = normalize(term);
+                            return normalize(contact.nombre).includes(searchTerm) ||
+                                   normalize(contact.puesto).includes(searchTerm) ||
+                                   normalize(contact.ubicacion).includes(searchTerm) ||
+                                   contact.telefono.includes(searchTerm);
+                        }).map(contact => ({
+                            value: contact.nombre,
+                            text: `${contact.nombre} - ${contact.puesto}`
+                        }));
+                        suggest(suggestions);
+                    }
+                },
+                selector: '#searchInput',
+                threshold: 1,
+                debounce: 300,
+                highlight: true,
+                maxResults: 10,
+                onSelection: function(e, term, item) {
+                    // Limpiamos el input y aplicamos el filtro
+                    searchInput.value = term.value;
+                    filterContacts();
+                    // Actualizar el botón de limpiar inmediatamente
+                    toggleClearButton();
+                },
+                searchEngine: "strict"
+            });
+        }
+
 
         // Ajustar el zoom inicial del navegador
         document.body.style.zoom = '90%';
@@ -955,9 +419,9 @@
                 }
                 return acc;
             }, {});
-            
+
             const sortedLocations = Object.keys(groupedContacts).sort();
-            
+
             sortedLocations.forEach(location => {
                 const locationHeader = document.createElement('div');
                 locationHeader.className = 'location-header p-4 rounded-lg shadow-md mb-6 cursor-pointer';
@@ -966,10 +430,10 @@
                     <p class="text-white opacity-80">${groupedContacts[location].length} contacto${groupedContacts[location].length !== 1 ? 's' : ''}</p>
                 `;
                 container.appendChild(locationHeader);
-                
+
                 const contactsGrid = document.createElement('div');
                 contactsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10';
-                
+
                 // Ordenar contactos por nombre, manteniendo a Mario al principio si existe
                 if (groupedContacts[location][0]?.nombre === "Mario García Aguado") {
                     const mario = groupedContacts[location].shift();
@@ -978,7 +442,7 @@
                 } else {
                     groupedContacts[location].sort((a, b) => a.nombre.localeCompare(b.nombre));
                 }
-                
+
                 groupedContacts[location].forEach(contact => {
                     const contactCard = document.createElement('div');
                     contactCard.className = `contact-card ${getEmpresa(contact.correo)} bg-white p-6 rounded-lg shadow-sm animate-fade-in`;
@@ -1010,51 +474,59 @@
                     `;
                     contactsGrid.appendChild(contactCard);
                 });
-                
+
                 container.appendChild(contactsGrid);
             });
+
+            // Mostrar u ocultar el mensaje de "No se encontraron resultados"
+            const noResultsDiv = document.getElementById('noResults');
+            if (filteredContacts.length === 0) {
+                noResultsDiv.classList.remove('hidden');
+            } else {
+                noResultsDiv.classList.add('hidden');
+            }
         }
 
-        renderContacts();
+        // Función para filtrar contactos (actualizada para usar la variable global contacts)
+        function filterContacts() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            const locationTerm = locationFilter.value;
 
-        // Inicializar autocompletado
-        const autoCompleteInstance = new autoComplete({
-            data: {
-                src: function(term, suggest) {
-                    const suggestions = contacts.filter(contact => {
-                        const normalize = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-                        const searchTerm = normalize(term);
-                        return normalize(contact.nombre).includes(searchTerm) ||
-                               normalize(contact.puesto).includes(searchTerm) ||
-                               normalize(contact.ubicacion).includes(searchTerm) ||
-                               contact.telefono.includes(searchTerm);
-                    }).map(contact => ({
-                        value: contact.nombre,
-                        text: `${contact.nombre} - ${contact.puesto}`
-                    }));
-                    suggest(suggestions);
-                }
-            },
-            selector: '#searchInput',
-            threshold: 1,
-            debounce: 300,
-            highlight: true,
-            maxResults: 10,
-            onSelection: function(e, term, item) {
-                // Limpiamos el input y aplicamos el filtro
-                searchInput.value = term.value;
+            const filtered = contacts.filter(contact => {
+                const locationMatch = locationTerm === '' || contact.ubicacion === locationTerm;
+
+                if (!searchTerm) return locationMatch;
+
+                const normalize = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+                const normalizedSearchTerm = normalize(searchTerm);
+
+                return locationMatch && (
+                    normalize(contact.nombre).includes(normalizedSearchTerm) ||
+                    normalize(contact.puesto).includes(normalizedSearchTerm) ||
+                    normalize(contact.ubicacion).includes(normalizedSearchTerm) ||
+                    contact.telefono.includes(normalizedSearchTerm) ||
+                    normalize(getEmpresa(contact.correo)).includes(normalizedSearchTerm) // Incluir búsqueda por empresa
+                );
+            });
+
+            renderContacts(filtered);
+        }
+
+        // Aseguramos que el botón esté visible inicialmente (si hay texto)
+        toggleClearButton();
+
+        // Añadir event listeners para búsqueda y filtro
+        searchInput.addEventListener('input', filterContacts);
+        locationFilter.addEventListener('change', filterContacts);
+
+        // Añadir event listeners para los botones de sugerencia
+        document.querySelectorAll('.search-suggestion').forEach(button => {
+            button.addEventListener('click', () => {
+                searchInput.value = button.textContent;
                 filterContacts();
-                // Actualizar el botón de limpiar inmediatamente
                 toggleClearButton();
-            },
-            searchEngine: "strict"
+            });
         });
-
-        const searchInput = document.getElementById('searchInput');
-        const clearSearch = document.getElementById('clearSearch');
-        
-        // Aseguramos que el botón esté visible inicialmente
-        clearSearch.style.display = 'flex';
 
         // Mostrar/ocultar botón de limpiar según si hay texto
         function toggleClearButton() {
@@ -1068,7 +540,7 @@
         }
 
         searchInput.addEventListener('input', toggleClearButton);
-        
+
         // Limpiar búsqueda
         clearSearch.addEventListener('click', () => {
             searchInput.value = '';
@@ -1085,91 +557,7 @@
 
         // Inicializar estado del botón
         toggleClearButton();
-        const locationFilter = document.getElementById('locationFilter');
 
-        function filterContacts() {
-            // Obtenemos el término de búsqueda directamente del input
-            const searchTerm = searchInput.value.trim();
-            const locationTerm = locationFilter.value;
-            
-            const filtered = contacts.filter(contact => {
-                // Primero filtramos por ubicación
-                const locationMatch = locationTerm === '' || contact.ubicacion === locationTerm;
-                
-                // Si no hay término de búsqueda, mostramos todos los que coincidan con la ubicación
-                if (!searchTerm) return locationMatch;
-                
-                // Para el filtro INECO, mostramos todos los contactos de INECO que coincidan con la ubicación
-                if (searchTerm.toLowerCase() === 'ineco') {
-                    return locationMatch && contact.correo.includes('@ineco.com');
-                }
-                
-                // Para el filtro ADIF, mostramos todos los contactos de ADIF que coincidan con la ubicación
-                if (searchTerm.toLowerCase() === 'adif') {
-                    return locationMatch && contact.correo.includes('@adif.es');
-                }
-                
-                // Para otros términos de búsqueda, aplicamos la búsqueda normal
-                const normalize = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-                
-                return locationMatch && (
-                    normalize(contact.nombre).includes(normalize(searchTerm)) ||
-                    (normalize(searchTerm) === 'teleco' && contact.puesto === 'Técnico Telecomunicaciones') ||
-                    (normalize(searchTerm) === 'ii.ss.' && contact.puesto === 'Técnico II.SS.') ||
-                    normalize(contact.puesto).includes(normalize(searchTerm)) ||
-                    normalize(contact.ubicacion).includes(normalize(searchTerm)) ||
-                    normalize(contact.telefono).includes(normalize(searchTerm))
-                );
-            });
-
-            // Ordenar primero por empresa y luego por nombre
-            filtered.sort((a, b) => {
-                const empresaA = getEmpresa(a.correo);
-                const empresaB = getEmpresa(b.correo);
-                
-                // Primero por empresa
-                if (empresaA !== empresaB) {
-                    return empresaA === 'adif' ? -1 : 1;
-                }
-                
-                // Luego por nombre
-                return a.nombre.localeCompare(b.nombre);
-            });
-
-            // Ordenar dentro de cada ubicación
-            const groupedContacts = filtered.reduce((acc, contact) => {
-                if (!acc[contact.ubicacion]) {
-                    acc[contact.ubicacion] = [];
-                }
-                acc[contact.ubicacion].push(contact);
-                return acc;
-            }, {});
-
-            // Ordenar cada grupo de ubicación
-            Object.keys(groupedContacts).forEach(location => {
-                groupedContacts[location].sort((a, b) => {
-                    // Primero por empresa
-                    if (a.empresa !== b.empresa) {
-                        return a.empresa === 'ADIF' ? -1 : 1;
-                    }
-                    
-                    // Luego por nombre
-                    return a.nombre.localeCompare(b.nombre);
-                });
-            });
-            
-            renderContacts(filtered);
-        }
-
-        searchInput.addEventListener('input', filterContacts);
-        locationFilter.addEventListener('change', filterContacts);
-
-        document.querySelectorAll('.search-suggestion').forEach(button => {
-            button.addEventListener('click', () => {
-                searchInput.value = button.textContent;
-                filterContacts();
-            });
-        });
     </script>
 </body>
 </html>
