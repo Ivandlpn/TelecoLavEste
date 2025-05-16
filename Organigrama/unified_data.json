@@ -124,12 +124,6 @@
                 "telefono": "647615303"
             },
             {
-                "nombre": "Samuel García Chaparro",
-                "puesto": "Técnico Telecomunicaciones",
-                "correo": "sgarciac@adif.es",
-                "telefono": "647813678"
-            },
-            {
                 "nombre": "Héctor Sanz Mateos",
                 "puesto": "Técnico Infra y Vía Línea",
                 "correo": "hector.sanz@ineco.com",
@@ -372,6 +366,12 @@
                 "puesto": "Técnico II.SS.",
                 "correo": "elorente@adif.es",
                 "telefono": "610541772"
+            },
+            {
+                "nombre": "Samuel García Chaparro",
+                "puesto": "Técnico Telecomunicaciones",
+                "correo": "sgarciac@adif.es",
+                "telefono": "647813678"
             }
         ]
     },

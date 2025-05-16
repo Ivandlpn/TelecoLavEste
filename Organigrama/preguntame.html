@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pregúntame LAV ESTE - Corregido v6.1</title>
+    <title>Pregúntame LAV ESTE - Mejorado v2.4 (Multi-Mejoras)</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,13 +16,14 @@
         }
         header h1 { font-family: 'Montserrat', sans-serif; }
         .chat-container {
-            max-width: 800px; margin: 20px auto; background-color: #fff;
+            max-width: 800px; margin: 20px auto; background-color: #e0f7fa;
             border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; height: 75vh; 
             overflow: hidden;
         }
         .chat-box {
             flex-grow: 1; padding: 20px; overflow-y: auto; border-bottom: 1px solid #eee;
+            background-color: #e0f7fa;
         }
         
         .message-wrapper {
@@ -36,6 +37,9 @@
             border-radius: 50%;
             object-fit: cover;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
         }
         .message-content {
             padding: 10px 15px; border-radius: 18px; 
@@ -79,7 +83,8 @@
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
-        .input-area { display: flex; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #eee; }
+        
+        .input-area { display: flex; padding: 15px; background-color: #b2ebf2; border-top: 1px solid #80deea; }
         .input-area input {
             flex-grow: 1; padding: 12px 15px; border: 1px solid #ccc;
             border-radius: 20px; margin-right: 10px; font-size: 1rem;
@@ -91,7 +96,19 @@
             display: flex; align-items: center; justify-content: center;
         }
         .input-area button:hover { background-color: #003d6f; }
-        .help-bubbles-container { 
+        .input-area button:disabled { background-color: #cccccc; cursor: not-allowed; }
+
+        #clearChatButton .button-text, #helpButton .button-text {
+            display: none; margin-left: 5px;
+        }
+        #clearChatButton:hover, #helpButton:hover {
+            width: auto; padding: 0 15px; border-radius: 20px;
+        }
+        #clearChatButton:hover .button-text, #helpButton:hover .button-text {
+            display: inline;
+        }
+
+        .help-bubbles-container {
             padding: 10px 15px; background-color: #f8f9fa;
             border-bottom: 1px solid #eee;
             max-height: 120px; overflow-y: auto; 
@@ -110,30 +127,37 @@
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="w-full min-w-full overflow-x-auto px-4 py-8">
-        <header class="mb-8 text-center relative">
+        <header class="mb-4 text-center relative">
             <img src="https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true" alt="Logo Adif" class="absolute top-0 left-0 h-24">
             <img src="https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png" alt="Logo Ineco" class="absolute top-0 right-0 h-16 mt-2">
-            <h1 class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#003d6f] transition-colors">MANTENIMIENTO LAV ESTE<br>Pregúntame</h1>
+            <h1 class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#003d6f] transition-colors">MANTENIMIENTO LAV ESTE</h1>
+            <h2 class="text-3xl font-semibold text-[#008080]">Pregúntame</h2>
         </header>
 
         <div class="bg-white shadow-lg rounded-lg p-4 mb-6 border border-gray-300">
-            <div class="flex justify-center">
-                <div class="flex gap-4">
-                    <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">ORGANIGRAMA</button>
-                    <button onclick="window.location.href='directorio.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">DIRECTORIO</button>
-                    <button onclick="window.location.href='mapa.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">MAPA</button>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <div class="flex gap-2 sm:gap-4">
+                    <button onclick="window.location.href='index.html'" class="px-3 py-2 sm:px-4 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors text-sm sm:text-base">👨‍👩‍👧‍👦 ORGANIGRAMA</button>
+                    <button onclick="window.location.href='directorio.html'" class="px-3 py-2 sm:px-4 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors text-sm sm:text-base">📞 DIRECTORIO</button>
+                    <button onclick="window.location.href='mapa.html'" class="px-3 py-2 sm:px-4 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors text-sm sm:text-base">🌍 MAPA</button>
                 </div>
             </div>
         </div>
 
         <div class="chat-container">
             <div class="chat-box" id="chatBox">
-                <!-- El mensaje inicial se añade mediante JS para consistencia -->
+                <!-- Mensajes iniciales se añadirán aquí -->
             </div>
             <div id="helpBubblesContainer" class="help-bubbles-container flex flex-wrap gap-2 bg-gray-50 hidden"></div>
             <div class="input-area">
-                <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí..." autocomplete="off">
-                <button id="sendButton" title="Enviar pregunta">
+                <button id="helpButton" title="Ayuda" class="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-700 transition-colors text-lg mr-2">
+                    <i class="fas fa-question"></i> <span class="button-text">Ayuda</span>
+                </button>
+                <button id="clearChatButton" title="Limpiar chat" class="bg-gray-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition-colors text-lg mr-2">
+                    <i class="fas fa-eraser"></i> <span class="button-text">Limpiar Chat</span>
+                </button>
+                <input type="text" id="userInput" placeholder="Cargando..." autocomplete="off" disabled>
+                <button id="sendButton" title="Enviar pregunta" disabled>
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
@@ -145,47 +169,128 @@
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         const helpBubblesContainer = document.getElementById('helpBubblesContainer');
+        const clearChatButton = document.getElementById('clearChatButton');
+        const helpButton = document.getElementById('helpButton');
 
         let unifiedData = [];
         let allPersons = [];
         let allLocations = [];
         let entityIndex = new Map(); 
         const PENDING_NOM_LOWER = "pendiente de nombramiento";
-        let lastPersonContext = null; 
-        let lastLocationContext = null;
-        let lastPuestoContext = null;
-
-        const USER_AVATAR_URL = "https://via.placeholder.com/40/718096/FFFFFF?Text=U"; // CORREGIDO
-        const BOT_AVATAR_URL = "https://via.placeholder.com/40/005293/FFFFFF?Text=A";  // CORREGIDO
-
-        const COMMON_TYPO_CORRECTIONS = {
-            "teleono": "telefono", "telefno": "telefono", "telf": "telefono", "tlf": "telefono", "nmero": "numero",
-            "ubicaion": "ubicacion", "ubicacoin": "ubicacion", "dondeesta": "donde esta", "localisacion": "localizacion",
-            "coreo": "correo", "corrreo": "correo", "emial": "email", "emeil": "email",
-            "quien esla": "quien es la", "quienes": "quien es", "qien": "quien", "kienes": "quienes son", "kien": "quien",
-            "tecnicos": "tecnico", "tecnicas": "tecnico",
-            "operadores": "operador", "operadoras": "operador",
-            "jefes": "jefe", "gefe": "jefe", "gefa": "jefa",
-            "iiss": "ii.ss.", "is": "ii.ss.", 
-            "infra": "infraestructura", 
-            "bm ": "base de mantenimiento ", 
-            "crc ": "centro de regulacion y control ",
-            "et ": "estacion de transformacion ",
-            "ambitos": "ambito", "ambto": "ambito",
-            "direcion": "direccion", "direccoin": "direccion",
-            "persoanl": "personal", "personla": "personal",
-            "lisat": "lista", "listdo": "listado",
-            "graciasS": "gracias", "gracia": "gracias",
-            "aydua": "ayuda", "ayda": "ayuda"
+        
+        let conversationContext = {
+            lastPerson: null,
+            lastLocation: null,
+            lastPuesto: null,
+            clear: function() {
+                this.lastPerson = null;
+                this.lastLocation = null;
+                this.lastPuesto = null;
+            }
         };
 
-        const INTENT_SYNONYMS = { 
+        const USER_AVATAR_EMOJI = "👤";
+        const BOT_AVATAR_EMOJI = "🤖";
+        const INITIAL_BOT_MESSAGE = "¡Hola! 👋 Soy tu asistente virtual para el Mantenimiento LAV ESTE. Pregúntame lo que necesites o escribe 'ayuda' para ver ejemplos.";
+
+        let CONFIG_TYPO_CORRECTIONS = {};
+        let CONFIG_INTENT_SYNONYMS = {};
+
+        const SIMULATED_TYPOS_JSON = {
+            // Correcciones de teléfono
+            "teleono": "telefono", "telefno": "telefono", "telf": "telefono", "tlf": "telefono", 
+            "nmero": "numero", "nummero": "numero", "telefonoo": "telefono", "teléfonoo": "telefono",
+            "móviles": "movil", "móvil": "movil", "celulares": "celular", "celular": "movil",
+            "extensión": "extension", "extensio": "extension", "ext": "extension",
+            
+            // Correcciones de ubicación
+            "ubicaion": "ubicacion", "ubicacoin": "ubicacion", "ubicacióm": "ubicacion",
+            "dondeesta": "donde esta", "dondeestá": "donde esta", "donde": "donde",
+            "localisacion": "localizacion", "localización": "localizacion", "localisación": "localizacion",
+            "uvicacion": "ubicacion", "ubiccacion": "ubicacion", "ubcacion": "ubicacion",
+            "dirección": "direccion", "direccion": "direccion", "direncion": "direccion", "dierccion": "direccion",
+            "emplazamiento": "ubicacion", "situacion": "ubicacion", "situación": "ubicacion",
+            
+            // Correcciones de correo electrónico
+            "coreo": "correo", "corrreo": "correo", "emial": "email", "emeil": "email", 
+            "correo electronico": "correo", "correo-e": "correo", "e-mail": "email",
+            "mail": "email", "correo@": "correo", "@": "", "arroba": "",
+            
+            // Correcciones de personas
+            "quien esla": "quien es la", "quienes": "quien es", "qien": "quien", "kienes": "quienes son", "kien": "quien",
+            "el/la": "", "los/las": "", "un/una": "", "un": "", "una": "", "el": "", "la": "", "los": "", "las": "",
+            "sr.": "", "sra.": "", "srta.": "", "d.": "", "da.": "", "dña.": "", "don": "", "doña": "",
+            
+            // Correcciones de puestos y cargos
+            "tecnicos": "tecnico", "tecnicas": "tecnico", "tecnco": "tecnico", "técnico": "tecnico", "técnicos": "tecnico",
+            "operadores": "operador", "operadoras": "operador", "operativa": "operativo", "operativos": "operativo",
+            "jefes": "jefe", "gefe": "jefe", "gefa": "jefa", "jefas": "jefa", "jefesas": "jefa", "encargado": "jefe",
+            "coordinador": "coordinacion", "coordinadores": "coordinacion", "coordinadora": "coordinacion",
+            "responsable": "jefe", "responsables": "jefe", "director": "direccion", "directora": "direccion",
+            "gerente": "gerencia", "subdirector": "subdireccion", "subdirectora": "subdireccion",
+            "asistente": "asistencia", "asistentes": "asistencia", "ayudante": "asistente", "ayudantes": "asistente",
+            
+            // Correcciones de infraestructura
+            "iiss": "ii.ss.", "is": "ii.ss.", "isss": "ii.ss.", "ii ss": "ii.ss.", "i.i.s.s.": "ii.ss.",
+            "infra": "infraestructura", "infr": "infraestructura", "infraestructural": "infraestructura",
+            "vias": "via", "vía": "via", "vías": "via", "linea": "linea", "línea": "linea", "lineas": "linea", "líneas": "linea",
+            "estacion": "estacion", "estación": "estacion", "estaciones": "estacion",
+            "tunel": "tunel", "túnel": "tunel", "tuneles": "tunel", "túneles": "tunel",
+            "puente": "puente", "puentes": "puente", "viaducto": "puente", "viaductos": "puente",
+            
+            // Correcciones de ubicaciones específicas
+            "bm ": "base de mantenimiento ", "b.m.": "base de mantenimiento", "bm": "base de mantenimiento", "base mtto": "base de mantenimiento",
+            "crc ": "centro de regulacion y control ", "c.r.c.": "centro de regulacion y control", "crc": "centro de regulacion y control",
+            "et ": "estacion de transformacion ", "e.t.": "estacion de transformacion", "et": "estacion de transformacion",
+            "ctr ": "centro ", "ctr.": "centro", "ctr": "centro", "cntr": "centro", "cntro": "centro",
+            "oficina": "oficina", "oficinas": "oficina", "despacho": "oficina", "despachos": "oficina",
+            "almacen": "almacen", "almacén": "almacen", "almacenes": "almacen", "deposito": "almacen", "depósito": "almacen",
+            
+            // Correcciones de términos generales
+            "ambitos": "ambito", "ambto": "ambito", "amvito":"ambito", "ámbito": "ambito", "ambitos": "ambito",
+            "persoanl": "personal", "personla": "personal", "empleados": "personal", "trabajadores": "personal", "plantilla": "personal",
+            "lisat": "lista", "listdo": "listado", "enumeracion": "lista", "enumeración": "lista", "enumerar": "lista",
+            "información": "informacion", "informacion": "informacion", "info": "informacion", "dato": "informacion", "datos": "informacion",
+            "contacto": "contacto", "contactar": "contacto", "localizar": "contacto", "encontrar": "buscar", "busqueda": "buscar", "búsqueda": "buscar",
+            
+            // Correcciones de términos de comunicación
+            "hola": "hola", "holi": "hola", "holis": "hola", "buenos dias": "hola", "buenos días": "hola", 
+            "buenas tardes": "hola", "buenas noches": "hola", "saludos": "hola", "saludo": "hola", "hey": "hola",
+            "adios": "adios", "adiós": "adios", "hasta luego": "adios", "hasta pronto": "adios", "nos vemos": "adios", "chao": "adios", "bye": "adios",
+            "gracias": "gracias", "gracia": "gracias", "grasias": "gracias", "muchas gracias": "gracias", "mil gracias": "gracias",
+            "por favor": "por favor", "porfavor": "por favor", "porfa": "por favor", "porfi": "por favor", "haz el favor": "por favor",
+            "ok": "ok", "okey": "ok", "okey": "ok", "okis": "ok", "vale": "ok", "va": "ok", "listo": "ok", "de acuerdo": "ok", "esta bien": "ok",
+            "si": "si", "sí": "si", "sip": "si", "afirmativo": "si", "claro": "si", "por supuesto": "si", "desde luego": "si",
+            "no": "no", "nop": "no", "nones": "no", "para nada": "no", "ni hablar": "no", "de ninguna manera": "no", "jamás": "no", "nunca": "no",
+            "ayuda": "ayuda", "soporte": "ayuda", "asistencia": "ayuda", "auxilio": "ayuda", "socorro": "ayuda",
+            
+            // Nombres propios comunes mal escritos
+            "ivan de la paz": "ivan de la paz notario",
+            "javier gambin": "javier gambin ortuño",
+            "juan jose recio": "juan jose recio lanchas",
+            "silvia garcia": "silvia garcia maroto",
+            "manuel garcia": "manuel garcia diaz",
+            "jesus fernandez": "jesus fernandez aviles",
+            
+            // Términos técnicos específicos
+            "telemando": "operador tme",
+            "operador telemando": "operador tme",
+            "tme": "operador tme",
+            "operador tme": "operador tme",
+            "operador de telemando": "operador tme",
+            "operadora tme": "operador tme",
+            "operadora de telemando": "operador tme",
+            "operador de tele mando": "operador tme",
+            "operador tele mando": "operador tme"
+        };
+
+        const SIMULATED_SYNONYMS_JSON = { 
             telefono: ["teléfono", "telefono", "contacto", "llamar", "numero", "móvil", "movil", "phone", "celular", "fono", "num"],
             correo: ["correo", "email", "e-mail", "direccion de correo", "dirección de correo", "contactar por email", "mail"],
             puesto: ["puesto", "cargo", "rol", "funcion", "función", "ocupacion", "ocupación", "que hace", "qué hace", "a que se dedica", "a qué se dedica", "trabajo de", "labor", "responsabilidad de", "cometido", "posicion", "posición"],
-            ubicacion: ["ubicación", "ubicacion", "centro", "lugar", "donde esta", "dónde está", "donde trabaja", "dónde trabaja", "localizacion", "localización", "sede", "emplazamiento", "sitio", "localidad"],
-            quien_es: ["quién es", "quien es", "info de", "informacion sobre", "dame datos de", "datos sobre", "cuentame de", "cuéntame de", "detalles de", "saber de"],
-            personas_en_loc: ["personas", "personal", "equipo", "gente", "trabajadores", "quienes trabajan", "quiénes trabajan", "cuantos hay", "cuántos hay", "listado de personal", "plantilla", "nomina de", "quien esta en", "quién está en", "empleados en", "miembros en", "trabaja en"],
+            ubicacion: ["ubicación", "ubicacion", "centro", "lugar", "donde esta", "dónde está", "donde trabaja", "dónde trabaja", "localizacion", "localización", "sede", "emplazamiento", "sitio", "localidad", "base", "estacion"],
+            quien_es: ["quién es", "quien es", "info de", "informacion sobre", "dame datos de", "datos sobre", "cuentame de", "cuéntame de", "detalles de", "saber de", "quien se encarga de"],
+            personas_en_loc: ["personas", "personal", "equipo", "gente", "trabajadores", "quienes trabajan", "quiénes trabajan", "cuantos hay", "cuántos hay", "listado de personal", "plantilla", "nomina de", "quien esta en", "quién está en", "empleados en", "miembros en", "trabaja en", "cuanta gente hay en"],
             ambito: ["ámbito", "ambito", "mantenimiento de", "cubre", "alcance", "responsable de linea", "líneas que cubre", "lineas que cubre", "tramo", "se encarga de", "competencia de", "area de mantenimiento", "área de mantenimiento"],
             direccion_loc: ["dirección", "direccion", "como llego", "cómo llego", "como ir", "cómo ir", "ubicacion fisica", "ubicación física", "donde se encuentra", "dónde se encuentra", "mapa de", "localizar", "ir a"],
             lista: ["lista de", "listado de", "dime los", "dime todos", "cuales son", "cuáles son", "muestrame", "muéstrame", "todos los", "todas las", "listar", "enumerar", "dame una lista", "ver todos"],
@@ -193,387 +298,914 @@
             despedida: ["adios", "adiós", "hasta luego", "chao", "nos vemos", "bye", "hasta pronto", "finalizar", "terminar", "me voy"],
             agradecimiento: ["gracias", "muchas gracias", "agradecido", "muy amable", "ok gracias", "vale gracias", "perfecto gracias", "genial gracias", "te lo agradezco", "excelente", "gracias!"],
             ayuda_cmd: ["ayuda", "comandos", "que puedes hacer", "qué puedes hacer", "opciones", "info", "informacion", "help", "manual", "instrucciones", "como funciona", "cómo funciona"],
-            y_su: ["y su", "y el de el", "y la de el", "y el de ella", "y la de ella", "tambien su", "también su", "dime tambien", "dime también", "necesito tambien", "necesito también", "además su", "ademas su", "y el suyo", "y la suya"],
-            solo_eso: ["solo eso", "nada mas", "nada más", "eso es todo", "listo", "ok", "vale", "ya esta", "ya está"]
+            y_su: ["y su", "y el de el", "y la de el", "y el de ella", "y la de ella", "tambien su", "también su", "dime tambien", "dime también", "necesito tambien", "necesito también", "además su", "ademas su", "y el suyo", "y la suya", "dame también su"],
+            solo_eso: ["solo eso", "nada mas", "nada más", "eso es todo", "listo", "ok", "vale", "ya esta", "ya está", "perfecto"],
+            comparar_mas: ["mas", "más", "mayor numero", "mayor número", "quien tiene mas", "quién tiene más", "donde hay mas", "dónde hay más", "cual tiene mas", "cuál tiene más", "que tiene mas", "qué tiene más"],
+            comparar_o: [" o ", " ó ", " versus ", " vs "]
         };
 
         const typingIndicatorElement = document.createElement('div'); 
         typingIndicatorElement.classList.add('typing-indicator');
         typingIndicatorElement.innerHTML = '<span></span><span></span><span></span>';
         let isTyping = false;
+        let dataLoaded = false;
 
-        async function loadData() { 
-             try {
-                const response = await fetch('./unified_data.json'); 
-                if (!response.ok) throw new Error('Error loading data: ' + response.statusText);
+        async function loadExternalConfigs() {
+            CONFIG_TYPO_CORRECTIONS = SIMULATED_TYPOS_JSON;
+            CONFIG_INTENT_SYNONYMS = SIMULATED_SYNONYMS_JSON;
+        }
+
+        async function loadData() {
+            appendMessage('bot', 'Cargando datos y configuraciones, por favor espera...');
+            try {
+                await loadExternalConfigs();
+                const response = await fetch('./unified_data.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status} al cargar unified_data.json`);
                 unifiedData = await response.json();
-                console.log('Data loaded successfully');
+                
+                allPersons = [];
+                allLocations = [];
+                unifiedData.forEach(centro => {
+                    allLocations.push({ ...centro, personas: undefined });
+                    if (centro.personas) {
+                        centro.personas.forEach(persona => {
+                            allPersons.push({ ...persona, ubicacion: centro.nombre_centro });
+                        });
+                    }
+                });
+
                 buildEntityIndex();
-                // Mover el mensaje inicial del bot aquí para asegurar que los avatares funcionen
-                const initialBotMessage = chatBox.querySelector('.bot-message-wrapper');
-                if (!initialBotMessage) {
-                     appendMessage('bot', '¡Hola! Soy tu asistente virtual para el Mantenimiento LAV ESTE. Pregúntame lo que necesites o escribe "ayuda".');
-                }
-            } catch (error)
-             {
-                console.error('Could not load data:', error);
-                appendMessage('bot', 'Error crítico: No pude cargar los datos necesarios para funcionar. Por favor, revisa la consola y el archivo `unified_data.json`.');
+                dataLoaded = true;
+                chatBox.innerHTML = '';
+                appendMessage('bot', INITIAL_BOT_MESSAGE);
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                userInput.placeholder = "Escribe tu pregunta aquí...";
+                userInput.focus();
+
+            } catch (error) {
+                console.error("Error crítico durante la carga:", error);
+                appendMessage('bot', `Error crítico al cargar: ${error.message}. Por favor, revisa la consola.`);
+                userInput.placeholder = "Error al cargar datos.";
             }
         }
         
         function normalize(text, preserveSpecialChars = false) {
-            if (typeof text !== 'string') return '';
-            let normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            if (!text || typeof text !== 'string') return '';
             
-            for (const typo in COMMON_TYPO_CORRECTIONS) {
-                if (normalized.includes(typo)) { 
-                    const regex = new RegExp(`\\b${typo}\\b`, 'g'); 
-                    normalized = normalized.replace(regex, COMMON_TYPO_CORRECTIONS[typo]);
+            // Convertir a minúsculas y normalizar caracteres especiales
+            let normalized = text.toLowerCase().trim();
+            
+            // Normalizar caracteres acentuados y diacríticos
+            normalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            // Aplicar correcciones de errores tipográficos
+            for (const typo in CONFIG_TYPO_CORRECTIONS) {
+                const correction = CONFIG_TYPO_CORRECTIONS[typo];
+                // Escapar caracteres especiales en la expresión regular
+                const escapedTypo = typo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                // Usar límites de palabra completos para evitar coincidencias parciales no deseadas
+                const regex = new RegExp(`(^|\\s)${escapedTypo}(\\s|$)`, 'gi');
+                normalized = normalized.replace(regex, `$1${correction}$2`);
+                
+                // Manejar el caso cuando el typo está al principio o final del texto
+                if (normalized === typo) {
+                    normalized = correction;
+                } else if (normalized.startsWith(typo + ' ')) {
+                    normalized = normalized.replace(typo, correction);
+                } else if (normalized.endsWith(' ' + typo)) {
+                    normalized = normalized.replace(typo, correction);
                 }
             }
-
+            
+            // Manejar números de teléfono y extensiones
+            normalized = normalized.replace(/\b(\d{3})[-\.\s]?(\d{2})[-\.\s]?(\d{2})[-\.\s]?(\d{2})\b/g, '$1$2$3$4');
+            normalized = normalized.replace(/\bext\.?\s*\b(\d+)\b/gi, 'extension $1');
+            
+            // Manejar espacios múltiples y limpieza final
+            normalized = normalized.replace(/\s+/g, ' ').trim();
+            
+            // Eliminar caracteres especiales si no se deben preservar
             if (!preserveSpecialChars) {
-                normalized = normalized.replace(/[^a-z0-9\s]/g, ''); 
-            } else { 
-                normalized = normalized.replace(/[^a-z0-9\s.\-]/g, '');
+                // Mantener solo letras, números y espacios
+                normalized = normalized.replace(/[^a-z0-9\s]/gi, '');
             }
-            return normalized.replace(/\s+/g, ' ').trim();
-         }
+            
+            return normalized;
+        }
 
         function buildEntityIndex() {
-            allPersons = unifiedData.flatMap(location =>
-                location.personas.map(person => ({ ...person, ubicacion: location.nombre_centro }))
-            );
-            allLocations = unifiedData.map(location => ({ ...location }));
-            entityIndex = new Map();
+            entityIndex.clear();
+            const addEntity = (key, data, type, originalKey, relevanceScore = 1.0) => {
+                const normalizedKey = normalize(key, type.startsWith('puesto_') || type.startsWith('person_') || type.startsWith('location_')); 
+                if (!normalizedKey) return;
 
-            const addToIndex = (key, type, data, originalKey, score = 1) => {
-                const normKey = normalize(key, type.startsWith('puesto') || type === 'person_full'); 
-                if (normKey && normKey !== PENDING_NOM_LOWER && normKey.length > 1) { 
-                    if (!entityIndex.has(normKey)) entityIndex.set(normKey, []);
-                    if (!entityIndex.get(normKey).some(e => e.type === type && JSON.stringify(e.data) === JSON.stringify(data))) {
-                         entityIndex.get(normKey).push({ type, data, originalKey: originalKey || key, score });
-                    }
+                if (!entityIndex.has(normalizedKey)) {
+                    entityIndex.set(normalizedKey, []);
+                }
+                if (!entityIndex.get(normalizedKey).some(e => e.type === type && JSON.stringify(e.data) === JSON.stringify(data))) {
+                     entityIndex.get(normalizedKey).push({ data, type, originalKey: originalKey || key, relevance: relevanceScore });
                 }
             };
 
             allPersons.forEach(person => {
                 if (person.nombre && person.nombre.toLowerCase() !== PENDING_NOM_LOWER) {
-                    addToIndex(person.nombre, 'person_full', person, person.nombre, 100); 
+                    addEntity(person.nombre, person, 'person_full', person.nombre, 1.0);
                     const nameParts = person.nombre.split(' ');
                     if (nameParts.length > 1) {
-                        nameParts.forEach(part => {
-                            if (part.length > 2) addToIndex(part, 'person_namepart', person, person.nombre, 5);
-                        });
-                        addToIndex(nameParts.slice(1).join(' '), 'person_surname', person, person.nombre, 30);
-                        addToIndex(nameParts[0], 'person_firstname', person, person.nombre, nameParts[0].length > 3 ? 15 : 5);
-                    } else if (nameParts.length === 1 && nameParts[0].length > 2) { 
-                        addToIndex(nameParts[0], 'person_firstname', person, person.nombre, 10);
+                        addEntity(nameParts[0], person, 'person_firstname', person.nombre, 0.6); 
+                        
+                        const lastNamesString = nameParts.slice(1).join(' ');
+                        if (lastNamesString) {
+                            addEntity(lastNamesString, person, 'person_all_lastnames', person.nombre, 0.75);
+                        }
+
+                        if (nameParts.length >= 2) { // Nombre + Primer Apellido
+                             addEntity(`${nameParts[0]} ${nameParts[1]}`, person, 'person_name_firstlastname', person.nombre, 0.9);
+                        }
+                        
+                        if (nameParts.length >= 2) { // Primer apellido solo
+                            let firstLastName = nameParts[1];
+                            let isCompoundLastNameStart = false;
+                            if ((firstLastName.toLowerCase() === 'de' || firstLastName.toLowerCase() === 'del' || firstLastName.toLowerCase() === 'la') && nameParts.length > 2) {
+                                firstLastName = nameParts[2]; 
+                                addEntity(`${nameParts[1]} ${nameParts[2]}`, person, 'person_first_compound_lastname_part', person.nombre, 0.72); // "De Paz"
+                                isCompoundLastNameStart = true;
+                            }
+                            addEntity(firstLastName, person, 'person_first_lastname_alone', person.nombre, 0.7);
+                             // Nombre + primer apellido (considerando compuestos "De La")
+                            if(isCompoundLastNameStart && nameParts.length > 2) {
+                                addEntity(`${nameParts[0]} ${nameParts[1]} ${nameParts[2]}`, person, 'person_name_first_compound_lastname', person.nombre, 0.92);
+                            }
+                        }
+
+
+                        if (nameParts.length >= 3) { // Nombre + Primer Apellido + Segundo Apellido (si existe)
+                             addEntity(`${nameParts[0]} ${nameParts[1]} ${nameParts[2]}`, person, 'person_name_two_lastnames', person.nombre, 0.95);
+                        }
+                         if (nameParts.length > 2 && nameParts[nameParts.length -1]) { // Último apellido solo (si hay más de un apellido)
+                            addEntity(nameParts[nameParts.length -1], person, 'person_last_lastname_alone', person.nombre, 0.68);
+                        }
                     }
                 }
-                if (person.puesto && person.puesto.toLowerCase() !== PENDING_NOM_LOWER) {
-                    addToIndex(person.puesto, 'puesto_explicit', person, person.puesto, 60); 
+                 if (person.puesto && person.puesto.toLowerCase() !== PENDING_NOM_LOWER) {
+                    addEntity(person.puesto, {nombre_puesto: person.puesto, original_persona_puesto: person.puesto}, 'puesto_general', person.puesto, 0.9); 
+                    if (person.puesto.toLowerCase().includes("jefe de base")) addEntity("jefe de base", {nombre_puesto: "Jefe de Base", original_persona_puesto: person.puesto}, 'puesto_variant', person.puesto, 0.8);
+                    if (person.puesto.toLowerCase().includes("tecnico de infra y via")) addEntity("tecnico de via", {nombre_puesto: "Técnico De Infra y Vía", original_persona_puesto: person.puesto}, 'puesto_variant', person.puesto, 0.8);
+                    if (person.puesto.toLowerCase().includes("c.t. ingenieria civil")) addEntity("ct ingenieria civil", {nombre_puesto: "C.T. Ingeniería Civil", original_persona_puesto: person.puesto}, 'puesto_variant', person.puesto, 0.8);
+                    if (person.puesto.toLowerCase().startsWith("tecnico ")) addEntity("tecnico", {nombre_puesto: "Técnico", original_persona_puesto: person.puesto}, 'puesto_generic_term', person.puesto, 0.5);
+                    if (person.puesto.toLowerCase().startsWith("operador ")) addEntity("operador", {nombre_puesto: "Operador", original_persona_puesto: person.puesto}, 'puesto_generic_term', person.puesto, 0.5);
+                    if (person.puesto.toLowerCase() === "operador tme") addEntity("telemando", {nombre_puesto: "Operador TME", original_persona_puesto: person.puesto}, 'puesto_alias', person.puesto, 0.85);
+
+                }
+                if (person.telefono && person.telefono !== PENDING_NOM_LOWER) {
+                    const phoneDigits = person.telefono.replace(/\D/g, '');
+                    addEntity(phoneDigits, person, 'person_phone', person.nombre, 0.99); // Muy alta relevancia
+                    addEntity(person.telefono, person, 'person_phone_formatted', person.nombre, 0.98);
                 }
             });
 
             allLocations.forEach(location => {
-                addToIndex(location.nombre_centro, 'location_full', location, location.nombre_centro, 80);
-                const locNameLower = location.nombre_centro.toLowerCase();
-                const parts = location.nombre_centro.split(' ');
-                let alias = '';
-                if (locNameLower.startsWith('bm ')) alias = location.nombre_centro.substring(3);
-                else if (locNameLower.startsWith('et ')) alias = location.nombre_centro.substring(3);
-                else if (locNameLower.startsWith('crc ')) alias = location.nombre_centro.substring(4);
-                else if (parts.length > 1 && parts[parts.length-1].length > 3) {
-                     alias = parts[parts.length - 1];
-                     addToIndex(alias, 'location_alias_short', location, location.nombre_centro, 20);
-                }
-                if (alias) addToIndex(alias, 'location_alias', location, location.nombre_centro, 40);
-                
-                parts.forEach(part => {
-                    if (part.length > 3 && !['de', 'del', 'la', 'el', 'los', 'las', 'y', 'paseo', 'sur', 'base', 'estacion', 'estación', 'madrid', 'valencia', 'albacete'].includes(part.toLowerCase())) { 
-                        addToIndex(part, 'location_namepart', location, location.nombre_centro, 5);
-                    }
-                });
+                addEntity(location.nombre_centro, location, 'location_full', location.nombre_centro, 1.0);
+                if (location.nombre_centro.toLowerCase().startsWith("bm ")) addEntity(location.nombre_centro.substring(3), location, 'location_shortname', location.nombre_centro, 0.8);
+                if (location.nombre_centro.toLowerCase().startsWith("et ")) addEntity(location.nombre_centro.substring(3), location, 'location_shortname', location.nombre_centro, 0.8);
+                if (location.nombre_centro.toLowerCase().startsWith("crc ")) addEntity(location.nombre_centro.substring(4), location, 'location_shortname', location.nombre_centro, 0.8);
+
+                const keywords = location.nombre_centro.split(/[\s-]+/).filter(kw => kw.length > 2 && !["de", "la", "el", "los", "las", "paseo"].includes(kw.toLowerCase()));
+                keywords.forEach(kw => addEntity(kw, location, 'location_keyword', location.nombre_centro, 0.6));
             });
+            
+            addEntity(PENDING_NOM_LOWER, { nombre: PENDING_NOM_LOWER, puesto: PENDING_NOM_LOWER }, 'person_pending', PENDING_NOM_LOWER, 0.9);
 
-            const uniquePuestos = Array.from(new Set(allPersons.filter(p => p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER).map(p => p.puesto)));
-            uniquePuestos.forEach(puesto => {
-                addToIndex(puesto, 'puesto_general', { nombre_puesto: puesto }, puesto, 45); 
-                if (puesto.toLowerCase().includes("técnico")) {
-                    addToIndex(puesto.replace(/técnico/i, "tecnico"), 'puesto_variant', { nombre_puesto: puesto }, puesto, 40);
-                }
-                 if (puesto.toLowerCase().includes("ii.ss.")) {
-                    addToIndex(puesto.replace(/ii\.ss\./gi, "iiss"), 'puesto_variant', { nombre_puesto: puesto }, puesto, 40); // gi for global
-                    addToIndex(puesto.replace(/ii\.ss\./gi, "is"), 'puesto_variant', { nombre_puesto: puesto }, puesto, 38);
-                }
-
-                puesto.split(' ').forEach(part => {
-                     if (part.length > 2 && !['de', 'del', 'la', 'el', 'los', 'las', 'y', 'para', 'civil', 'industrial'].includes(part.toLowerCase())) { 
-                        addToIndex(part, 'puesto_namepart', {nombre_puesto: puesto}, puesto, 8); 
-                     }
-                });
+            const explicitPuestos = ["jefe de area", "jefe de base", "coordinador de linea", "secretaria", "tecnico ii.ss.", "tecnico iiss", "tecnico de infra y via", "tecnico infra via", "tecnico energia", "tecnico de energia", "tecnico telecomunicaciones", "ct ingenieria civil", "ct ingeniería civil", "tecnico", "operador", "gtm", "operador csi", "operador tme", "jefe de unidad", "tecnico documentalista", "tecnico de inversiones", "tecnico proyectos y explanaciones", "tecnico de proteccion civil", "tecnico analisis incidencias"];
+            explicitPuestos.forEach(puesto => {
+                 addEntity(puesto, { nombre_puesto: puesto }, 'puesto_explicit', puesto, 0.95);
             });
         }
+        
+        // Lista de palabras comunes a ignorar en las búsquedas
+        const COMMON_WORDS = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'y', 'e', 'o', 'u', 'a', 'en', 'con', 'por', 'para', 'al', 'se', 'su', 'sus', 'un', 'una', 'unos', 'unas']);
         
         function findEntities(normalizedInput) {
-            const matches = [];
-            const inputTokens = new Set(normalizedInput.split(' ').filter(t => t.length > 1 && !['de','la','el','los','las','en','a'].includes(t)));
+            let foundEntities = [];
+            // Filtrar palabras comunes
+            const inputWords = normalizedInput
+                .split(' ')
+                .filter(w => w.length > 0 && !COMMON_WORDS.has(w.toLowerCase()));
 
-            if (entityIndex.has(normalizedInput)) {
-                entityIndex.get(normalizedInput).forEach(entityMatch => {
-                    let baseRelevance = 200 + entityMatch.score;
-                    if (entityMatch.type.endsWith('_full')) baseRelevance += 50;
-                    if (entityMatch.type === 'puesto_general' || entityMatch.type === 'puesto_variant') baseRelevance += 30;
-                    matches.push({ ...entityMatch, matchType: 'exact_full_input', matchedKey: normalizedInput, relevance: baseRelevance });
-                });
-            }
-
-            const sortedIndexKeys = Array.from(entityIndex.keys()).sort((a, b) => b.length - a.length);
-            for (const key of sortedIndexKeys) {
-                if (key.length === 0 || (key.length < 2 && !/\d/.test(key))) continue; 
-                
-                if (normalizedInput.includes(key)) {
-                    if (key === normalizedInput && matches.some(m => m.matchType === 'exact_full_input' && m.matchedKey === key)) {
-                        continue;
-                    }
-
-                    let keyRelevance = (key.length / normalizedInput.length) * 70; 
-                    keyRelevance += (key.split(' ').length * 10); 
-                    if (key.length === normalizedInput.length && key !== normalizedInput) keyRelevance += 30; 
-
-                    entityIndex.get(key).forEach(entityMatch => {
-                         const existingMatchIndex = matches.findIndex(m => JSON.stringify(m.data) === JSON.stringify(entityMatch.data) && m.type === entityMatch.type); 
-                         const currentTotalRelevance = keyRelevance + entityMatch.score;
-                         if (existingMatchIndex > -1) {
-                             if (currentTotalRelevance > matches[existingMatchIndex].relevance) { 
-                                 matches[existingMatchIndex].relevance = currentTotalRelevance;
-                                 matches[existingMatchIndex].matchType = 'includes_key_updated'; 
-                                 matches[existingMatchIndex].matchedKey = key;
-                             }
-                         } else {
-                            matches.push({ ...entityMatch, matchType: 'includes_key', matchedKey: key, relevance: currentTotalRelevance });
-                         }
-                    });
-                }
-            }
-            
-            inputTokens.forEach(token => {
-                if (token.length < 3 && !/\d/.test(token)) return;
-                if (entityIndex.has(token)) {
-                    entityIndex.get(token).forEach(entityMatch => {
-                         const existingMatchIndex = matches.findIndex(m => JSON.stringify(m.data) === JSON.stringify(entityMatch.data) && m.type === entityMatch.type);
-                         const currentTotalRelevance = 15 + entityMatch.score; 
-                         if (existingMatchIndex > -1) {
-                             if (currentTotalRelevance > matches[existingMatchIndex].relevance) {
-                                 matches[existingMatchIndex].relevance = currentTotalRelevance;
-                                 matches[existingMatchIndex].matchType = 'token_match_updated';
-                                 matches[existingMatchIndex].matchedKey = token;
-                             }
-                         } else {
-                            matches.push({ ...entityMatch, matchType: 'token_match', matchedKey: token, relevance: currentTotalRelevance });
-                         }
-                    });
-                }
-            });
-
-            if (matches.length === 0) return [];
-            matches.sort((a, b) => b.relevance - a.relevance);
-
-            const finalEntities = [];
-            const addedDataObjects = new Set();
-
-            const perfectMatch = matches.find(m => 
-                m.matchType === 'exact_full_input' && 
-                (m.type.endsWith('_full') || m.type === 'puesto_general' || m.type === 'puesto_variant') && 
-                normalize(m.originalKey, m.type.startsWith('puesto')) === normalizedInput
-            );
-
-            if (perfectMatch) {
-                finalEntities.push(perfectMatch);
-                addedDataObjects.add(JSON.stringify(perfectMatch.data));
-                const baseType = perfectMatch.type.split('_')[0]; 
-                
-                matches.filter(m => !m.type.startsWith(baseType) && 
-                                    !addedDataObjects.has(JSON.stringify(m.data)))
-                       .forEach(oe => {
-                           if (!addedDataObjects.has(JSON.stringify(oe.data))) { 
-                               finalEntities.push(oe);
-                               addedDataObjects.add(JSON.stringify(oe.data));
-                           }
-                       });
-                return finalEntities; 
-            }
-
-            for (const match of matches) {
-                const dataStr = JSON.stringify(match.data);
-                if (addedDataObjects.has(dataStr)) continue;
-
-                if (match.type.startsWith('person_') && match.type !== 'person_full') {
-                    const hasDifferentFullPerson = finalEntities.some(fe => fe.type === 'person_full' && JSON.stringify(fe.data) !== dataStr);
-                    if (hasDifferentFullPerson && match.relevance < 50) continue; 
+            for (let len = Math.min(inputWords.length, 7); len >= 1; len--) {
+                for (let i = 0; i <= inputWords.length - len; i++) {
+                    const phrase = inputWords.slice(i, i + len).join(' ');
+                    const normalizedPhrase = normalize(phrase, true);
                     
-                    const hasSamePersonMoreSpecific = finalEntities.some(fe => fe.type.startsWith('person_') && JSON.stringify(fe.data) === dataStr && fe.relevance > match.relevance);
-                    if (hasSamePersonMoreSpecific) continue;
-                }
-                if (match.type === 'location_namepart' || match.type === 'location_alias_short') {
-                    if (finalEntities.some(fe => (fe.type === 'location_full' || fe.type === 'location_alias') && JSON.stringify(fe.data) === dataStr && fe.relevance > match.relevance + 20)) continue;
-                }
-                if (match.type === 'puesto_namepart') {
-                     if (finalEntities.some(fe => (fe.type === 'puesto_general' || fe.type === 'puesto_explicit' || fe.type === 'puesto_variant') && JSON.stringify(fe.data) === dataStr && fe.relevance > match.relevance + 15)) continue;
-                }
-                
-                finalEntities.push(match);
-                addedDataObjects.add(dataStr);
-            }
-            
-            if (finalEntities.length > 1) {
-                const exactFullMatchesInFinal = finalEntities.filter(e => e.matchType === 'exact_full_input' && e.type.endsWith('_full'));
-                if (exactFullMatchesInFinal.length === 1) { 
-                    const exactEntity = exactFullMatchesInFinal[0];
-                    const baseTypeOfExact = exactEntity.type.split('_')[0];
-                    const otherNonExactSameType = finalEntities.filter(e => 
-                        e.type.startsWith(baseTypeOfExact) && 
-                        !(e.matchType === 'exact_full_input' && e.type.endsWith('_full')) &&
-                        JSON.stringify(e.data) !== JSON.stringify(exactEntity.data)
-                    );
-                    if (otherNonExactSameType.length > 0) {
-                        return [exactEntity, ...finalEntities.filter(e => !e.type.startsWith(baseTypeOfExact) || JSON.stringify(e.data) === JSON.stringify(exactEntity.data) )]
-                               .filter((value, index, self) => index === self.findIndex(t => JSON.stringify(t.data) === JSON.stringify(value.data) && t.type === value.type));
+                    // Si la frase está vacía después de normalizar, saltar
+                    if (!normalizedPhrase) continue;
+
+                    if (entityIndex.has(normalizedPhrase)) {
+                        entityIndex.get(normalizedPhrase).forEach(entity => {
+                            const existingIndex = foundEntities.findIndex(fe => JSON.stringify(fe.data) === JSON.stringify(entity.data));
+                            if (existingIndex !== -1) {
+                                if (len > foundEntities[existingIndex].length || 
+                                   (len === foundEntities[existingIndex].length && entity.type.includes('_full') && !foundEntities[existingIndex].type.includes('_full')) ||
+                                   (len === foundEntities[existingIndex].length && entity.relevance > foundEntities[existingIndex].relevance) ||
+                                   (len === foundEntities[existingIndex].length && entity.type === 'person_phone' && foundEntities[existingIndex].type !== 'person_phone') // Priorizar phone match
+                                ) {
+                                    foundEntities.splice(existingIndex, 1, { ...entity, matchedKey: normalizedPhrase, matchType: 'exact_phrase', length: len });
+                                }
+                            } else {
+                                 foundEntities.push({ ...entity, matchedKey: normalizedPhrase, matchType: 'exact_phrase', length: len });
+                            }
+                        });
                     }
                 }
             }
-
-            const personEntities = finalEntities.filter(e => e.type.startsWith('person_'));
-            if (personEntities.length > 1) {
-                 const bestPerson = personEntities.find(p => p.type === 'person_full' && p.matchType === 'exact_full_input') || 
-                                   personEntities.find(p => p.type === 'person_full') || 
-                                   personEntities[0]; 
-                 return [bestPerson, ...finalEntities.filter(e => !e.type.startsWith('person_') || JSON.stringify(e.data) === JSON.stringify(bestPerson.data) )]
-                        .filter((value, index, self) => index === self.findIndex(t => JSON.stringify(t.data) === JSON.stringify(value.data) && t.type === value.type));
+            
+            if (normalizedInput.includes(PENDING_NOM_LOWER)) {
+                 const pteEntityArray = entityIndex.get(PENDING_NOM_LOWER);
+                if (pteEntityArray && pteEntityArray.length > 0) {
+                    const pteEntity = pteEntityArray[0];
+                     if (!foundEntities.some(fe => fe.type === 'person_pending')) {
+                        foundEntities.push({ ...pteEntity, matchedKey: PENDING_NOM_LOWER, matchType: 'exact_phrase', length: PENDING_NOM_LOWER.split(' ').length });
+                    }
+                }
             }
+            
+            foundEntities.sort((a, b) => {
+                 const typePriority = (type) => {
+                    if (type === 'person_phone') return -2; // Máxima prioridad si es un match de teléfono exacto
+                    if (type === 'person_phone_formatted') return -1;
+                    if (type === 'person_full') return 0;
+                    if (type === 'person_name_two_lastnames') return 1;
+                    if (type === 'person_name_first_compound_lastname') return 1; 
+                    if (type === 'person_name_firstlastname') return 2;
+                    if (type === 'person_all_lastnames') return 3;
+                    if (type === 'person_first_lastname_alone') return 4;
+                    if (type === 'person_last_lastname_alone') return 4;
+                    if (type === 'person_firstname') return 5;
+                    if (type.startsWith('location_full')) return 0;
+                    if (type.startsWith('puesto_explicit') || type.startsWith('puesto_general') || type.startsWith('puesto_alias')) return 1; 
+                    return 6;
+                };
 
-            return finalEntities.filter((value, index, self) => index === self.findIndex(t => 
-                JSON.stringify(t.data) === JSON.stringify(value.data)
-            ));
+                if (typePriority(a.type) !== typePriority(b.type)) { // Primero por tipo super prioritario
+                    return typePriority(a.type) - typePriority(b.type);
+                }
+                if (a.length !== b.length) return b.length - a.length; // Luego por longitud del match
+                
+                return (b.relevance || 0) - (a.relevance || 0); // Finalmente por relevancia del índice
+            });
+            
+            const uniqueEntitiesFinal = [];
+            const seenData = new Set();
+            for (const entity of foundEntities) {
+                const dataSignature = JSON.stringify(entity.data);
+                if (!seenData.has(dataSignature)) {
+                    uniqueEntitiesFinal.push(entity);
+                    seenData.add(dataSignature);
+                }
+            }
+            return uniqueEntitiesFinal;
         }
 
-        // Función checkKeywords CORREGIDA E INCLUIDA
         function checkKeywords(normalizedInput, intentKey, exact = false) {
-            if (!INTENT_SYNONYMS[intentKey]) return false;
-            const keywords = INTENT_SYNONYMS[intentKey];
+            if (!CONFIG_INTENT_SYNONYMS[intentKey]) return false;
+            const keywords = CONFIG_INTENT_SYNONYMS[intentKey];
+            const normalizedInputForCheck = normalize(normalizedInput); 
+
             if (exact) { 
-                return keywords.some(kw => normalizedInput === normalize(kw));
+                return keywords.some(kw => normalize(kw) === normalizedInputForCheck);
             }
-            return keywords.some(kw => normalizedInput.includes(normalize(kw)));
+            return keywords.some(kw => normalizedInputForCheck.includes(normalize(kw)));
+        }
+
+        let intentionRules = [];
+
+        function defineIntentionRules() {
+            intentionRules = [
+                 // Nueva Regla: Búsqueda por Teléfono (ALTA PRIORIDAD)
+                {
+                    name: "find_person_by_phone",
+                    condition: (ni, ent, ctx, originalInput) => {
+                        const phoneQuery = (originalInput || ni).replace(/\s+/g, ''); // Usar originalInput para preservar formato si es posible
+                        return /^\+?\d{9,15}$/.test(phoneQuery) && ent.some(e => e.type === 'person_phone' && e.data.telefono.replace(/\D/g,'') === phoneQuery.replace(/\D/g,''));
+                    },
+                    action: (ni, ent, ctx, originalInput) => {
+                        const phoneQuery = (originalInput || ni).replace(/\D/g, '');
+                        const personEntity = ent.find(e => e.type === 'person_phone' && e.data.telefono.replace(/\D/g,'') === phoneQuery);
+                        if (personEntity) {
+                            conversationContext.lastPerson = personEntity.data;
+                            conversationContext.lastLocation = null; conversationContext.lastPuesto = null;
+                            return `El número de teléfono **${personEntity.data.telefono}** pertenece a ${formatPersonInfo(personEntity.data)}`;
+                        }
+                        return "No encontré a nadie con ese número de teléfono.";
+                    }
+                },
+                // Reglas de Contexto ("y su...")
+                {
+                    name: "context_person_telefono",
+                    condition: (ni, ent, ctx) => ctx.lastPerson && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'telefono'),
+                    action: (ni, ent, ctx) => { conversationContext.lastLocation = null; conversationContext.lastPuesto = null; return formatPersonInfo(ctx.lastPerson, 'telefono');}
+                },
+                {
+                    name: "context_person_correo",
+                    condition: (ni, ent, ctx) => ctx.lastPerson && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'correo'),
+                    action: (ni, ent, ctx) => { conversationContext.lastLocation = null; conversationContext.lastPuesto = null; return formatPersonInfo(ctx.lastPerson, 'correo');}
+                },
+                {
+                    name: "context_person_puesto",
+                    condition: (ni, ent, ctx) => ctx.lastPerson && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'puesto'),
+                    action: (ni, ent, ctx) => { conversationContext.lastLocation = null; conversationContext.lastPuesto = null; return formatPersonInfo(ctx.lastPerson, 'puesto');}
+                },
+                {
+                    name: "context_person_ubicacion",
+                    condition: (ni, ent, ctx) => ctx.lastPerson && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'ubicacion'),
+                    action: (ni, ent, ctx) => { conversationContext.lastLocation = null; conversationContext.lastPuesto = null; return formatPersonInfo(ctx.lastPerson, 'ubicacion');}
+                },
+                {
+                    name: "context_location_ambitos",
+                    condition: (ni, ent, ctx) => ctx.lastLocation && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'ambito'),
+                    action: (ni, ent, ctx) => { conversationContext.lastPerson = null; conversationContext.lastPuesto = null; return formatLocationInfo(ctx.lastLocation, 'ambitos');}
+                },
+                {
+                    name: "context_location_persons",
+                    condition: (ni, ent, ctx) => ctx.lastLocation && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'personas_en_loc'),
+                    action: (ni, ent, ctx) => { conversationContext.lastPerson = null; conversationContext.lastPuesto = null; return formatLocationInfo(ctx.lastLocation, 'personas');}
+                },
+                {
+                    name: "context_location_details",
+                    condition: (ni, ent, ctx) => ctx.lastLocation && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'direccion_loc'),
+                    action: (ni, ent, ctx) => { conversationContext.lastPerson = null; conversationContext.lastPuesto = null; return formatLocationInfo(ctx.lastLocation, 'direccion');}
+                },
+                {
+                    name: "context_puesto_persons",
+                    condition: (ni, ent, ctx) => ctx.lastPuesto && checkKeywords(ni, 'y_su') && checkKeywords(ni, 'personas_en_loc'),
+                    action: (ni, ent, ctx) => {
+                        conversationContext.lastPerson = null; conversationContext.lastLocation = null;
+                        const pEntities = findEntities(normalize(ctx.lastPuesto.nombre_puesto, true));
+                        return getIntentResponse(ni, pEntities, 'find_person_by_role');
+                    }
+                },
+                {
+                    name: "context_acknowledged",
+                    condition: (ni, ent, ctx) => (ctx.lastPerson || ctx.lastLocation || ctx.lastPuesto) && checkKeywords(ni, 'solo_eso', true),
+                    action: (ni, ent, ctx) => { conversationContext.clear(); return "Entendido."; }
+                },
+
+                // Comandos directos
+                {
+                    name: "ayuda",
+                    condition: (ni) => checkKeywords(ni, 'ayuda_cmd', true) || ni === 'ayuda',
+                    action: () => { displayHelpBubbles(); return 'Puedo ayudarte con información sobre personal, centros y listados. Aquí tienes ejemplos:'; }
+                },
+                { name: "saludo", condition: (ni) => checkKeywords(ni, 'saludo'), action: () => CONFIG_INTENT_SYNONYMS.saludo[Math.floor(Math.random() * CONFIG_INTENT_SYNONYMS.saludo.length)] + "! ¿En qué puedo ayudarte?" },
+                { name: "despedida", condition: (ni) => checkKeywords(ni, 'despedida'), action: () => CONFIG_INTENT_SYNONYMS.despedida[Math.floor(Math.random() * CONFIG_INTENT_SYNONYMS.despedida.length)] + "! Que tengas un buen día." },
+                { name: "agradecimiento", condition: (ni) => checkKeywords(ni, 'agradecimiento'), action: () => "De nada. ¡Ha sido un placer ayudarte!" },
+                
+                 // Regla unificada para persona con manejo de apellido
+                {
+                    name: "get_person_specific_info_or_full",
+                    condition: (ni, ent) => {
+                        const persons = ent.filter(e => e.type.startsWith('person_') && e.type !== 'person_pending');
+                        if (persons.length !== 1) return false; 
+                        
+                        const personEntity = persons[0];
+                        const personData = personEntity.data;
+                        const normPersonNameFull = normalize(personData.nombre, true);
+                        const inputWordsCount = ni.split(' ').length;
+
+                        // La entrada es un match fuerte del nombre o "quién es [nombre]"
+                        const isStrongNameQuery = (personEntity.matchedKey === ni && personEntity.length >= Math.max(2, inputWordsCount)) ||
+                                                  (normPersonNameFull.startsWith(ni) && personEntity.length >= inputWordsCount && inputWordsCount >= 2) ||
+                                                  (personEntity.type === 'person_full' && ni === personEntity.matchedKey) ||
+                                                  (checkKeywords(ni, 'quien_es') && (personEntity.matchedKey === ni.replace("quien es","").trim() || normPersonNameFull.includes(ni.replace("quien es","").trim()) ) );
+
+                        // Si es un match fuerte del nombre, y se pide info específica o es solo el nombre/quien es.
+                        if (isStrongNameQuery) {
+                            if (checkKeywords(ni, 'telefono') || checkKeywords(ni, 'correo') || 
+                                checkKeywords(ni, 'puesto') || checkKeywords(ni, 'ubicacion') ||
+                                checkKeywords(ni, 'quien_es') || ni === personEntity.matchedKey || normPersonNameFull.startsWith(ni)) {
+                                return true;
+                            }
+                        }
+                        
+                        // Caso: "ubicación [Nombre Apellido]" o similar
+                        const specificInfoKeywords = ['ubicacion', 'telefono', 'correo', 'puesto'];
+                        const requestedSpecificInfo = specificInfoKeywords.find(kw => checkKeywords(ni, kw));
+                        if (requestedSpecificInfo) {
+                            // Extraer el nombre de la query sin la keyword de info específica
+                            let nameQueryPart = ni;
+                            CONFIG_INTENT_SYNONYMS[requestedSpecificInfo].forEach(syn => {
+                                nameQueryPart = nameQueryPart.replace(new RegExp(syn, 'gi'), '');
+                            });
+                            nameQueryPart = normalize(nameQueryPart.replace(/\bde\b/gi, '').trim(), true); // quitar "de" y normalizar
+                            
+                            // Si la parte del nombre de la query está contenida en el matchedKey de la persona
+                            // Y el matchedKey es suficientemente específico
+                            if (personEntity.matchedKey.includes(nameQueryPart) && personEntity.length >= nameQueryPart.split(' ').length && personEntity.length >=2) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    },
+                    action: (ni, ent) => { 
+                        const person = ent.find(e => e.type.startsWith('person_')).data;
+                        conversationContext.lastPerson = person;
+                        conversationContext.lastLocation = null; conversationContext.lastPuesto = null;
+
+                        if (checkKeywords(ni, 'telefono')) return formatPersonInfo(person, 'telefono');
+                        if (checkKeywords(ni, 'correo')) return formatPersonInfo(person, 'correo');
+                        if (checkKeywords(ni, 'puesto')) return formatPersonInfo(person, 'puesto');
+                        if (checkKeywords(ni, 'ubicacion')) return formatPersonInfo(person, 'ubicacion');
+                        return formatPersonInfo(person, 'full');
+                    }
+                },
+                // Reglas de ubicación
+                {
+                    name: "get_location_specific_or_full", // Regla unificada para ubicación
+                    condition: (ni, ent) => {
+                        const locations = ent.filter(e => e.type.startsWith('location_'));
+                        if (locations.length !== 1) return false;
+                        const locEntity = locations[0];
+
+                        // Verificar si hay una palabra clave de información específica
+                        const specificInfoKeywords = ['ambito', 'direccion_loc', 'personas_en_loc'];
+                        const hasInfoKeyword = specificInfoKeywords.some(kw => checkKeywords(ni, kw));
+                        
+                        // Extraer la parte del nombre de la ubicación
+                        let locationNamePart = ni;
+                        if (hasInfoKeyword) {
+                            // Eliminar las palabras clave de información para obtener solo el nombre
+                            specificInfoKeywords.forEach(kw => {
+                                CONFIG_INTENT_SYNONYMS[kw]?.forEach(syn => {
+                                    locationNamePart = locationNamePart.replace(new RegExp(syn, 'gi'), '');
+                                });
+                            });
+                            locationNamePart = locationNamePart.replace(/\bde\b/gi, '').trim();
+                        }
+                        
+                        // Normalizar para comparación
+                        const normalizedLocationName = normalize(locationNamePart, true);
+                        const normalizedEntityName = normalize(locEntity.matchedKey, true);
+                        
+                        // Verificar si el nombre de la ubicación está contenido en la consulta
+                        const locationNameInQuery = normalizedEntityName.split(' ').every(part => 
+                            normalizedLocationName.includes(part)
+                        );
+                        
+                        // Si hay una palabra clave de información y el nombre de la ubicación coincide
+                        if (hasInfoKeyword && locationNameInQuery) {
+                            return true;
+                        }
+                        
+                        // Si es una coincidencia exacta o comienza con el nombre de la ubicación
+                        const isStrongLocationQuery = (normalizedEntityName === normalizedLocationName ||
+                                                     normalizedEntityName.startsWith(normalizedLocationName)) &&
+                                                    locEntity.length >= normalizedLocationName.split(' ').length;
+                        
+                        return isStrongLocationQuery;
+                    },
+                    action: (ni, ent) => {
+                        const location = ent.find(e => e.type.startsWith('location_')).data;
+                        conversationContext.lastLocation = location; conversationContext.lastPerson = null; conversationContext.lastPuesto = null;
+                        if (checkKeywords(ni, 'ambito')) return formatLocationInfo(location, 'ambitos');
+                        if (checkKeywords(ni, 'direccion_loc')) return formatLocationInfo(location, 'direccion');
+                        if (checkKeywords(ni, 'personas_en_loc')) return formatLocationInfo(location, 'personas');
+                        return formatLocationInfo(location, 'full');
+                    }
+                },
+                { 
+                    name: "find_person_by_role_direct",
+                    condition: (ni, ent) => {
+                        const puestos = ent.filter(e => e.type.startsWith('puesto_') || e.type.startsWith('puesto_alias'));
+                        return puestos.length > 0 && 
+                               (checkKeywords(ni, 'quien_es') || checkKeywords(ni, 'lista') || 
+                                (ent.filter(e => e.type.startsWith('person_')).length === 0 && ent.filter(e => e.type.startsWith('location_')).length === 0)
+                               );
+                    },
+                    action: (ni, ent, ctx, originalInput) => {
+                        conversationContext.clear(); 
+                        const puestoData = ent.find(e => e.type.startsWith('puesto_') || e.type.startsWith('puesto_alias'));
+                        if(puestoData) conversationContext.lastPuesto = puestoData.data;
+                        return getIntentResponse(ni, ent, 'find_person_by_role', originalInput);
+                    }
+                },
+                // Nuevas reglas de comparación
+                {
+                    name: "compare_puesto_personnel_count",
+                    condition: (ni, ent) => {
+                        const puestos = ent.filter(e => e.type.startsWith('puesto_') || e.type.startsWith('puesto_alias'));
+                        return (ni.includes(" o ") || ni.includes(" ó ") || ni.includes(" versus ") || ni.includes(" vs ")) && 
+                               checkKeywords(ni, 'comparar_mas') &&
+                               puestos.length >= 2 &&
+                               new Set(puestos.map(p => p.data.nombre_puesto || p.originalKey)).size >= 2;
+                    },
+                    action: (ni, ent) => { /* ... (código de la acción ya proporcionado anteriormente) ... */
+                        const puestos = ent.filter(e => e.type.startsWith('puesto_') || e.type.startsWith('puesto_alias'));
+                        const uniquePuestosData = [];
+                        const seenPuestos = new Set();
+                        for (const pEntity of puestos) {
+                            const pName = pEntity.data.nombre_puesto || pEntity.originalKey;
+                            if (!seenPuestos.has(pName)) {
+                                uniquePuestosData.push(pEntity.data);
+                                seenPuestos.add(pName);
+                            }
+                            if (uniquePuestosData.length === 2) break;
+                        }
+
+                        if (uniquePuestosData.length < 2) return "Necesito al menos dos puestos diferentes para comparar.";
+
+                        const puesto1Data = uniquePuestosData[0];
+                        const puesto2Data = uniquePuestosData[1];
+
+                        const normPuesto1 = normalize(puesto1Data.nombre_puesto || puesto1Data.originalKey, true);
+                        const normPuesto2 = normalize(puesto2Data.nombre_puesto || puesto2Data.originalKey, true);
+
+                        const count1 = allPersons.filter(p => p.puesto && normalize(p.puesto, true).includes(normPuesto1) && p.nombre.toLowerCase() !== PENDING_NOM_LOWER).length;
+                        const count2 = allPersons.filter(p => p.puesto && normalize(p.puesto, true).includes(normPuesto2) && p.nombre.toLowerCase() !== PENDING_NOM_LOWER).length;
+                        
+                        const displayPuesto1 = puesto1Data.nombre_puesto || puesto1Data.originalKey;
+                        const displayPuesto2 = puesto2Data.nombre_puesto || puesto2Data.originalKey;
+
+                        if (count1 > count2) return `Hay más personal con el puesto **${displayPuesto1}** (${count1}) que **${displayPuesto2}** (${count2}).`;
+                        if (count2 > count1) return `Hay más personal con el puesto **${displayPuesto2}** (${count2}) que **${displayPuesto1}** (${count1}).`;
+                        if (count1 === 0 && count2 === 0) return `No encontré personal asignado ni para **${displayPuesto1}** ni para **${displayPuesto2}**.`;
+                        return `Hay la misma cantidad de personal para **${displayPuesto1}** (${count1}) y **${displayPuesto2}** (${count2}).`;
+                    }
+                },
+                {
+                    name: "compare_location_personnel_count",
+                    condition: (ni, ent) => {
+                        return checkKeywords(ni, 'comparar_mas') && 
+                               (ni.includes("base") || ni.includes("centro") || ni.includes("ubicacion")) &&
+                               checkKeywords(ni, 'personas_en_loc');
+                    },
+                    action: (ni, ent) => { /* ... (código de la acción ya proporcionado anteriormente) ... */
+                        if (allLocations.length === 0) return "No tengo datos de ubicaciones para comparar.";
+                        let maxPersonnel = -1;
+                        let locationsWithMax = [];
+                        allLocations.forEach(loc => {
+                            const personnelCount = allPersons.filter(p => p.ubicacion === loc.nombre_centro && p.nombre.toLowerCase() !== PENDING_NOM_LOWER).length;
+                            if (personnelCount > maxPersonnel) {
+                                maxPersonnel = personnelCount;
+                                locationsWithMax = [loc.nombre_centro];
+                            } else if (personnelCount === maxPersonnel && personnelCount > 0) {
+                                locationsWithMax.push(loc.nombre_centro);
+                            }
+                        });
+                        if (maxPersonnel <= 0 || locationsWithMax.length === 0) return "No pude determinar qué ubicación tiene más personal o ninguna tiene personal asignado.";
+                        if (locationsWithMax.length === 1) return `La ubicación con más personal asignado es **${locationsWithMax[0]}** (con ${maxPersonnel} persona${maxPersonnel > 1 ? 's' : ''}).`;
+                        return `Las ubicaciones con más personal asignado (con ${maxPersonnel} persona${maxPersonnel > 1 ? 's' : ''} cada una) son: **${locationsWithMax.join(', ')}**.`;
+                    }
+                },
+                // Nueva Regla: Lista de Todos los Puestos
+                {
+                    name: "list_all_puestos",
+                    condition: (ni, ent) => {
+                        return checkKeywords(ni, 'lista') && 
+                               (ni.includes("puesto") || ni.includes("cargo") || ni.includes("rol")) &&
+                               ent.filter(e => e.type.startsWith('puesto_')).length === 0;
+                    },
+                    action: (ni, ent) => { /* ... (código de la acción ya proporcionado anteriormente) ... */
+                        const puestoCounts = new Map();
+                        allPersons
+                            .filter(p => p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER && p.nombre.toLowerCase() !== PENDING_NOM_LOWER)
+                            .forEach(p => {
+                                puestoCounts.set(p.puesto, (puestoCounts.get(p.puesto) || 0) + 1);
+                            });
+
+                        if (puestoCounts.size === 0) return "No hay puestos registrados con personal asignado (aparte de los pendientes).";
+                        
+                        const sortedPuestos = Array.from(puestoCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+                        const list = sortedPuestos.map(([puesto, count]) => `- ${puesto} (${count} persona${count > 1 ? 's' : ''})`).join('\n');
+                        return `Estos son los puestos registrados con personal (${sortedPuestos.length}):\n${list}`;
+                    }
+                },
+                // Fallback y manejo de ambigüedad
+                {
+                    name: "list_all_locations",
+                    condition: (ni) => {
+                        return checkKeywords(ni, 'lista') && 
+                               (ni.includes("ubicacion") || ni.includes("ubicaciones") || 
+                                ni.includes("base") || ni.includes("bases") ||
+                                ni.includes("centro") || ni.includes("centros")) &&
+                               ni.split(' ').length <= 4; // Para evitar falsos positivos en frases largas
+                    },
+                    action: (ni, ent) => {
+                        if (allLocations.length === 0) return "No tengo información de ubicaciones disponibles.";
+                        
+                        // Ordenar las ubicaciones alfabéticamente
+                        const sortedLocations = [...allLocations].sort((a, b) => 
+                            a.nombre_centro.localeCompare(b.nombre_centro)
+                        );
+                        
+                        // Formatear la lista de ubicaciones
+                        const locationList = sortedLocations.map(loc => 
+                            `- **${loc.nombre_centro}**`
+                        ).join('\n');
+                        
+                        return `Estas son todas las ubicaciones disponibles (${sortedLocations.length}):\n${locationList}`;
+                    }
+                },
+                {
+                    name: "general_query_or_unknown",
+                    condition: () => true, 
+                    action: (ni, ent, ctx, originalInput) => {
+                        if (ent.length > 1) {
+                                            // Verificar si hay una ubicación con coincidencia exacta de dos palabras
+                            const locationEntities = ent.filter(e => e.type.startsWith('location_'));
+                            if (locationEntities.length > 0) {
+                                // Filtrar palabras comunes de la entrada del usuario
+                                const inputWords = ni.split(' ')
+                                    .filter(w => w.length > 0 && !COMMON_WORDS.has(w.toLowerCase()));
+                                    
+                                const exactMatch = locationEntities.find(loc => {
+                                    // Filtrar palabras comunes del nombre de la ubicación
+                                    const locWords = normalize(loc.matchedKey, true)
+                                        .split(' ')
+                                        .filter(w => w.length > 0 && !COMMON_WORDS.has(w.toLowerCase()));
+                                        
+                                    // Verificar si todas las palabras de la consulta (sin comunes) están en la ubicación
+                                    return inputWords.length > 0 && 
+                                           inputWords.every(word => 
+                                               locWords.some(locWord => locWord === word)
+                                           );
+                                });
+                                
+                                if (exactMatch) {
+                                    conversationContext.lastLocation = exactMatch.data;
+                                    return formatLocationInfo(exactMatch.data, 'full');
+                                }
+                            }
+                            
+                            const persons = ent.filter(e => e.type.startsWith('person_') && e.type !== 'person_pending');
+                            
+                            if (persons.length > 1) {
+                                // Primero buscar coincidencia exacta con el nombre completo
+                                const exactMatch = persons.find(p => {
+                                    const normFullName = normalize(p.data.nombre, true);
+                                    return normFullName === ni || p.matchedKey === ni;
+                                });
+                                
+                                if (exactMatch) {
+                                    conversationContext.lastPerson = exactMatch.data;
+                                    conversationContext.lastLocation = null; 
+                                    conversationContext.lastPuesto = null;
+                                    return formatPersonInfo(exactMatch.data);
+                                }
+                                
+                                // Función de puntuación para ordenar coincidencias
+                                const score = (pEntity, query) => {
+                                    let s = 0;
+                                    const normFullName = normalize(pEntity.data.nombre, true);
+                                    const queryWords = query.split(' ').filter(w => w.length > 2); // Palabras de más de 2 letras
+                                    const fullNameParts = normFullName.split(' ');
+                                    const originalQuery = query;
+                                    
+                                    // Puntuación más alta para coincidencia exacta de nombre completo
+                                    if (normFullName === query || pEntity.matchedKey === query) {
+                                        return 1000 + pEntity.length * 10;
+                                    }
+                                    
+                                    // Si la consulta incluye "teléfono de" o similar, priorizar la coincidencia exacta del nombre
+                                    if (originalInputString && (originalInputString.includes('teléfono de') || 
+                                                               originalInputString.includes('telefono de') ||
+                                                               originalInputString.includes('teléfono del') ||
+                                                               originalInputString.includes('telefono del'))) {
+                                        // Extraer solo el nombre de la consulta
+                                        const nameQuery = originalInputString.replace(/(tel[ée]fono de(l)?|tel[ée]fono|telefono|telfono|telf|tlf|móvil|movil|celular|llamar|contactar|contacto|numero|número)/gi, '').trim();
+                                        const normNameQuery = normalize(nameQuery, true);
+                                        
+                                        // Si el nombre coincide exactamente, máxima prioridad
+                                        if (normFullName === normNameQuery) {
+                                            return 2000;
+                                        }
+                                        
+                                        // Si la consulta está contenida en el nombre completo, priorizar
+                                        if (normFullName.includes(normNameQuery) && normNameQuery.split(' ').length >= 2) {
+                                            return 1500 + (normNameQuery.split(' ').length * 100);
+                                        }
+                                    }
+                                    
+                                    // Manejar búsqueda de "Iván de la Paz"
+                                    if (queryWords.length >= 3) {
+                                        // Verificar si la consulta coincide con el inicio del nombre completo
+                                        const queryStart = queryWords.join(' ');
+                                        if (normFullName.startsWith(queryStart)) {
+                                            return 800 + (queryWords.length * 30);
+                                        }
+                                        
+                                        // Verificar si la consulta coincide con nombre + primer apellido compuesto
+                                        const firstName = fullNameParts[0];
+                                        const firstLastName = fullNameParts[1];
+                                        const secondLastName = fullNameParts.length > 2 ? fullNameParts[2] : '';
+                                        
+                                        // Verificar coincidencia de nombre + apellido compuesto (ej: "Iván de la Paz")
+                                        if (queryWords[0] === firstName) {
+                                            // Caso 1: Nombre + Apellido compuesto (ej: "Iván de la")
+                                            if (queryWords.length >= 2 && `${queryWords[1]} ${queryWords[2] || ''}`.trim() === firstLastName) {
+                                                return 1200;
+                                            }
+                                            // Caso 2: Nombre + Primer apellido (ej: "Iván de")
+                                            if (queryWords[1] === firstLastName.split(' ')[0]) {
+                                                return 1000;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Puntos por cada palabra de la consulta que coincida
+                                    const matchedWords = queryWords.filter(word => 
+                                        normFullName.includes(word) || pEntity.matchedKey.includes(word)
+                                    ).length;
+                                    
+                                    s += matchedWords * 20; // Puntos por palabras coincidentes
+                                    
+                                    // Bonus por tipo de coincidencia
+                                    if (pEntity.type === 'person_full') s += 40;
+                                    else if (pEntity.type === 'person_name_two_lastnames' || pEntity.type === 'person_name_first_compound_lastname') s += 30;
+                                    else if (pEntity.type === 'person_name_firstlastname') s += 20;
+                                    else if (pEntity.type === 'person_all_lastnames') s += 15;
+                                    
+                                    // Bonus por posición de la coincidencia (mejor al principio)
+                                    if (normFullName.startsWith(query)) s += 60;
+                                    
+                                    // Bonus por longitud del nombre (prefiere nombres más largos para evitar coincidencias parciales)
+                                    s += pEntity.length * 5;
+                                    
+                                    // Bonus adicional si la consulta contiene "de la" o similar
+                                    if (query.includes(' de la ') || query.includes(' del ') || query.includes(' de ')) {
+                                        s += 50;
+                                    }
+                                    
+                                    return s;
+                                };
+                                
+                                // Ordenar por puntuación
+                                const sortedPersons = [...persons].sort((a,b) => score(b, ni) - score(a, ni));
+
+                                const bestPersonMatch = sortedPersons[0];
+                                const secondBestMatch = sortedPersons[1];
+                                
+                                // Calcular puntuaciones para determinar si hay un ganador claro
+                                const scoreBest = score(bestPersonMatch, ni);
+                                const scoreSecond = secondBestMatch ? score(secondBestMatch, ni) : 0;
+                                const scoreDifference = scoreBest - scoreSecond;
+                                
+                                // Si la diferencia es significativa, considerar que hay un ganador claro
+                                const isClearWinner = scoreDifference > 20 || 
+                                                    (bestPersonMatch.matchedKey === ni && bestPersonMatch.length >= 2) ||
+                                                    (normalize(bestPersonMatch.data.nombre, true) === ni);
+
+
+                                if (isClearWinner) {
+                                    conversationContext.lastPerson = bestPersonMatch.data;
+                                    conversationContext.lastLocation = null; conversationContext.lastPuesto = null;
+                                    return formatPersonInfo(bestPersonMatch.data);
+                                }
+                                
+                                if (ni.split(' ').length === 1 && !checkKeywords(ni, 'lista')) {
+                                    let commonMatch = true;
+                                    for(const pEntity of persons) {
+                                        const normFullName = normalize(pEntity.data.nombre, true);
+                                        if (!normFullName.includes(ni)) {
+                                            commonMatch = false; break;
+                                        }
+                                    }
+                                    if (commonMatch) {
+                                        let response = `He encontrado ${persons.length} personas que incluyen "**${originalInput || ni}**" en su nombre:\n`;
+                                        response += persons.slice(0,5).map(p => `  - **${p.data.nombre}** (${p.data.puesto || 'N/A'})`).join('\n');
+                                        if(persons.length > 5) response += "\n  ... y más."
+                                        response += "\nPor favor, proporciona un nombre más completo o más detalles.";
+                                        return response;
+                                    }
+                                }
+                            } 
+
+                            let responseParts = ["He encontrado varias cosas relacionadas (demasiado ambiguo):"];
+                            let addedToResponse = new Set();
+                            ent.slice(0,3).forEach(e => { 
+                                const dataSignature = JSON.stringify(e.data);
+                                if (!addedToResponse.has(dataSignature)) { 
+                                    if (e.type.startsWith('person_')) responseParts.push(`  - Persona: **${e.data.nombre}** (match: '${e.matchedKey}')`);
+                                    else if (e.type.startsWith('location_')) responseParts.push(`  - Ubicación: **${e.data.nombre_centro}** (match: '${e.matchedKey}')`);
+                                    else if (e.type.startsWith('puesto_')) responseParts.push(`  - Puesto: **${e.data.nombre_puesto || e.originalKey}** (match: '${e.matchedKey}')`);
+                                    addedToResponse.add(dataSignature);
+                                }
+                            });
+                            if (responseParts.length > 1 && addedToResponse.size > 1) {
+                                responseParts.push("Por favor, sé más específico o pregunta por una sola cosa a la vez.");
+                                return responseParts.join('\n');
+                            } else if (ent.length > 0 && addedToResponse.size === 1) { 
+                                const singleEntity = ent.find(e => JSON.stringify(e.data) === Array.from(addedToResponse)[0]);
+                                 if (singleEntity.type.startsWith('person_')) { conversationContext.lastPerson = singleEntity.data; return formatPersonInfo(singleEntity.data); }
+                                 if (singleEntity.type.startsWith('location_')) { conversationContext.lastLocation = singleEntity.data; return formatLocationInfo(singleEntity.data); }
+                                 if (singleEntity.type.startsWith('puesto_')) { conversationContext.lastPuesto = singleEntity.data; return getIntentResponse(ni, [singleEntity], 'find_person_by_role', originalInput);}
+                            }
+                        }
+                        
+                        if (ent.length === 1) {
+                            const singleEntity = ent[0];
+                             if (singleEntity.type.startsWith('person_')) { conversationContext.lastPerson = singleEntity.data; return formatPersonInfo(singleEntity.data); }
+                             if (singleEntity.type.startsWith('location_')) { conversationContext.lastLocation = singleEntity.data; return formatLocationInfo(singleEntity.data); }
+                             if (singleEntity.type.startsWith('puesto_')) { conversationContext.lastPuesto = singleEntity.data; return getIntentResponse(ni, [singleEntity], 'find_person_by_role', originalInput);}
+                        }
+                        
+                        return 'Lo siento, no he entendido bien tu pregunta. Prueba a reformularla o escribe "ayuda".';
+                    }
+                }
+            ];
         }
         
-        function detectIntention(normalizedInput, entities) {
-            const numPersons = entities.filter(e => e.type.startsWith('person_')).length;
-            const numLocations = entities.filter(e => e.type.startsWith('location_')).length;
-            let numPuestos = entities.filter(e => e.type.startsWith('puesto_')).length; 
-            const mainPuestoEntity = entities.find(e => e.type === 'puesto_general' || e.type === 'puesto_explicit' || e.type === 'puesto_variant');
+        function getIntentResponse(normalizedInput, entities, specificIntent, originalInput) {
+            if (specificIntent === 'find_person_by_role') {
+                const puestosEntities = entities.filter(e => e.type.startsWith('puesto_') || e.type.startsWith('puesto_alias'));
+                let targetPuestoNorm = '';
+                let originalPuestoQuery = '';
+                
+                const mainPuestoEntity = puestosEntities.find(pe => (pe.type === 'puesto_general' || pe.type === 'puesto_explicit' || pe.type === 'puesto_alias') && pe.matchType === 'exact_phrase') || 
+                                        puestosEntities.find(pe => pe.type === 'puesto_variant' && pe.matchType === 'exact_phrase') ||
+                                        puestosEntities.find(pe => pe.type === 'puesto_explicit' || pe.type === 'puesto_alias') ||
+                                        puestosEntities.find(pe => pe.type === 'puesto_general') ||
+                                        (puestosEntities.length > 0 ? puestosEntities[0] : null);
 
-            if (lastPersonContext && checkKeywords(normalizedInput, 'y_su')) {
-                if (checkKeywords(normalizedInput, 'telefono')) return 'get_context_telefono';
-                if (checkKeywords(normalizedInput, 'correo')) return 'get_context_correo';
-                if (checkKeywords(normalizedInput, 'puesto')) return 'get_context_puesto';
-                if (checkKeywords(normalizedInput, 'ubicacion')) return 'get_context_ubicacion';
-            }
-            if (lastPersonContext && checkKeywords(normalizedInput, 'solo_eso', true)) return 'context_acknowledged';
-            if (lastLocationContext && checkKeywords(normalizedInput, 'y_su')) { 
-                if (checkKeywords(normalizedInput, 'ambito')) return 'get_context_location_ambitos';
-                if (checkKeywords(normalizedInput, 'personas_en_loc')) return 'get_context_location_persons';
-                if (checkKeywords(normalizedInput, 'direccion_loc')) return 'get_context_location_details';
-            }
-            if (lastPuestoContext && checkKeywords(normalizedInput, 'y_su') && checkKeywords(normalizedInput, 'personas_en_loc')) {
-                 return 'get_context_puesto_persons';
-            }
-
-            if (checkKeywords(normalizedInput, 'ayuda_cmd', true) || normalizedInput === 'ayuda') return 'ayuda_response';
-            if (checkKeywords(normalizedInput, 'saludo')) return 'greeting';
-            if (checkKeywords(normalizedInput, 'despedida')) return 'farewell';
-            if (checkKeywords(normalizedInput, 'agradecimiento')) return 'thanks';
-
-            if (numPuestos > 0 && numLocations === 1) {
-                const hasPuestoKeywords = INTENT_SYNONYMS.puesto.some(pkw => normalizedInput.includes(normalize(pkw.replace(/(que hace|qué hace|a que se dedica|a qué se dedica)/,"").trim())) );
-                const hasQuestionOrListKeywords = INTENT_SYNONYMS.quien_es.some(qkw => normalizedInput.includes(normalize(qkw))) || checkKeywords(normalizedInput, 'lista') || normalizedInput.includes("personal de");
-
-                if (hasPuestoKeywords || hasQuestionOrListKeywords) {
-                    return 'find_role_in_location';
+                if (mainPuestoEntity) {
+                    targetPuestoNorm = normalize(mainPuestoEntity.data.nombre_puesto || mainPuestoEntity.originalKey, true);
+                    originalPuestoQuery = mainPuestoEntity.data.nombre_puesto || mainPuestoEntity.originalKey;
+                } else { 
+                    for (const role of (CONFIG_INTENT_SYNONYMS.puesto || [])) {
+                        const normRole = normalize(role);
+                        const questionPhrases = ["que hace", "qué hace", "a que se dedica", "a qué se dedica"];
+                        if (normalizedInput.includes(normRole) && !questionPhrases.some(qp => normRole.includes(qp))) {
+                            targetPuestoNorm = normRole; originalPuestoQuery = role; break;
+                        }
+                    }
                 }
-            }
-            if (numPersons === 1 && numLocations === 1) { 
-                if (normalizedInput.includes("?") || checkKeywords(normalizedInput, 'quien_es') || checkKeywords(normalizedInput, 'puesto') || checkKeywords(normalizedInput, 'contacto') || checkKeywords(normalizedInput, 'telefono') || checkKeywords(normalizedInput, 'correo')) {
-                    return 'person_in_location_query';
+
+                if (targetPuestoNorm) {
+                    const peopleWithRole = allPersons.filter(p => 
+                        p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) && 
+                        p.nombre.toLowerCase() !== PENDING_NOM_LOWER
+                    );
+                    if (peopleWithRole.length > 0) {
+                        const displayPuesto = originalPuestoQuery || (peopleWithRole[0] ? peopleWithRole[0].puesto : targetPuestoNorm); 
+                        if (peopleWithRole.length === 1 && (checkKeywords(normalizedInput, 'quien_es') || (mainPuestoEntity && normalizedInput === normalize(mainPuestoEntity.originalKey, true)))) {
+                            conversationContext.lastPerson = peopleWithRole[0]; 
+                            conversationContext.lastPuesto = null;
+                            return `El/La **${displayPuesto}** es ${formatPersonInfo(peopleWithRole[0])}`;
+                        }
+                        const list = peopleWithRole.map(p => `- **${p.nombre}** (${p.ubicacion})`).join('\n');
+                        return `Personas con el puesto de **${displayPuesto}** (o similar):\n${list}`;
+                    }
+                    return `No encontré a nadie con el puesto "${originalPuestoQuery || targetPuestoNorm}" o está pendiente de nombramiento.`;
                 }
+                return "No pude identificar un puesto específico. Intenta 'Quién es el Jefe de Área' o 'lista de puestos'.";
             }
+            return 'Error interno: Intención específica no manejada: ' + specificIntent;
+        }
 
-            if ((numPersons === 1 && numLocations === 0 && numPuestos === 0) || 
-                (entities.length === 1 && entities[0].type.startsWith('person_'))) { 
-                if (checkKeywords(normalizedInput, 'telefono')) return 'get_telefono';
-                if (checkKeywords(normalizedInput, 'correo')) return 'get_correo';
-                if (checkKeywords(normalizedInput, 'puesto')) return 'get_puesto_for_person';
-                if (checkKeywords(normalizedInput, 'ubicacion')) return 'get_ubicacion_for_person';
-                if (checkKeywords(normalizedInput, 'quien_es') || (entities[0] && normalizedInput === normalize(entities[0].data.nombre, true))) return 'get_person_full_info';
-            }
-            if ((numLocations === 1 && numPersons === 0 && numPuestos === 0) ||
-                (entities.length === 1 && entities[0].type.startsWith('location_'))) { 
-                if (checkKeywords(normalizedInput, 'ambito')) return 'get_location_ambitos';
-                if (checkKeywords(normalizedInput, 'direccion_loc')) return 'get_location_details';
-                if (checkKeywords(normalizedInput, 'personas_en_loc')) return 'list_persons_in_location'; 
-                if (checkKeywords(normalizedInput, 'quien_es') || (entities[0] && normalizedInput === normalize(entities[0].data.nombre_centro, true))) return 'get_location_info';
-            }
-             if ((mainPuestoEntity && numPersons === 0 && numLocations === 0) || 
-                 (entities.length === 1 && entities[0].type.startsWith('puesto_')) ||
-                 (checkKeywords(normalizedInput, 'lista') && mainPuestoEntity) 
-                ) {
-                if (checkKeywords(normalizedInput, 'quien_es') || checkKeywords(normalizedInput, 'lista') || (entities[0] && normalizedInput === normalize(entities[0].originalKey, true))) {
-                    return 'find_person_by_role'; 
+
+        function processInput(originalInputString) {
+            try {
+                const normalizedInput = normalize(originalInputString);
+                let entities = findEntities(normalizedInput); 
+                
+                console.log("Input:", originalInputString, "Normalized:", normalizedInput, "Entities:", entities.map(e => ({type: e.type, key: e.matchedKey, data_orig: e.originalKey, data_name: e.data.nombre || e.data.nombre_centro || e.data.puesto, length: e.length, rel: e.relevance?.toFixed(2) })));
+
+                for (const rule of intentionRules) {
+                    if (rule.condition(normalizedInput, entities, conversationContext, originalInputString)) {
+                        console.log(`Intención detectada: ${rule.name}`);
+                        if (!checkKeywords(normalizedInput, 'y_su') && !checkKeywords(normalizedInput, 'solo_eso', true)) {
+                            if (rule.name !== "context_acknowledged" && !rule.name.startsWith("context_")) {
+                                if (!rule.name.startsWith("get_person_") && 
+                                    !rule.name.startsWith("get_location_") && 
+                                    !rule.name.startsWith("find_person_by_role_direct") &&
+                                    !rule.name.startsWith("find_person_by_phone") && // No limpiar para búsqueda por teléfono
+                                    rule.name !== "general_query_or_unknown" 
+                                   ) {
+                                     conversationContext.clear();
+                                }
+                            }
+                        }
+                        const response = rule.action(normalizedInput, entities, conversationContext, originalInputString); 
+                        return response;
+                    }
                 }
+                return 'Lo siento, no pude procesar tu solicitud (ninguna regla coincidió). Intenta reformularla.';
+            } catch (error) {
+                console.error("Error al procesar la entrada:", error, error.stack);
+                return `¡Ups! Algo salió mal: "${error.message}". Intenta de nuevo.`;
             }
-
-            if (numPersons > 1 && checkKeywords(normalizedInput, 'quien_es')) return 'ambiguous_who_is';
-
-            if (checkKeywords(normalizedInput, 'lista')) {
-                if (INTENT_SYNONYMS.puesto.some(pkw => normalizedInput.includes(normalize(pkw))) && numPersons === 0 && numLocations === 0 && !mainPuestoEntity) return 'list_all_puestos'; 
-                if ((INTENT_SYNONYMS.ubicacion.some(ukw => normalizedInput.includes(normalize(ukw))) || normalizedInput.includes("bases") || normalizedInput.includes("centros")) && numPersons === 0) return 'list_all_locations';
-                if (INTENT_SYNONYMS.personas_en_loc.some(pekw => normalizedInput.includes(normalize(pekw))) && numLocations === 0) return 'list_all_persons';
-            }
-            
-             if (numPuestos > 0 || INTENT_SYNONYMS.puesto.some(pkw => normalizedInput.includes(normalize(pkw.replace(/(que hace|qué hace|a que se dedica|a qué se dedica)/,"").trim())))) {
-                if (numPersons === 0 || (numPersons > 0 && !checkKeywords(normalizedInput, 'puesto'))) {
-                    return 'find_person_by_role';
-                }
-            }
-            
-            if (entities.length === 1) { 
-                const entity = entities[0];
-                if (entity.type.startsWith('person_')) return 'get_person_full_info';
-                if (entity.type.startsWith('location_')) return 'get_location_info';
-                if (entity.type.startsWith('puesto_')) return 'find_person_by_role';
-            }
-            
-            if (entities.length > 1) return 'ambiguous_multiple_entities';
-
-            return 'general_query';
         }
 
         function formatPersonInfo(person, requestedInfo = 'full') {
-             if (!person || !person.nombre) {
-                lastPersonContext = null; 
+            if (!person || !person.nombre) {
                 return "No se encontró información de la persona solicitada.";
             }
-            
-            lastPersonContext = person; 
-            lastLocationContext = null; 
-            lastPuestoContext = null;
-
             const isPteNombre = person.nombre.toLowerCase() === PENDING_NOM_LOWER;
             const isPtePuesto = person.puesto && person.puesto.toLowerCase() === PENDING_NOM_LOWER;
 
             if (isPteNombre && isPtePuesto) {
-                return `Hay un puesto actualmente **pendiente de nombramiento** en ${person.ubicacion}.`;
+                 const ubicacionInfo = person.ubicacion ? ` en ${person.ubicacion}` : '';
+                return `Hay un puesto actualmente **pendiente de nombramiento**${ubicacionInfo}. No se especifica el rol.`;
             }
             if (isPteNombre) {
                  return `Hay un puesto de **${person.puesto}** actualmente **pendiente de nombramiento** en ${person.ubicacion}.`;
@@ -582,7 +1214,7 @@
             let info = [];
             const addInfo = (label, value) => {
                 if (value && value.toLowerCase() !== PENDING_NOM_LOWER) info.push(`${label}: ${value}`);
-                else if (value && value.toLowerCase() === PENDING_NOM_LOWER && requestedInfo ==='full') info.push(`${label}: **Pendiente**`);
+                else if (value && value.toLowerCase() === PENDING_NOM_LOWER && (requestedInfo ==='full' || label.toLowerCase() === requestedInfo )) info.push(`${label}: **Pendiente**`);
             };
             
             let title = `**${person.nombre}**`;
@@ -601,21 +1233,18 @@
                 if (requestedInfo !== 'full') {
                     return `No tengo información sobre "${requestedInfo}" para **${person.nombre}** o está pendiente.`;
                 }
+                if (requestedInfo === 'full' && Object.values(person).every(val => typeof val === 'string' && val.toLowerCase() === PENDING_NOM_LOWER || val === person.nombre || val === person.ubicacion)) {
+                     return `**${person.nombre}**: Toda la información de contacto y puesto está actualmente **pendiente**. Se encuentra en ${person.ubicacion}.`;
+                }
                 return `No tengo más detalles para **${person.nombre}** en este momento.`;
             }
-
             return title + (info.length > 0 ? ':\n  ' + info.join('\n  ') : '.');
         }
 
         function formatLocationInfo(location, requestedInfo = 'full') { 
-            if (!location || !location.nombre_centro) {
-                lastLocationContext = null;
+             if (!location || !location.nombre_centro) {
                 return "No se encontró información de la ubicación solicitada.";
             }
-            lastLocationContext = location;
-            lastPersonContext = null;
-            lastPuestoContext = null;
-
             let parts = [`Información sobre **${location.nombre_centro}**:`];
             let infoFound = false;
 
@@ -625,22 +1254,35 @@
                     infoFound = true;
                 } else if (requestedInfo === 'ambitos') {
                      parts.push(`  No tengo información sobre el ámbito de mantenimiento.`);
+                     infoFound = true; 
                 }
             }
             if (requestedInfo === 'full' || requestedInfo === 'personas') {
                  const peopleInLoc = allPersons.filter(p => p.ubicacion === location.nombre_centro && (p.nombre && p.nombre.toLowerCase() !== PENDING_NOM_LOWER));
+                const ptePeopleInLoc = allPersons.filter(p => p.ubicacion === location.nombre_centro && (p.nombre && p.nombre.toLowerCase() === PENDING_NOM_LOWER));
+
                 if (peopleInLoc.length > 0) {
-                    const list = peopleInLoc.map(p => `    - **${p.nombre}** (${p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER ? p.puesto : 'Puesto pendiente'})`).join('\n');
-                    parts.push(`  Personas asignadas (${peopleInLoc.length}):\n${list}`);
+                    // Ordenar para que el Jefe de Base aparezca primero
+                    const sortedPeople = [...peopleInLoc].sort((a, b) => {
+                        const isAJefe = a.puesto && a.puesto.toLowerCase().includes('jefe de base') ? -1 : 1;
+                        const isBJefe = b.puesto && b.puesto.toLowerCase().includes('jefe de base') ? -1 : 1;
+                        return isAJefe - isBJefe;
+                    });
+                    
+                    const list = sortedPeople.map(p => `    - **${p.nombre}** (${p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER ? p.puesto : 'Puesto pendiente'})`).join('\n');
+                    parts.push(`  Personal asignado (${peopleInLoc.length}):\n${list}`);
                     infoFound = true;
-                } else if (requestedInfo === 'personas') {
-                    const ptePeople = allPersons.filter(p => p.ubicacion === location.nombre_centro && (p.nombre && p.nombre.toLowerCase() === PENDING_NOM_LOWER));
-                    if (ptePeople.length > 0) {
-                         parts.push(`  Hay ${ptePeople.length} puesto(s) **pendiente(s) de nombramiento**. No encontré más personal asignado.`);
-                         infoFound = true; 
-                    } else {
-                        parts.push(`  No encontré personal asignado (ni pendiente).`);
-                    }
+                }
+                
+                if (ptePeopleInLoc.length > 0) {
+                    const pteList = ptePeopleInLoc.map(p => `    - **${p.puesto !== PENDING_NOM_LOWER ? p.puesto : 'Rol sin especificar'}** (Pendiente de nombramiento)`).join('\n');
+                    parts.push(`  Puestos pendientes de nombramiento (${ptePeopleInLoc.length}):\n${pteList}`);
+                    infoFound = true;
+                }
+                
+                if (peopleInLoc.length === 0 && ptePeopleInLoc.length === 0 && requestedInfo === 'personas') {
+                     parts.push(`  No encontré personal asignado ni pendiente en esta ubicación.`);
+                     infoFound = true; 
                 }
             }
             if (requestedInfo === 'full' || requestedInfo === 'direccion') {
@@ -649,298 +1291,57 @@
                     infoFound = true;
                  } else if (requestedInfo === 'direccion') {
                     parts.push(`  Dirección: No disponible.`);
+                    infoFound = true; 
                  }
                  if (location.enlace_google_maps) {
                     parts.push(`  Google Maps: <a href="${location.enlace_google_maps}" target="_blank" class="text-blue-600 hover:underline">${location.enlace_google_maps}</a>`);
                     infoFound = true;
                  }
             }
-            if (!infoFound && requestedInfo === 'full') {
-                parts.push("  No tengo más detalles específicos para esta ubicación en este momento.");
-            } else if (!infoFound && requestedInfo !== 'full') { 
-                 return `No tengo información sobre "${requestedInfo}" para **${location.nombre_centro}**.`;
-            }
-            if (parts.length === 1 && infoFound === false) { 
-                 return `No tengo información específica sobre **${location.nombre_centro}**. ¿Qué te gustaría saber?`;
-            }
+            if (!infoFound && requestedInfo === 'full') parts.push("  No tengo más detalles específicos para esta ubicación.");
+            else if (!infoFound && requestedInfo !== 'full') return `No tengo información sobre "${requestedInfo}" para **${location.nombre_centro}**.`;
+            
             return parts.join('\n');
         }
         
-        function processInput(input) {
-            const normalizedInput = normalize(input);
-            let entities = findEntities(normalizedInput); 
-            let intention = detectIntention(normalizedInput, entities); 
-
-            let usingContext = false;
-            if (!checkKeywords(normalizedInput, 'y_su') && !checkKeywords(normalizedInput, 'solo_eso', true)) {
-                lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
-            }
-             if (intention.startsWith('get_context_') && (lastPersonContext || lastLocationContext || lastPuestoContext)) {
-                usingContext = true;
-                let contextName = '';
-                let isPuestoContext = false;
-
-                if (lastPersonContext) contextName = lastPersonContext.nombre;
-                else if (lastLocationContext) contextName = lastLocationContext.nombre_centro;
-                else if (lastPuestoContext) {
-                    contextName = lastPuestoContext.nombre_puesto;
-                    isPuestoContext = true;
-                }
-
-                const contextEntities = findEntities(normalize(contextName, isPuestoContext)); 
-                const mainContextEntity = contextEntities.find(e => 
-                    (lastPersonContext && e.type === 'person_full' && normalize(e.data.nombre) === normalize(contextName)) ||
-                    (lastLocationContext && e.type === 'location_full' && normalize(e.data.nombre_centro) === normalize(contextName)) ||
-                    (lastPuestoContext && e.type === 'puesto_general' && normalize(e.data.nombre_puesto, true) === normalize(contextName, true))
-                );
-
-                if (mainContextEntity) {
-                    entities = [mainContextEntity]; 
-                    if (intention === 'get_context_puesto_persons') intention = 'find_person_by_role';
-                    else if (intention.includes('_location_')) intention = intention.replace('get_context_location_', 'get_location_');
-                    else intention = intention.replace('get_context_', 'get_'); 
-                } else { 
-                    entities = []; 
-                    lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
-                    usingContext = false; 
-                }
-                if (entities.length === 0 && usingContext) { 
-                    return "Perdona, perdí el contexto. ¿Sobre qué o quién preguntabas?";
-                }
-            } else if (intention === 'context_acknowledged') {
-                 lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
-                 return "Entendido.";
-            }
-
-            if (intention !== 'greeting' && intention !== 'farewell' && intention !== 'thanks' && intention !== 'ayuda_response') {
-                 console.log({input, normalizedInput, entities: entities.map(e => ({type: e.type, key: e.matchedKey, dataName: e.originalKey || e.data.nombre || e.data.nombre_centro || e.data.nombre_puesto, relevance: e.relevance ? e.relevance.toFixed(2) : 'N/A' })), intention });
-            }
-
-            if (checkKeywords(normalizedInput, 'ayuda_cmd', true) && intention !== 'ayuda_response') { 
-                intention = 'ayuda_response';
-            }
-
-            if (intention === 'greeting') return INTENT_SYNONYMS.saludo[Math.floor(Math.random() * INTENT_SYNONYMS.saludo.length)] + "! ¿En qué puedo ayudarte?";
-            if (intention === 'farewell') return INTENT_SYNONYMS.despedida[Math.floor(Math.random() * INTENT_SYNONYMS.despedida.length)] + "! Que tengas un buen día.";
-            if (intention === 'thanks') return "De nada. ¡Ha sido un placer ayudarte!";
-            if (intention === 'ayuda_response') {
-                 displayHelpBubbles();
-                 return 'Puedo ayudarte a encontrar información sobre personal (contacto, puesto, ubicación), detalles de centros (ámbitos, dirección, personal) y listados generales. Aquí tienes algunos ejemplos:';
-            }
-
-            const persons = entities.filter(e => e.type.startsWith('person_')).map(e => e.data);
-            const locations = entities.filter(e => e.type.startsWith('location_')).map(e => e.data);
-            const puestosEntities = entities.filter(e => e.type.startsWith('puesto_'));
-            
-            // --- INTENTION-BASED RESPONSES ---
-            if (persons.length === 1 && (!usingContext || lastPersonContext) ) { 
-                if (intention === 'get_person_full_info') return formatPersonInfo(persons[0]);
-                if (intention === 'get_telefono') return formatPersonInfo(persons[0], 'telefono');
-                if (intention === 'get_correo') return formatPersonInfo(persons[0], 'correo');
-                if (intention === 'get_puesto_for_person') return formatPersonInfo(persons[0], 'puesto');
-                if (intention === 'get_ubicacion_for_person') return formatPersonInfo(persons[0], 'ubicacion');
-            }
-
-            if (locations.length === 1 && (!usingContext || lastLocationContext) ) { 
-                if (intention === 'get_location_info') return formatLocationInfo(locations[0]);
-                if (intention === 'get_location_ambitos') return formatLocationInfo(locations[0], 'ambitos');
-                if (intention === 'get_location_details') return formatLocationInfo(locations[0], 'direccion');
-                if (intention === 'list_persons_in_location') return formatLocationInfo(locations[0], 'personas');
-            }
-            
-             if (intention === 'ambiguous_who_is' && persons.length > 1) {
-                 let responseParts = ["He encontrado varias personas que podrían ser \"quién es\":"];
-                 persons.slice(0, 3).forEach(p => { 
-                     responseParts.push(`- **${p.nombre}** (${p.puesto})`);
-                 });
-                 responseParts.push("Por favor, sé más específico (ej. nombre completo o puesto).");
-                 return responseParts.join('\n');
-            }
-            
-            if (intention === 'find_role_in_location' && puestosEntities.length > 0 && locations.length === 1) {
-                const targetLocation = locations[0];
-                const puestoEntity = puestosEntities.find(pe => pe.type === 'puesto_explicit' && pe.matchType === 'exact_full_input') || 
-                                     puestosEntities.find(pe => pe.type === 'puesto_general' && pe.matchType === 'exact_full_input') || 
-                                     puestosEntities.find(pe => pe.type === 'puesto_explicit') || 
-                                     puestosEntities[0]; 
-                const targetPuestoNorm = normalize(puestoEntity.originalKey, true);
-                const originalPuestoQuery = puestoEntity.originalKey;
-
-                const peopleInRoleAtLocation = allPersons.filter(p =>
-                    p.ubicacion === targetLocation.nombre_centro &&
-                    p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) &&
-                    p.nombre.toLowerCase() !== PENDING_NOM_LOWER
-                );
-
-                if (peopleInRoleAtLocation.length > 0) {
-                    lastPuestoContext = {nombre_puesto: originalPuestoQuery};
-                    lastLocationContext = targetLocation; 
-                    if (peopleInRoleAtLocation.length === 1) {
-                        return `El/La **${originalPuestoQuery}** en **${targetLocation.nombre_centro}** es ${formatPersonInfo(peopleInRoleAtLocation[0])}`;
-                    }
-                    const list = peopleInRoleAtLocation.map(p => `- **${p.nombre}**`).join('\n');
-                    return `Personas con el puesto de **${originalPuestoQuery}** (o similar) en **${targetLocation.nombre_centro}**:\n${list}`;
-                }
-                return `No encontré a nadie con el puesto "${originalPuestoQuery}" en **${targetLocation.nombre_centro}**, o el puesto está pendiente.`;
-            }
-
-            if (intention === 'find_person_by_role') {
-                let targetPuestoNorm = '';
-                let originalPuestoQuery = '';
-                
-                const mainPuestoEntity = puestosEntities.find(pe => pe.type === 'puesto_general' && pe.matchType === 'exact_full_input') || 
-                                        puestosEntities.find(pe => pe.type === 'puesto_explicit' && pe.matchType === 'exact_full_input') || 
-                                        puestosEntities.find(pe => pe.type === 'puesto_variant' && pe.matchType === 'exact_full_input') || // Considerar variantes exactas
-                                        puestosEntities.find(pe => pe.type === 'puesto_explicit') || 
-                                        puestosEntities.find(pe => pe.type === 'puesto_general') || 
-                                        puestosEntities.find(pe => pe.type === 'puesto_variant') ||
-                                        puestosEntities[0]; 
-
-                if (mainPuestoEntity) {
-                    targetPuestoNorm = normalize(mainPuestoEntity.originalKey, true);
-                    originalPuestoQuery = mainPuestoEntity.originalKey;
-                } else { 
-                    const commonRoles = {'jefe de area': 'Jefe de Área', 'jefe de base': 'Jefe de Base', 'coordinador de linea': 'Coordinador de Línea', 'secretaria': 'Secretaria', 'tecnico ii.ss.': 'Técnico II.SS.', 'tecnico iiss': 'Técnico II.SS.', 'tecnico de infra y via': 'Técnico De Infra y Vía', 'tecnico infra via': 'Técnico De Infra y Vía', 'tecnico energia': 'Técnico Energía', 'tecnico de energia': 'Técnico Energía', 'tecnico telecomunicaciones': 'Técnico Telecomunicaciones', 'ct ingenieria civil': 'C.T. Ingeniería Civil', 'ct ingeniería civil': 'C.T. Ingeniería Civil', 'tecnico': 'Técnico', 'operador': 'Operador', 'ct': 'C.T.'};
-                    for (const roleNorm in commonRoles) {
-                        if (normalizedInput.includes(roleNorm)) {
-                            targetPuestoNorm = roleNorm; 
-                            originalPuestoQuery = commonRoles[roleNorm]; 
-                            break;
-                        }
-                    }
-                }
-
-                if (targetPuestoNorm) {
-                    const peopleWithRole = allPersons.filter(p => 
-                        p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) && 
-                        p.nombre.toLowerCase() !== PENDING_NOM_LOWER
-                    );
-                    if (peopleWithRole.length > 0) {
-                        lastPuestoContext = {nombre_puesto: originalPuestoQuery || peopleWithRole[0].puesto};
-                        const displayPuesto = originalPuestoQuery || peopleWithRole[0].puesto; 
-                        if (peopleWithRole.length === 1 && (checkKeywords(normalizedInput, 'quien_es') || (mainPuestoEntity && normalizedInput === normalize(mainPuestoEntity.originalKey, true)) )) {
-                            return `El/La **${displayPuesto}** es ${formatPersonInfo(peopleWithRole[0])}`;
-                        }
-                        const list = peopleWithRole.map(p => `- **${p.nombre}** (${p.ubicacion})`).join('\n');
-                        return `Personas con el puesto de **${displayPuesto}** (o similar):\n${list}`;
-                    }
-                    return `No encontré a nadie con el puesto "${originalPuestoQuery || targetPuestoNorm}" o está pendiente de nombramiento.`;
-                } else {
-                     if (persons.length === 1 && checkKeywords(normalizedInput, 'puesto')) return formatPersonInfo(persons[0], 'puesto'); 
-                    return "No pude identificar un puesto específico en tu pregunta. Intenta de nuevo, por ejemplo: 'Quién es el Jefe de Área' o 'Lista de Técnicos de Energía'.";
-                }
-            }
-
-            if (intention === 'person_in_location_query' && persons.length === 1 && locations.length === 1) {
-                const person = persons[0];
-                const location = locations[0];
-                if (person.ubicacion === location.nombre_centro) {
-                    lastPersonContext = person; 
-                    return `${formatPersonInfo(person)}\nEfectivamente, trabaja en **${location.nombre_centro}**.`;
-                }
-                return `**${person.nombre}** trabaja en **${person.ubicacion}**, no en **${location.nombre_centro}** (según mis datos).`;
-            }
-
-            if (intention === 'list_all_locations') {
-                if (allLocations.length === 0) return "No tengo datos de ubicaciones.";
-                const list = allLocations.map(loc => `- ${loc.nombre_centro}`).join('\n');
-                return `Aquí tienes las ubicaciones (${allLocations.length}):\n${list}`;
-            }
-            if (intention === 'list_all_puestos') {
-                const uniquePuestos = Array.from(new Set(allPersons.filter(p => p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER).map(p => p.puesto))).sort();
-                if (uniquePuestos.length === 0) return "No hay puestos registrados (aparte de los pendientes).";
-                const list = uniquePuestos.map(p => `- ${p}`).join('\n');
-                return `Estos son los puestos registrados (${uniquePuestos.length}):\n${list}`;
-            }
-            if (intention === 'list_all_persons') {
-                 const assignedPersons = allPersons.filter(p => p.nombre.toLowerCase() !== PENDING_NOM_LOWER);
-                 if (assignedPersons.length === 0) return "No hay personal asignado registrado.";
-                const list = assignedPersons.map(p => `- **${p.nombre}** (${p.puesto}, ${p.ubicacion})`).join('\n');
-                return `Listado de todo el personal asignado (${assignedPersons.length}):\n${list}`;
-            }
-            
-            if (entities.length === 1 && intention === 'general_query' && !usingContext) {
-                const entity = entities[0];
-                if (entity.type.startsWith('person_')) return formatPersonInfo(entity.data);
-                if (entity.type.startsWith('location_')) return formatLocationInfo(entity.data);
-                if (entity.type.startsWith('puesto_')) { 
-                    const targetPuestoNorm = normalize(entity.originalKey, true);
-                    const originalPuestoQuery = entity.originalKey;
-                     const peopleWithRole = allPersons.filter(p => p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) && p.nombre.toLowerCase() !== PENDING_NOM_LOWER);
-                    if (peopleWithRole.length > 0) {
-                        lastPuestoContext = {nombre_puesto: originalPuestoQuery};
-                        const displayPuesto = originalPuestoQuery || peopleWithRole[0].puesto; 
-                        if (peopleWithRole.length === 1) return `El/La **${displayPuesto}** es ${formatPersonInfo(peopleWithRole[0])}`;
-                        const list = peopleWithRole.map(p => `- **${p.nombre}** (${p.ubicacion})`).join('\n');
-                        return `Personas con el puesto de **${displayPuesto}** (o similar):\n${list}`;
-                    }
-                    return `No encontré a nadie con el puesto "${originalPuestoQuery || targetPuestoNorm}" o está pendiente de nombramiento.`;
-                }
-            }
-            
-            if ((intention === 'ambiguous_multiple_entities' || (entities.length > 1 && intention === 'general_query')) && !usingContext ) { 
-                let responseParts = ["He encontrado varias cosas relacionadas con tu pregunta (demasiado ambiguo para una respuesta directa):"];
-                 let addedToResponse = new Set();
-                 entities.slice(0,3).forEach(e => { 
-                    const dataString = JSON.stringify(e.data); 
-                    if (!addedToResponse.has(dataString)) { 
-                        if (e.type.startsWith('person_')) responseParts.push(`  - Persona: **${e.data.nombre}** (${e.data.puesto || 'N/A'})`);
-                        else if (e.type.startsWith('location_')) responseParts.push(`  - Ubicación: **${e.data.nombre_centro}**`);
-                        else if (e.type.startsWith('puesto_')) responseParts.push(`  - Puesto: **${e.originalKey}**`);
-                        addedToResponse.add(dataString);
-                    }
-                });
-                if (responseParts.length > 1) { 
-                    responseParts.push("Por favor, intenta ser más específico o pregunta por una sola cosa a la vez.");
-                    return responseParts.join('\n');
-                }
-            }
-            
-            if(!usingContext) {
-                lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
-            }
-            return 'Lo siento, no he entendido bien tu pregunta. Prueba a reformularla o escribe "ayuda" para ver ejemplos.';
-        }
-
         function appendMessage(sender, text) {
             const messageWrapper = document.createElement('div');
             messageWrapper.classList.add('message-wrapper', sender === 'user' ? 'user-message-wrapper' : 'bot-message-wrapper');
 
-            const avatarImg = document.createElement('img');
-            avatarImg.alt = sender === 'user' ? 'User Avatar' : 'Bot Avatar';
-            avatarImg.classList.add('message-avatar');
-            avatarImg.src = sender === 'user' ? USER_AVATAR_URL : BOT_AVATAR_URL;
+            const avatarElement = document.createElement('div');
+            avatarElement.classList.add('message-avatar', 'flex', 'items-center', 'justify-center', 'text-2xl', 'bg-gray-200', 'rounded-full');
+            avatarElement.textContent = sender === 'user' ? USER_AVATAR_EMOJI : BOT_AVATAR_EMOJI;
 
             const messageContentDiv = document.createElement('div');
             messageContentDiv.classList.add('message-content');
             
             let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
             htmlText = htmlText.replace(/\n/g, '<br>'); 
-            htmlText = htmlText.replace(/(https?:\/\/maps\.app\.goo\.gl\/[a-zA-Z0-9]+)/g, '<a href="$1" target="_blank" class="text-blue-600 hover:underline">$1</a>');
+            htmlText = htmlText.replace(/(https?:\/\/(?:www\.)?google\.com\/maps\S+|https?:\/\/maps\.app\.goo\.gl\/\S+)/g, '<a href="$1" target="_blank" class="text-blue-600 hover:underline">$1</a>');
             
             messageContentDiv.innerHTML = htmlText;
 
             if (sender === 'user') {
-                messageWrapper.appendChild(messageContentDiv); 
-                messageWrapper.appendChild(avatarImg);      
+                messageWrapper.appendChild(messageContentDiv);
+                messageWrapper.appendChild(avatarElement);
             } else {
-                messageWrapper.appendChild(avatarImg);      
-                messageWrapper.appendChild(messageContentDiv); 
+                messageWrapper.appendChild(avatarElement);
+                messageWrapper.appendChild(messageContentDiv);
             }
             
             chatBox.appendChild(messageWrapper);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+
         function showTypingIndicator() { 
             if (!isTyping) {
                 const typingWrapper = document.createElement('div');
                 typingWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
                 typingWrapper.id = 'typingIndicatorWrapper'; 
-                const avatarImg = document.createElement('img');
-                avatarImg.src = BOT_AVATAR_URL;
-                avatarImg.alt = 'Bot Avatar';
-                avatarImg.classList.add('message-avatar');
-                typingWrapper.appendChild(avatarImg);
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('message-avatar', 'flex', 'items-center', 'justify-center', 'text-2xl', 'bg-gray-200', 'rounded-full');
+                avatarDiv.textContent = BOT_AVATAR_EMOJI;
+                typingWrapper.appendChild(avatarDiv);
                 typingWrapper.appendChild(typingIndicatorElement); 
                 
                 chatBox.appendChild(typingWrapper);
@@ -951,26 +1352,30 @@
         function hideTypingIndicator() { 
             const typingWrapper = document.getElementById('typingIndicatorWrapper');
             if (isTyping && typingWrapper) { 
-                chatBox.removeChild(typingWrapper); 
+                if (typingWrapper.parentNode === chatBox) { 
+                    chatBox.removeChild(typingWrapper); 
+                }
                 isTyping = false;
             }
         }
+
         function displayHelpBubbles() {
             helpBubblesContainer.innerHTML = '';
             const helpQuestions = [
                 "Teléfono de Mario García Aguado", "Correo de Javier Gambin", "y su ubicacion", 
-                "Puesto de Lourdes Mirasierra", "Ubicación de Esther Lorente",
-                "Quién es el Jefe de Área", "Personas en BM Villarrubia", "Personal de Madrid Sur",
-                "Ámbito de BM Gabaldón", "Dirección de BM Requena", "Jefe de Base en Monforte",
+                "Puesto de Lourdes Mirasierra", "Ubicación de Esther Lorente", "Quién es García Aguado",
+                "Quién es el Jefe de Área", "Personas en BM Villarrubia", "Personal de Madrid Sur", "Paz Notario",
+                "Ámbito de BM Gabaldón", "Dirección de BM Requena", "Jefe de Base en Monforte", "Madrid Sur direccion",
                 "Lista de Técnicos de Energía", "Lista de todas las ubicaciones",
-                "Lista de todos los puestos", "¿Qué hace Samuel García Chaparro?",
-                "¿Quiénes son los Operadores CSI en CRC Albacete?", "Operadores CSI",
-                "Contacto de PTE NOMBRAMIENTO en BM Villarrubia", "PTE NOMBRAMIENTO",
-                "¿Hay algún Técnico II.SS.?", 
-                "Informacion sobre Madrid Sur", "Madrid Sur ambito", "Madrid Sur direccion"
+                "Lista de todos los puestos", "¿Qué hace Samuel García Chaparro?", "Información de Gambin Ortuño",
+                "¿Quiénes son los Operadores CSI en CRC Albacete?", "Operadores CSI", "Telemando",
+                "Contacto de PTE NOMBRAMIENTO en BM Villarrubia", "Lista de PTE NOMBRAMIENTO",
+                "¿Hay algún Técnico II.SS.?", "ubicación Iván de la Paz", "610165651",
+                "Informacion sobre Madrid Sur", "Madrid Sur ambito", 
+                "¿Qué base tiene más personal?", "¿Hay más Técnicos de Energía o Técnicos II.SS.?"
             ];
             helpQuestions.sort(() => Math.random() - 0.5); 
-            helpQuestions.slice(0, 10).forEach(question => { 
+            helpQuestions.slice(0, 12).forEach(question => { // Aumentado a 12
                 const bubble = document.createElement('span');
                 bubble.classList.add('help-bubble', 'px-3', 'py-1', 'bg-blue-100', 'border', 'border-blue-300', 'text-blue-800', 'rounded-full', 'cursor-pointer');
                 bubble.textContent = question;
@@ -986,17 +1391,40 @@
         function hideHelpBubbles() { 
              helpBubblesContainer.classList.add('hidden');
         }
-        async function handleUserInput() { 
-            const input = userInput.value.trim();
+        
+        function clearChat() {
+            chatBox.innerHTML = '';
+            appendMessage('bot', INITIAL_BOT_MESSAGE);
+            conversationContext.clear();
+            hideHelpBubbles();
+            if(dataLoaded) userInput.focus();
+        }
+
+        helpButton.addEventListener('click', () => {
+            if (!userInput.disabled) {
+                userInput.value = 'ayuda';
+                handleUserInput();
+            }
+        });
+
+        async function handleUserInput() {
+            if (!dataLoaded) {
+                appendMessage('bot', 'Los datos aún no están cargados. Por favor, espera.');
+                return;
+            }
+            const input = userInput.value.trim(); 
             if (!input) return;
-            appendMessage('user', input);
+
+            appendMessage('user', input); 
             userInput.value = '';
+            hideHelpBubbles();
             showTypingIndicator();
+
             setTimeout(() => {
-                const botResponse = processInput(input);
+                const botResponse = processInput(input); 
                 hideTypingIndicator();
                 appendMessage('bot', botResponse);
-            }, 300);
+            }, Math.random() * 300 + 150); 
         }
 
         sendButton.addEventListener('click', handleUserInput);
@@ -1006,7 +1434,9 @@
                 handleUserInput();
             }
         });
+        clearChatButton.addEventListener('click', clearChat);
         
+        defineIntentionRules();
         loadData();
 
     </script>
