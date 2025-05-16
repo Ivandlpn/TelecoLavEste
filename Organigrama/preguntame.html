@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregúntame LAV ESTE - Corregido v6.1</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { scroll-behavior: smooth; }
+        header {
+            background: linear-gradient(to right, #ffffff, #f0f9f9, #ffffff);
+            color: #333; padding: 20px; text-align: center;
+        }
+        header h1 { font-family: 'Montserrat', sans-serif; }
+        .chat-container {
+            max-width: 800px; margin: 20px auto; background-color: #fff;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; height: 75vh; 
+            overflow: hidden;
+        }
+        .chat-box {
+            flex-grow: 1; padding: 20px; overflow-y: auto; border-bottom: 1px solid #eee;
+        }
+        
+        .message-wrapper {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-end; 
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .message-content {
+            padding: 10px 15px; border-radius: 18px; 
+            max-width: calc(80% - 50px); 
+            white-space: pre-wrap; word-wrap: break-word;
+            line-height: 1.5; 
+        }
+
+        .user-message-wrapper {
+            justify-content: flex-end; 
+        }
+        .user-message-wrapper .message-avatar {
+            margin-left: 10px;
+            order: 1; 
+        }
+        .user-message-wrapper .message-content {
+            background-color: #008080; color: white;
+            border-bottom-right-radius: 5px;
+            margin-left: auto; 
+        }
+
+        .bot-message-wrapper .message-avatar {
+            margin-right: 10px;
+        }
+        .bot-message-wrapper .message-content {
+            background-color: #e2e8f0; color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .typing-indicator {
+            display: flex; align-items: center; margin-bottom: 15px;
+            align-self: flex-start; margin-right: auto; padding: 10px 15px;
+            background-color: #e2e8f0; border-radius: 18px; max-width: 80%;
+        }
+        .typing-indicator span {
+            height: 8px; width: 8px; margin: 0 2px; background-color: #718096; 
+            display: block; border-radius: 50%; opacity: 0.4;
+            animation: pulse 1.2s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
+        .input-area { display: flex; padding: 15px; background-color: #f8f9fa; border-top: 1px solid #eee; }
+        .input-area input {
+            flex-grow: 1; padding: 12px 15px; border: 1px solid #ccc;
+            border-radius: 20px; margin-right: 10px; font-size: 1rem;
+        }
+        .input-area button {
+            background-color: #005293; color: white; padding: 0 25px;
+            border: none; border-radius: 20px; cursor: pointer;
+            transition: background-color 0.3s ease; font-weight: 500;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .input-area button:hover { background-color: #003d6f; }
+        .help-bubbles-container { 
+            padding: 10px 15px; background-color: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            max-height: 120px; overflow-y: auto; 
+        }
+        .help-bubble {
+            cursor: pointer; transition: all 0.2s ease-in-out;
+            font-size: 0.85rem; margin: 4px;
+        }
+        .help-bubble:hover { background-color: #cce7ff; border-color: #005293; color: #005293; transform: translateY(-1px); }
+        
+        .chat-box::-webkit-scrollbar, .help-bubbles-container::-webkit-scrollbar { width: 8px; }
+        .chat-box::-webkit-scrollbar-track, .help-bubbles-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px;}
+        .chat-box::-webkit-scrollbar-thumb, .help-bubbles-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px;}
+        .chat-box::-webkit-scrollbar-thumb:hover, .help-bubbles-container::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="w-full min-w-full overflow-x-auto px-4 py-8">
+        <header class="mb-8 text-center relative">
+            <img src="https://www.adifaltavelocidad.es/documents/34745/2553140/Logo_Adif_AV_verde_351x170.png/aa356add-9b30-836e-8d9f-276eb02d17cf?t=1617203111419&download=true" alt="Logo Adif" class="absolute top-0 left-0 h-24">
+            <img src="https://www.ineco.com/ineco/sites/default/files/2022-12/Logo%20Ineco.png" alt="Logo Ineco" class="absolute top-0 right-0 h-16 mt-2">
+            <h1 class="text-5xl font-bold text-[#005293] mb-2 hover:text-[#003d6f] transition-colors">MANTENIMIENTO LAV ESTE<br>Pregúntame</h1>
+        </header>
+
+        <div class="bg-white shadow-lg rounded-lg p-4 mb-6 border border-gray-300">
+            <div class="flex justify-center">
+                <div class="flex gap-4">
+                    <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">ORGANIGRAMA</button>
+                    <button onclick="window.location.href='directorio.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">DIRECTORIO</button>
+                    <button onclick="window.location.href='mapa.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">MAPA</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-box" id="chatBox">
+                <!-- El mensaje inicial se añade mediante JS para consistencia -->
+            </div>
+            <div id="helpBubblesContainer" class="help-bubbles-container flex flex-wrap gap-2 bg-gray-50 hidden"></div>
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Escribe tu pregunta aquí..." autocomplete="off">
+                <button id="sendButton" title="Enviar pregunta">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const helpBubblesContainer = document.getElementById('helpBubblesContainer');
+
+        let unifiedData = [];
+        let allPersons = [];
+        let allLocations = [];
+        let entityIndex = new Map(); 
+        const PENDING_NOM_LOWER = "pendiente de nombramiento";
+        let lastPersonContext = null; 
+        let lastLocationContext = null;
+        let lastPuestoContext = null;
+
+        const USER_AVATAR_URL = "https://via.placeholder.com/40/718096/FFFFFF?Text=U"; // CORREGIDO
+        const BOT_AVATAR_URL = "https://via.placeholder.com/40/005293/FFFFFF?Text=A";  // CORREGIDO
+
+        const COMMON_TYPO_CORRECTIONS = {
+            "teleono": "telefono", "telefno": "telefono", "telf": "telefono", "tlf": "telefono", "nmero": "numero",
+            "ubicaion": "ubicacion", "ubicacoin": "ubicacion", "dondeesta": "donde esta", "localisacion": "localizacion",
+            "coreo": "correo", "corrreo": "correo", "emial": "email", "emeil": "email",
+            "quien esla": "quien es la", "quienes": "quien es", "qien": "quien", "kienes": "quienes son", "kien": "quien",
+            "tecnicos": "tecnico", "tecnicas": "tecnico",
+            "operadores": "operador", "operadoras": "operador",
+            "jefes": "jefe", "gefe": "jefe", "gefa": "jefa",
+            "iiss": "ii.ss.", "is": "ii.ss.", 
+            "infra": "infraestructura", 
+            "bm ": "base de mantenimiento ", 
+            "crc ": "centro de regulacion y control ",
+            "et ": "estacion de transformacion ",
+            "ambitos": "ambito", "ambto": "ambito",
+            "direcion": "direccion", "direccoin": "direccion",
+            "persoanl": "personal", "personla": "personal",
+            "lisat": "lista", "listdo": "listado",
+            "graciasS": "gracias", "gracia": "gracias",
+            "aydua": "ayuda", "ayda": "ayuda"
+        };
+
+        const INTENT_SYNONYMS = { 
+            telefono: ["teléfono", "telefono", "contacto", "llamar", "numero", "móvil", "movil", "phone", "celular", "fono", "num"],
+            correo: ["correo", "email", "e-mail", "direccion de correo", "dirección de correo", "contactar por email", "mail"],
+            puesto: ["puesto", "cargo", "rol", "funcion", "función", "ocupacion", "ocupación", "que hace", "qué hace", "a que se dedica", "a qué se dedica", "trabajo de", "labor", "responsabilidad de", "cometido", "posicion", "posición"],
+            ubicacion: ["ubicación", "ubicacion", "centro", "lugar", "donde esta", "dónde está", "donde trabaja", "dónde trabaja", "localizacion", "localización", "sede", "emplazamiento", "sitio", "localidad"],
+            quien_es: ["quién es", "quien es", "info de", "informacion sobre", "dame datos de", "datos sobre", "cuentame de", "cuéntame de", "detalles de", "saber de"],
+            personas_en_loc: ["personas", "personal", "equipo", "gente", "trabajadores", "quienes trabajan", "quiénes trabajan", "cuantos hay", "cuántos hay", "listado de personal", "plantilla", "nomina de", "quien esta en", "quién está en", "empleados en", "miembros en", "trabaja en"],
+            ambito: ["ámbito", "ambito", "mantenimiento de", "cubre", "alcance", "responsable de linea", "líneas que cubre", "lineas que cubre", "tramo", "se encarga de", "competencia de", "area de mantenimiento", "área de mantenimiento"],
+            direccion_loc: ["dirección", "direccion", "como llego", "cómo llego", "como ir", "cómo ir", "ubicacion fisica", "ubicación física", "donde se encuentra", "dónde se encuentra", "mapa de", "localizar", "ir a"],
+            lista: ["lista de", "listado de", "dime los", "dime todos", "cuales son", "cuáles son", "muestrame", "muéstrame", "todos los", "todas las", "listar", "enumerar", "dame una lista", "ver todos"],
+            saludo: ["hola", "buenos dias", "buenos días", "buenas tardes", "buenas noches", "hey", "que tal", "qué tal", "buenas", "saludos", "que pasa", "qué pasa", "epa"],
+            despedida: ["adios", "adiós", "hasta luego", "chao", "nos vemos", "bye", "hasta pronto", "finalizar", "terminar", "me voy"],
+            agradecimiento: ["gracias", "muchas gracias", "agradecido", "muy amable", "ok gracias", "vale gracias", "perfecto gracias", "genial gracias", "te lo agradezco", "excelente", "gracias!"],
+            ayuda_cmd: ["ayuda", "comandos", "que puedes hacer", "qué puedes hacer", "opciones", "info", "informacion", "help", "manual", "instrucciones", "como funciona", "cómo funciona"],
+            y_su: ["y su", "y el de el", "y la de el", "y el de ella", "y la de ella", "tambien su", "también su", "dime tambien", "dime también", "necesito tambien", "necesito también", "además su", "ademas su", "y el suyo", "y la suya"],
+            solo_eso: ["solo eso", "nada mas", "nada más", "eso es todo", "listo", "ok", "vale", "ya esta", "ya está"]
+        };
+
+        const typingIndicatorElement = document.createElement('div'); 
+        typingIndicatorElement.classList.add('typing-indicator');
+        typingIndicatorElement.innerHTML = '<span></span><span></span><span></span>';
+        let isTyping = false;
+
+        async function loadData() { 
+             try {
+                const response = await fetch('./unified_data.json'); 
+                if (!response.ok) throw new Error('Error loading data: ' + response.statusText);
+                unifiedData = await response.json();
+                console.log('Data loaded successfully');
+                buildEntityIndex();
+                // Mover el mensaje inicial del bot aquí para asegurar que los avatares funcionen
+                const initialBotMessage = chatBox.querySelector('.bot-message-wrapper');
+                if (!initialBotMessage) {
+                     appendMessage('bot', '¡Hola! Soy tu asistente virtual para el Mantenimiento LAV ESTE. Pregúntame lo que necesites o escribe "ayuda".');
+                }
+            } catch (error)
+             {
+                console.error('Could not load data:', error);
+                appendMessage('bot', 'Error crítico: No pude cargar los datos necesarios para funcionar. Por favor, revisa la consola y el archivo `unified_data.json`.');
+            }
+        }
+        
+        function normalize(text, preserveSpecialChars = false) {
+            if (typeof text !== 'string') return '';
+            let normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            
+            for (const typo in COMMON_TYPO_CORRECTIONS) {
+                if (normalized.includes(typo)) { 
+                    const regex = new RegExp(`\\b${typo}\\b`, 'g'); 
+                    normalized = normalized.replace(regex, COMMON_TYPO_CORRECTIONS[typo]);
+                }
+            }
+
+            if (!preserveSpecialChars) {
+                normalized = normalized.replace(/[^a-z0-9\s]/g, ''); 
+            } else { 
+                normalized = normalized.replace(/[^a-z0-9\s.\-]/g, '');
+            }
+            return normalized.replace(/\s+/g, ' ').trim();
+         }
+
+        function buildEntityIndex() {
+            allPersons = unifiedData.flatMap(location =>
+                location.personas.map(person => ({ ...person, ubicacion: location.nombre_centro }))
+            );
+            allLocations = unifiedData.map(location => ({ ...location }));
+            entityIndex = new Map();
+
+            const addToIndex = (key, type, data, originalKey, score = 1) => {
+                const normKey = normalize(key, type.startsWith('puesto') || type === 'person_full'); 
+                if (normKey && normKey !== PENDING_NOM_LOWER && normKey.length > 1) { 
+                    if (!entityIndex.has(normKey)) entityIndex.set(normKey, []);
+                    if (!entityIndex.get(normKey).some(e => e.type === type && JSON.stringify(e.data) === JSON.stringify(data))) {
+                         entityIndex.get(normKey).push({ type, data, originalKey: originalKey || key, score });
+                    }
+                }
+            };
+
+            allPersons.forEach(person => {
+                if (person.nombre && person.nombre.toLowerCase() !== PENDING_NOM_LOWER) {
+                    addToIndex(person.nombre, 'person_full', person, person.nombre, 100); 
+                    const nameParts = person.nombre.split(' ');
+                    if (nameParts.length > 1) {
+                        nameParts.forEach(part => {
+                            if (part.length > 2) addToIndex(part, 'person_namepart', person, person.nombre, 5);
+                        });
+                        addToIndex(nameParts.slice(1).join(' '), 'person_surname', person, person.nombre, 30);
+                        addToIndex(nameParts[0], 'person_firstname', person, person.nombre, nameParts[0].length > 3 ? 15 : 5);
+                    } else if (nameParts.length === 1 && nameParts[0].length > 2) { 
+                        addToIndex(nameParts[0], 'person_firstname', person, person.nombre, 10);
+                    }
+                }
+                if (person.puesto && person.puesto.toLowerCase() !== PENDING_NOM_LOWER) {
+                    addToIndex(person.puesto, 'puesto_explicit', person, person.puesto, 60); 
+                }
+            });
+
+            allLocations.forEach(location => {
+                addToIndex(location.nombre_centro, 'location_full', location, location.nombre_centro, 80);
+                const locNameLower = location.nombre_centro.toLowerCase();
+                const parts = location.nombre_centro.split(' ');
+                let alias = '';
+                if (locNameLower.startsWith('bm ')) alias = location.nombre_centro.substring(3);
+                else if (locNameLower.startsWith('et ')) alias = location.nombre_centro.substring(3);
+                else if (locNameLower.startsWith('crc ')) alias = location.nombre_centro.substring(4);
+                else if (parts.length > 1 && parts[parts.length-1].length > 3) {
+                     alias = parts[parts.length - 1];
+                     addToIndex(alias, 'location_alias_short', location, location.nombre_centro, 20);
+                }
+                if (alias) addToIndex(alias, 'location_alias', location, location.nombre_centro, 40);
+                
+                parts.forEach(part => {
+                    if (part.length > 3 && !['de', 'del', 'la', 'el', 'los', 'las', 'y', 'paseo', 'sur', 'base', 'estacion', 'estación', 'madrid', 'valencia', 'albacete'].includes(part.toLowerCase())) { 
+                        addToIndex(part, 'location_namepart', location, location.nombre_centro, 5);
+                    }
+                });
+            });
+
+            const uniquePuestos = Array.from(new Set(allPersons.filter(p => p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER).map(p => p.puesto)));
+            uniquePuestos.forEach(puesto => {
+                addToIndex(puesto, 'puesto_general', { nombre_puesto: puesto }, puesto, 45); 
+                if (puesto.toLowerCase().includes("técnico")) {
+                    addToIndex(puesto.replace(/técnico/i, "tecnico"), 'puesto_variant', { nombre_puesto: puesto }, puesto, 40);
+                }
+                 if (puesto.toLowerCase().includes("ii.ss.")) {
+                    addToIndex(puesto.replace(/ii\.ss\./gi, "iiss"), 'puesto_variant', { nombre_puesto: puesto }, puesto, 40); // gi for global
+                    addToIndex(puesto.replace(/ii\.ss\./gi, "is"), 'puesto_variant', { nombre_puesto: puesto }, puesto, 38);
+                }
+
+                puesto.split(' ').forEach(part => {
+                     if (part.length > 2 && !['de', 'del', 'la', 'el', 'los', 'las', 'y', 'para', 'civil', 'industrial'].includes(part.toLowerCase())) { 
+                        addToIndex(part, 'puesto_namepart', {nombre_puesto: puesto}, puesto, 8); 
+                     }
+                });
+            });
+        }
+        
+        function findEntities(normalizedInput) {
+            const matches = [];
+            const inputTokens = new Set(normalizedInput.split(' ').filter(t => t.length > 1 && !['de','la','el','los','las','en','a'].includes(t)));
+
+            if (entityIndex.has(normalizedInput)) {
+                entityIndex.get(normalizedInput).forEach(entityMatch => {
+                    let baseRelevance = 200 + entityMatch.score;
+                    if (entityMatch.type.endsWith('_full')) baseRelevance += 50;
+                    if (entityMatch.type === 'puesto_general' || entityMatch.type === 'puesto_variant') baseRelevance += 30;
+                    matches.push({ ...entityMatch, matchType: 'exact_full_input', matchedKey: normalizedInput, relevance: baseRelevance });
+                });
+            }
+
+            const sortedIndexKeys = Array.from(entityIndex.keys()).sort((a, b) => b.length - a.length);
+            for (const key of sortedIndexKeys) {
+                if (key.length === 0 || (key.length < 2 && !/\d/.test(key))) continue; 
+                
+                if (normalizedInput.includes(key)) {
+                    if (key === normalizedInput && matches.some(m => m.matchType === 'exact_full_input' && m.matchedKey === key)) {
+                        continue;
+                    }
+
+                    let keyRelevance = (key.length / normalizedInput.length) * 70; 
+                    keyRelevance += (key.split(' ').length * 10); 
+                    if (key.length === normalizedInput.length && key !== normalizedInput) keyRelevance += 30; 
+
+                    entityIndex.get(key).forEach(entityMatch => {
+                         const existingMatchIndex = matches.findIndex(m => JSON.stringify(m.data) === JSON.stringify(entityMatch.data) && m.type === entityMatch.type); 
+                         const currentTotalRelevance = keyRelevance + entityMatch.score;
+                         if (existingMatchIndex > -1) {
+                             if (currentTotalRelevance > matches[existingMatchIndex].relevance) { 
+                                 matches[existingMatchIndex].relevance = currentTotalRelevance;
+                                 matches[existingMatchIndex].matchType = 'includes_key_updated'; 
+                                 matches[existingMatchIndex].matchedKey = key;
+                             }
+                         } else {
+                            matches.push({ ...entityMatch, matchType: 'includes_key', matchedKey: key, relevance: currentTotalRelevance });
+                         }
+                    });
+                }
+            }
+            
+            inputTokens.forEach(token => {
+                if (token.length < 3 && !/\d/.test(token)) return;
+                if (entityIndex.has(token)) {
+                    entityIndex.get(token).forEach(entityMatch => {
+                         const existingMatchIndex = matches.findIndex(m => JSON.stringify(m.data) === JSON.stringify(entityMatch.data) && m.type === entityMatch.type);
+                         const currentTotalRelevance = 15 + entityMatch.score; 
+                         if (existingMatchIndex > -1) {
+                             if (currentTotalRelevance > matches[existingMatchIndex].relevance) {
+                                 matches[existingMatchIndex].relevance = currentTotalRelevance;
+                                 matches[existingMatchIndex].matchType = 'token_match_updated';
+                                 matches[existingMatchIndex].matchedKey = token;
+                             }
+                         } else {
+                            matches.push({ ...entityMatch, matchType: 'token_match', matchedKey: token, relevance: currentTotalRelevance });
+                         }
+                    });
+                }
+            });
+
+            if (matches.length === 0) return [];
+            matches.sort((a, b) => b.relevance - a.relevance);
+
+            const finalEntities = [];
+            const addedDataObjects = new Set();
+
+            const perfectMatch = matches.find(m => 
+                m.matchType === 'exact_full_input' && 
+                (m.type.endsWith('_full') || m.type === 'puesto_general' || m.type === 'puesto_variant') && 
+                normalize(m.originalKey, m.type.startsWith('puesto')) === normalizedInput
+            );
+
+            if (perfectMatch) {
+                finalEntities.push(perfectMatch);
+                addedDataObjects.add(JSON.stringify(perfectMatch.data));
+                const baseType = perfectMatch.type.split('_')[0]; 
+                
+                matches.filter(m => !m.type.startsWith(baseType) && 
+                                    !addedDataObjects.has(JSON.stringify(m.data)))
+                       .forEach(oe => {
+                           if (!addedDataObjects.has(JSON.stringify(oe.data))) { 
+                               finalEntities.push(oe);
+                               addedDataObjects.add(JSON.stringify(oe.data));
+                           }
+                       });
+                return finalEntities; 
+            }
+
+            for (const match of matches) {
+                const dataStr = JSON.stringify(match.data);
+                if (addedDataObjects.has(dataStr)) continue;
+
+                if (match.type.startsWith('person_') && match.type !== 'person_full') {
+                    const hasDifferentFullPerson = finalEntities.some(fe => fe.type === 'person_full' && JSON.stringify(fe.data) !== dataStr);
+                    if (hasDifferentFullPerson && match.relevance < 50) continue; 
+                    
+                    const hasSamePersonMoreSpecific = finalEntities.some(fe => fe.type.startsWith('person_') && JSON.stringify(fe.data) === dataStr && fe.relevance > match.relevance);
+                    if (hasSamePersonMoreSpecific) continue;
+                }
+                if (match.type === 'location_namepart' || match.type === 'location_alias_short') {
+                    if (finalEntities.some(fe => (fe.type === 'location_full' || fe.type === 'location_alias') && JSON.stringify(fe.data) === dataStr && fe.relevance > match.relevance + 20)) continue;
+                }
+                if (match.type === 'puesto_namepart') {
+                     if (finalEntities.some(fe => (fe.type === 'puesto_general' || fe.type === 'puesto_explicit' || fe.type === 'puesto_variant') && JSON.stringify(fe.data) === dataStr && fe.relevance > match.relevance + 15)) continue;
+                }
+                
+                finalEntities.push(match);
+                addedDataObjects.add(dataStr);
+            }
+            
+            if (finalEntities.length > 1) {
+                const exactFullMatchesInFinal = finalEntities.filter(e => e.matchType === 'exact_full_input' && e.type.endsWith('_full'));
+                if (exactFullMatchesInFinal.length === 1) { 
+                    const exactEntity = exactFullMatchesInFinal[0];
+                    const baseTypeOfExact = exactEntity.type.split('_')[0];
+                    const otherNonExactSameType = finalEntities.filter(e => 
+                        e.type.startsWith(baseTypeOfExact) && 
+                        !(e.matchType === 'exact_full_input' && e.type.endsWith('_full')) &&
+                        JSON.stringify(e.data) !== JSON.stringify(exactEntity.data)
+                    );
+                    if (otherNonExactSameType.length > 0) {
+                        return [exactEntity, ...finalEntities.filter(e => !e.type.startsWith(baseTypeOfExact) || JSON.stringify(e.data) === JSON.stringify(exactEntity.data) )]
+                               .filter((value, index, self) => index === self.findIndex(t => JSON.stringify(t.data) === JSON.stringify(value.data) && t.type === value.type));
+                    }
+                }
+            }
+
+            const personEntities = finalEntities.filter(e => e.type.startsWith('person_'));
+            if (personEntities.length > 1) {
+                 const bestPerson = personEntities.find(p => p.type === 'person_full' && p.matchType === 'exact_full_input') || 
+                                   personEntities.find(p => p.type === 'person_full') || 
+                                   personEntities[0]; 
+                 return [bestPerson, ...finalEntities.filter(e => !e.type.startsWith('person_') || JSON.stringify(e.data) === JSON.stringify(bestPerson.data) )]
+                        .filter((value, index, self) => index === self.findIndex(t => JSON.stringify(t.data) === JSON.stringify(value.data) && t.type === value.type));
+            }
+
+            return finalEntities.filter((value, index, self) => index === self.findIndex(t => 
+                JSON.stringify(t.data) === JSON.stringify(value.data)
+            ));
+        }
+
+        // Función checkKeywords CORREGIDA E INCLUIDA
+        function checkKeywords(normalizedInput, intentKey, exact = false) {
+            if (!INTENT_SYNONYMS[intentKey]) return false;
+            const keywords = INTENT_SYNONYMS[intentKey];
+            if (exact) { 
+                return keywords.some(kw => normalizedInput === normalize(kw));
+            }
+            return keywords.some(kw => normalizedInput.includes(normalize(kw)));
+        }
+        
+        function detectIntention(normalizedInput, entities) {
+            const numPersons = entities.filter(e => e.type.startsWith('person_')).length;
+            const numLocations = entities.filter(e => e.type.startsWith('location_')).length;
+            let numPuestos = entities.filter(e => e.type.startsWith('puesto_')).length; 
+            const mainPuestoEntity = entities.find(e => e.type === 'puesto_general' || e.type === 'puesto_explicit' || e.type === 'puesto_variant');
+
+            if (lastPersonContext && checkKeywords(normalizedInput, 'y_su')) {
+                if (checkKeywords(normalizedInput, 'telefono')) return 'get_context_telefono';
+                if (checkKeywords(normalizedInput, 'correo')) return 'get_context_correo';
+                if (checkKeywords(normalizedInput, 'puesto')) return 'get_context_puesto';
+                if (checkKeywords(normalizedInput, 'ubicacion')) return 'get_context_ubicacion';
+            }
+            if (lastPersonContext && checkKeywords(normalizedInput, 'solo_eso', true)) return 'context_acknowledged';
+            if (lastLocationContext && checkKeywords(normalizedInput, 'y_su')) { 
+                if (checkKeywords(normalizedInput, 'ambito')) return 'get_context_location_ambitos';
+                if (checkKeywords(normalizedInput, 'personas_en_loc')) return 'get_context_location_persons';
+                if (checkKeywords(normalizedInput, 'direccion_loc')) return 'get_context_location_details';
+            }
+            if (lastPuestoContext && checkKeywords(normalizedInput, 'y_su') && checkKeywords(normalizedInput, 'personas_en_loc')) {
+                 return 'get_context_puesto_persons';
+            }
+
+            if (checkKeywords(normalizedInput, 'ayuda_cmd', true) || normalizedInput === 'ayuda') return 'ayuda_response';
+            if (checkKeywords(normalizedInput, 'saludo')) return 'greeting';
+            if (checkKeywords(normalizedInput, 'despedida')) return 'farewell';
+            if (checkKeywords(normalizedInput, 'agradecimiento')) return 'thanks';
+
+            if (numPuestos > 0 && numLocations === 1) {
+                const hasPuestoKeywords = INTENT_SYNONYMS.puesto.some(pkw => normalizedInput.includes(normalize(pkw.replace(/(que hace|qué hace|a que se dedica|a qué se dedica)/,"").trim())) );
+                const hasQuestionOrListKeywords = INTENT_SYNONYMS.quien_es.some(qkw => normalizedInput.includes(normalize(qkw))) || checkKeywords(normalizedInput, 'lista') || normalizedInput.includes("personal de");
+
+                if (hasPuestoKeywords || hasQuestionOrListKeywords) {
+                    return 'find_role_in_location';
+                }
+            }
+            if (numPersons === 1 && numLocations === 1) { 
+                if (normalizedInput.includes("?") || checkKeywords(normalizedInput, 'quien_es') || checkKeywords(normalizedInput, 'puesto') || checkKeywords(normalizedInput, 'contacto') || checkKeywords(normalizedInput, 'telefono') || checkKeywords(normalizedInput, 'correo')) {
+                    return 'person_in_location_query';
+                }
+            }
+
+            if ((numPersons === 1 && numLocations === 0 && numPuestos === 0) || 
+                (entities.length === 1 && entities[0].type.startsWith('person_'))) { 
+                if (checkKeywords(normalizedInput, 'telefono')) return 'get_telefono';
+                if (checkKeywords(normalizedInput, 'correo')) return 'get_correo';
+                if (checkKeywords(normalizedInput, 'puesto')) return 'get_puesto_for_person';
+                if (checkKeywords(normalizedInput, 'ubicacion')) return 'get_ubicacion_for_person';
+                if (checkKeywords(normalizedInput, 'quien_es') || (entities[0] && normalizedInput === normalize(entities[0].data.nombre, true))) return 'get_person_full_info';
+            }
+            if ((numLocations === 1 && numPersons === 0 && numPuestos === 0) ||
+                (entities.length === 1 && entities[0].type.startsWith('location_'))) { 
+                if (checkKeywords(normalizedInput, 'ambito')) return 'get_location_ambitos';
+                if (checkKeywords(normalizedInput, 'direccion_loc')) return 'get_location_details';
+                if (checkKeywords(normalizedInput, 'personas_en_loc')) return 'list_persons_in_location'; 
+                if (checkKeywords(normalizedInput, 'quien_es') || (entities[0] && normalizedInput === normalize(entities[0].data.nombre_centro, true))) return 'get_location_info';
+            }
+             if ((mainPuestoEntity && numPersons === 0 && numLocations === 0) || 
+                 (entities.length === 1 && entities[0].type.startsWith('puesto_')) ||
+                 (checkKeywords(normalizedInput, 'lista') && mainPuestoEntity) 
+                ) {
+                if (checkKeywords(normalizedInput, 'quien_es') || checkKeywords(normalizedInput, 'lista') || (entities[0] && normalizedInput === normalize(entities[0].originalKey, true))) {
+                    return 'find_person_by_role'; 
+                }
+            }
+
+            if (numPersons > 1 && checkKeywords(normalizedInput, 'quien_es')) return 'ambiguous_who_is';
+
+            if (checkKeywords(normalizedInput, 'lista')) {
+                if (INTENT_SYNONYMS.puesto.some(pkw => normalizedInput.includes(normalize(pkw))) && numPersons === 0 && numLocations === 0 && !mainPuestoEntity) return 'list_all_puestos'; 
+                if ((INTENT_SYNONYMS.ubicacion.some(ukw => normalizedInput.includes(normalize(ukw))) || normalizedInput.includes("bases") || normalizedInput.includes("centros")) && numPersons === 0) return 'list_all_locations';
+                if (INTENT_SYNONYMS.personas_en_loc.some(pekw => normalizedInput.includes(normalize(pekw))) && numLocations === 0) return 'list_all_persons';
+            }
+            
+             if (numPuestos > 0 || INTENT_SYNONYMS.puesto.some(pkw => normalizedInput.includes(normalize(pkw.replace(/(que hace|qué hace|a que se dedica|a qué se dedica)/,"").trim())))) {
+                if (numPersons === 0 || (numPersons > 0 && !checkKeywords(normalizedInput, 'puesto'))) {
+                    return 'find_person_by_role';
+                }
+            }
+            
+            if (entities.length === 1) { 
+                const entity = entities[0];
+                if (entity.type.startsWith('person_')) return 'get_person_full_info';
+                if (entity.type.startsWith('location_')) return 'get_location_info';
+                if (entity.type.startsWith('puesto_')) return 'find_person_by_role';
+            }
+            
+            if (entities.length > 1) return 'ambiguous_multiple_entities';
+
+            return 'general_query';
+        }
+
+        function formatPersonInfo(person, requestedInfo = 'full') {
+             if (!person || !person.nombre) {
+                lastPersonContext = null; 
+                return "No se encontró información de la persona solicitada.";
+            }
+            
+            lastPersonContext = person; 
+            lastLocationContext = null; 
+            lastPuestoContext = null;
+
+            const isPteNombre = person.nombre.toLowerCase() === PENDING_NOM_LOWER;
+            const isPtePuesto = person.puesto && person.puesto.toLowerCase() === PENDING_NOM_LOWER;
+
+            if (isPteNombre && isPtePuesto) {
+                return `Hay un puesto actualmente **pendiente de nombramiento** en ${person.ubicacion}.`;
+            }
+            if (isPteNombre) {
+                 return `Hay un puesto de **${person.puesto}** actualmente **pendiente de nombramiento** en ${person.ubicacion}.`;
+            }
+
+            let info = [];
+            const addInfo = (label, value) => {
+                if (value && value.toLowerCase() !== PENDING_NOM_LOWER) info.push(`${label}: ${value}`);
+                else if (value && value.toLowerCase() === PENDING_NOM_LOWER && requestedInfo ==='full') info.push(`${label}: **Pendiente**`);
+            };
+            
+            let title = `**${person.nombre}**`;
+
+            if (requestedInfo === 'full' || requestedInfo === 'puesto') addInfo('Puesto', person.puesto);
+            if (requestedInfo === 'full' || requestedInfo === 'ubicacion') addInfo('Ubicación', person.ubicacion);
+            if (requestedInfo === 'full' || requestedInfo === 'correo') addInfo('Correo', person.correo);
+            if (requestedInfo === 'full' || requestedInfo === 'telefono') addInfo('Teléfono', person.telefono);
+            
+            if (info.length === 0) {
+                const specificDataField = requestedInfo.toLowerCase();
+                const specificDataValue = person[specificDataField]; 
+                if (requestedInfo !== 'full' && specificDataValue && specificDataValue.toLowerCase() === PENDING_NOM_LOWER) {
+                    return `La información de "${requestedInfo}" para **${person.nombre}** está **pendiente**.`;
+                }
+                if (requestedInfo !== 'full') {
+                    return `No tengo información sobre "${requestedInfo}" para **${person.nombre}** o está pendiente.`;
+                }
+                return `No tengo más detalles para **${person.nombre}** en este momento.`;
+            }
+
+            return title + (info.length > 0 ? ':\n  ' + info.join('\n  ') : '.');
+        }
+
+        function formatLocationInfo(location, requestedInfo = 'full') { 
+            if (!location || !location.nombre_centro) {
+                lastLocationContext = null;
+                return "No se encontró información de la ubicación solicitada.";
+            }
+            lastLocationContext = location;
+            lastPersonContext = null;
+            lastPuestoContext = null;
+
+            let parts = [`Información sobre **${location.nombre_centro}**:`];
+            let infoFound = false;
+
+            if (requestedInfo === 'full' || requestedInfo === 'ambitos') {
+                if (location.ambitos_mantenimiento && location.ambitos_mantenimiento.length > 0) {
+                    parts.push(`  Ámbito de mantenimiento:\n    - ${location.ambitos_mantenimiento.join('\n    - ')}`);
+                    infoFound = true;
+                } else if (requestedInfo === 'ambitos') {
+                     parts.push(`  No tengo información sobre el ámbito de mantenimiento.`);
+                }
+            }
+            if (requestedInfo === 'full' || requestedInfo === 'personas') {
+                 const peopleInLoc = allPersons.filter(p => p.ubicacion === location.nombre_centro && (p.nombre && p.nombre.toLowerCase() !== PENDING_NOM_LOWER));
+                if (peopleInLoc.length > 0) {
+                    const list = peopleInLoc.map(p => `    - **${p.nombre}** (${p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER ? p.puesto : 'Puesto pendiente'})`).join('\n');
+                    parts.push(`  Personas asignadas (${peopleInLoc.length}):\n${list}`);
+                    infoFound = true;
+                } else if (requestedInfo === 'personas') {
+                    const ptePeople = allPersons.filter(p => p.ubicacion === location.nombre_centro && (p.nombre && p.nombre.toLowerCase() === PENDING_NOM_LOWER));
+                    if (ptePeople.length > 0) {
+                         parts.push(`  Hay ${ptePeople.length} puesto(s) **pendiente(s) de nombramiento**. No encontré más personal asignado.`);
+                         infoFound = true; 
+                    } else {
+                        parts.push(`  No encontré personal asignado (ni pendiente).`);
+                    }
+                }
+            }
+            if (requestedInfo === 'full' || requestedInfo === 'direccion') {
+                 if (location.direccion) {
+                    parts.push(`  Dirección: ${location.direccion}`);
+                    infoFound = true;
+                 } else if (requestedInfo === 'direccion') {
+                    parts.push(`  Dirección: No disponible.`);
+                 }
+                 if (location.enlace_google_maps) {
+                    parts.push(`  Google Maps: <a href="${location.enlace_google_maps}" target="_blank" class="text-blue-600 hover:underline">${location.enlace_google_maps}</a>`);
+                    infoFound = true;
+                 }
+            }
+            if (!infoFound && requestedInfo === 'full') {
+                parts.push("  No tengo más detalles específicos para esta ubicación en este momento.");
+            } else if (!infoFound && requestedInfo !== 'full') { 
+                 return `No tengo información sobre "${requestedInfo}" para **${location.nombre_centro}**.`;
+            }
+            if (parts.length === 1 && infoFound === false) { 
+                 return `No tengo información específica sobre **${location.nombre_centro}**. ¿Qué te gustaría saber?`;
+            }
+            return parts.join('\n');
+        }
+        
+        function processInput(input) {
+            const normalizedInput = normalize(input);
+            let entities = findEntities(normalizedInput); 
+            let intention = detectIntention(normalizedInput, entities); 
+
+            let usingContext = false;
+            if (!checkKeywords(normalizedInput, 'y_su') && !checkKeywords(normalizedInput, 'solo_eso', true)) {
+                lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
+            }
+             if (intention.startsWith('get_context_') && (lastPersonContext || lastLocationContext || lastPuestoContext)) {
+                usingContext = true;
+                let contextName = '';
+                let isPuestoContext = false;
+
+                if (lastPersonContext) contextName = lastPersonContext.nombre;
+                else if (lastLocationContext) contextName = lastLocationContext.nombre_centro;
+                else if (lastPuestoContext) {
+                    contextName = lastPuestoContext.nombre_puesto;
+                    isPuestoContext = true;
+                }
+
+                const contextEntities = findEntities(normalize(contextName, isPuestoContext)); 
+                const mainContextEntity = contextEntities.find(e => 
+                    (lastPersonContext && e.type === 'person_full' && normalize(e.data.nombre) === normalize(contextName)) ||
+                    (lastLocationContext && e.type === 'location_full' && normalize(e.data.nombre_centro) === normalize(contextName)) ||
+                    (lastPuestoContext && e.type === 'puesto_general' && normalize(e.data.nombre_puesto, true) === normalize(contextName, true))
+                );
+
+                if (mainContextEntity) {
+                    entities = [mainContextEntity]; 
+                    if (intention === 'get_context_puesto_persons') intention = 'find_person_by_role';
+                    else if (intention.includes('_location_')) intention = intention.replace('get_context_location_', 'get_location_');
+                    else intention = intention.replace('get_context_', 'get_'); 
+                } else { 
+                    entities = []; 
+                    lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
+                    usingContext = false; 
+                }
+                if (entities.length === 0 && usingContext) { 
+                    return "Perdona, perdí el contexto. ¿Sobre qué o quién preguntabas?";
+                }
+            } else if (intention === 'context_acknowledged') {
+                 lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
+                 return "Entendido.";
+            }
+
+            if (intention !== 'greeting' && intention !== 'farewell' && intention !== 'thanks' && intention !== 'ayuda_response') {
+                 console.log({input, normalizedInput, entities: entities.map(e => ({type: e.type, key: e.matchedKey, dataName: e.originalKey || e.data.nombre || e.data.nombre_centro || e.data.nombre_puesto, relevance: e.relevance ? e.relevance.toFixed(2) : 'N/A' })), intention });
+            }
+
+            if (checkKeywords(normalizedInput, 'ayuda_cmd', true) && intention !== 'ayuda_response') { 
+                intention = 'ayuda_response';
+            }
+
+            if (intention === 'greeting') return INTENT_SYNONYMS.saludo[Math.floor(Math.random() * INTENT_SYNONYMS.saludo.length)] + "! ¿En qué puedo ayudarte?";
+            if (intention === 'farewell') return INTENT_SYNONYMS.despedida[Math.floor(Math.random() * INTENT_SYNONYMS.despedida.length)] + "! Que tengas un buen día.";
+            if (intention === 'thanks') return "De nada. ¡Ha sido un placer ayudarte!";
+            if (intention === 'ayuda_response') {
+                 displayHelpBubbles();
+                 return 'Puedo ayudarte a encontrar información sobre personal (contacto, puesto, ubicación), detalles de centros (ámbitos, dirección, personal) y listados generales. Aquí tienes algunos ejemplos:';
+            }
+
+            const persons = entities.filter(e => e.type.startsWith('person_')).map(e => e.data);
+            const locations = entities.filter(e => e.type.startsWith('location_')).map(e => e.data);
+            const puestosEntities = entities.filter(e => e.type.startsWith('puesto_'));
+            
+            // --- INTENTION-BASED RESPONSES ---
+            if (persons.length === 1 && (!usingContext || lastPersonContext) ) { 
+                if (intention === 'get_person_full_info') return formatPersonInfo(persons[0]);
+                if (intention === 'get_telefono') return formatPersonInfo(persons[0], 'telefono');
+                if (intention === 'get_correo') return formatPersonInfo(persons[0], 'correo');
+                if (intention === 'get_puesto_for_person') return formatPersonInfo(persons[0], 'puesto');
+                if (intention === 'get_ubicacion_for_person') return formatPersonInfo(persons[0], 'ubicacion');
+            }
+
+            if (locations.length === 1 && (!usingContext || lastLocationContext) ) { 
+                if (intention === 'get_location_info') return formatLocationInfo(locations[0]);
+                if (intention === 'get_location_ambitos') return formatLocationInfo(locations[0], 'ambitos');
+                if (intention === 'get_location_details') return formatLocationInfo(locations[0], 'direccion');
+                if (intention === 'list_persons_in_location') return formatLocationInfo(locations[0], 'personas');
+            }
+            
+             if (intention === 'ambiguous_who_is' && persons.length > 1) {
+                 let responseParts = ["He encontrado varias personas que podrían ser \"quién es\":"];
+                 persons.slice(0, 3).forEach(p => { 
+                     responseParts.push(`- **${p.nombre}** (${p.puesto})`);
+                 });
+                 responseParts.push("Por favor, sé más específico (ej. nombre completo o puesto).");
+                 return responseParts.join('\n');
+            }
+            
+            if (intention === 'find_role_in_location' && puestosEntities.length > 0 && locations.length === 1) {
+                const targetLocation = locations[0];
+                const puestoEntity = puestosEntities.find(pe => pe.type === 'puesto_explicit' && pe.matchType === 'exact_full_input') || 
+                                     puestosEntities.find(pe => pe.type === 'puesto_general' && pe.matchType === 'exact_full_input') || 
+                                     puestosEntities.find(pe => pe.type === 'puesto_explicit') || 
+                                     puestosEntities[0]; 
+                const targetPuestoNorm = normalize(puestoEntity.originalKey, true);
+                const originalPuestoQuery = puestoEntity.originalKey;
+
+                const peopleInRoleAtLocation = allPersons.filter(p =>
+                    p.ubicacion === targetLocation.nombre_centro &&
+                    p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) &&
+                    p.nombre.toLowerCase() !== PENDING_NOM_LOWER
+                );
+
+                if (peopleInRoleAtLocation.length > 0) {
+                    lastPuestoContext = {nombre_puesto: originalPuestoQuery};
+                    lastLocationContext = targetLocation; 
+                    if (peopleInRoleAtLocation.length === 1) {
+                        return `El/La **${originalPuestoQuery}** en **${targetLocation.nombre_centro}** es ${formatPersonInfo(peopleInRoleAtLocation[0])}`;
+                    }
+                    const list = peopleInRoleAtLocation.map(p => `- **${p.nombre}**`).join('\n');
+                    return `Personas con el puesto de **${originalPuestoQuery}** (o similar) en **${targetLocation.nombre_centro}**:\n${list}`;
+                }
+                return `No encontré a nadie con el puesto "${originalPuestoQuery}" en **${targetLocation.nombre_centro}**, o el puesto está pendiente.`;
+            }
+
+            if (intention === 'find_person_by_role') {
+                let targetPuestoNorm = '';
+                let originalPuestoQuery = '';
+                
+                const mainPuestoEntity = puestosEntities.find(pe => pe.type === 'puesto_general' && pe.matchType === 'exact_full_input') || 
+                                        puestosEntities.find(pe => pe.type === 'puesto_explicit' && pe.matchType === 'exact_full_input') || 
+                                        puestosEntities.find(pe => pe.type === 'puesto_variant' && pe.matchType === 'exact_full_input') || // Considerar variantes exactas
+                                        puestosEntities.find(pe => pe.type === 'puesto_explicit') || 
+                                        puestosEntities.find(pe => pe.type === 'puesto_general') || 
+                                        puestosEntities.find(pe => pe.type === 'puesto_variant') ||
+                                        puestosEntities[0]; 
+
+                if (mainPuestoEntity) {
+                    targetPuestoNorm = normalize(mainPuestoEntity.originalKey, true);
+                    originalPuestoQuery = mainPuestoEntity.originalKey;
+                } else { 
+                    const commonRoles = {'jefe de area': 'Jefe de Área', 'jefe de base': 'Jefe de Base', 'coordinador de linea': 'Coordinador de Línea', 'secretaria': 'Secretaria', 'tecnico ii.ss.': 'Técnico II.SS.', 'tecnico iiss': 'Técnico II.SS.', 'tecnico de infra y via': 'Técnico De Infra y Vía', 'tecnico infra via': 'Técnico De Infra y Vía', 'tecnico energia': 'Técnico Energía', 'tecnico de energia': 'Técnico Energía', 'tecnico telecomunicaciones': 'Técnico Telecomunicaciones', 'ct ingenieria civil': 'C.T. Ingeniería Civil', 'ct ingeniería civil': 'C.T. Ingeniería Civil', 'tecnico': 'Técnico', 'operador': 'Operador', 'ct': 'C.T.'};
+                    for (const roleNorm in commonRoles) {
+                        if (normalizedInput.includes(roleNorm)) {
+                            targetPuestoNorm = roleNorm; 
+                            originalPuestoQuery = commonRoles[roleNorm]; 
+                            break;
+                        }
+                    }
+                }
+
+                if (targetPuestoNorm) {
+                    const peopleWithRole = allPersons.filter(p => 
+                        p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) && 
+                        p.nombre.toLowerCase() !== PENDING_NOM_LOWER
+                    );
+                    if (peopleWithRole.length > 0) {
+                        lastPuestoContext = {nombre_puesto: originalPuestoQuery || peopleWithRole[0].puesto};
+                        const displayPuesto = originalPuestoQuery || peopleWithRole[0].puesto; 
+                        if (peopleWithRole.length === 1 && (checkKeywords(normalizedInput, 'quien_es') || (mainPuestoEntity && normalizedInput === normalize(mainPuestoEntity.originalKey, true)) )) {
+                            return `El/La **${displayPuesto}** es ${formatPersonInfo(peopleWithRole[0])}`;
+                        }
+                        const list = peopleWithRole.map(p => `- **${p.nombre}** (${p.ubicacion})`).join('\n');
+                        return `Personas con el puesto de **${displayPuesto}** (o similar):\n${list}`;
+                    }
+                    return `No encontré a nadie con el puesto "${originalPuestoQuery || targetPuestoNorm}" o está pendiente de nombramiento.`;
+                } else {
+                     if (persons.length === 1 && checkKeywords(normalizedInput, 'puesto')) return formatPersonInfo(persons[0], 'puesto'); 
+                    return "No pude identificar un puesto específico en tu pregunta. Intenta de nuevo, por ejemplo: 'Quién es el Jefe de Área' o 'Lista de Técnicos de Energía'.";
+                }
+            }
+
+            if (intention === 'person_in_location_query' && persons.length === 1 && locations.length === 1) {
+                const person = persons[0];
+                const location = locations[0];
+                if (person.ubicacion === location.nombre_centro) {
+                    lastPersonContext = person; 
+                    return `${formatPersonInfo(person)}\nEfectivamente, trabaja en **${location.nombre_centro}**.`;
+                }
+                return `**${person.nombre}** trabaja en **${person.ubicacion}**, no en **${location.nombre_centro}** (según mis datos).`;
+            }
+
+            if (intention === 'list_all_locations') {
+                if (allLocations.length === 0) return "No tengo datos de ubicaciones.";
+                const list = allLocations.map(loc => `- ${loc.nombre_centro}`).join('\n');
+                return `Aquí tienes las ubicaciones (${allLocations.length}):\n${list}`;
+            }
+            if (intention === 'list_all_puestos') {
+                const uniquePuestos = Array.from(new Set(allPersons.filter(p => p.puesto && p.puesto.toLowerCase() !== PENDING_NOM_LOWER).map(p => p.puesto))).sort();
+                if (uniquePuestos.length === 0) return "No hay puestos registrados (aparte de los pendientes).";
+                const list = uniquePuestos.map(p => `- ${p}`).join('\n');
+                return `Estos son los puestos registrados (${uniquePuestos.length}):\n${list}`;
+            }
+            if (intention === 'list_all_persons') {
+                 const assignedPersons = allPersons.filter(p => p.nombre.toLowerCase() !== PENDING_NOM_LOWER);
+                 if (assignedPersons.length === 0) return "No hay personal asignado registrado.";
+                const list = assignedPersons.map(p => `- **${p.nombre}** (${p.puesto}, ${p.ubicacion})`).join('\n');
+                return `Listado de todo el personal asignado (${assignedPersons.length}):\n${list}`;
+            }
+            
+            if (entities.length === 1 && intention === 'general_query' && !usingContext) {
+                const entity = entities[0];
+                if (entity.type.startsWith('person_')) return formatPersonInfo(entity.data);
+                if (entity.type.startsWith('location_')) return formatLocationInfo(entity.data);
+                if (entity.type.startsWith('puesto_')) { 
+                    const targetPuestoNorm = normalize(entity.originalKey, true);
+                    const originalPuestoQuery = entity.originalKey;
+                     const peopleWithRole = allPersons.filter(p => p.puesto && normalize(p.puesto, true).includes(targetPuestoNorm) && p.nombre.toLowerCase() !== PENDING_NOM_LOWER);
+                    if (peopleWithRole.length > 0) {
+                        lastPuestoContext = {nombre_puesto: originalPuestoQuery};
+                        const displayPuesto = originalPuestoQuery || peopleWithRole[0].puesto; 
+                        if (peopleWithRole.length === 1) return `El/La **${displayPuesto}** es ${formatPersonInfo(peopleWithRole[0])}`;
+                        const list = peopleWithRole.map(p => `- **${p.nombre}** (${p.ubicacion})`).join('\n');
+                        return `Personas con el puesto de **${displayPuesto}** (o similar):\n${list}`;
+                    }
+                    return `No encontré a nadie con el puesto "${originalPuestoQuery || targetPuestoNorm}" o está pendiente de nombramiento.`;
+                }
+            }
+            
+            if ((intention === 'ambiguous_multiple_entities' || (entities.length > 1 && intention === 'general_query')) && !usingContext ) { 
+                let responseParts = ["He encontrado varias cosas relacionadas con tu pregunta (demasiado ambiguo para una respuesta directa):"];
+                 let addedToResponse = new Set();
+                 entities.slice(0,3).forEach(e => { 
+                    const dataString = JSON.stringify(e.data); 
+                    if (!addedToResponse.has(dataString)) { 
+                        if (e.type.startsWith('person_')) responseParts.push(`  - Persona: **${e.data.nombre}** (${e.data.puesto || 'N/A'})`);
+                        else if (e.type.startsWith('location_')) responseParts.push(`  - Ubicación: **${e.data.nombre_centro}**`);
+                        else if (e.type.startsWith('puesto_')) responseParts.push(`  - Puesto: **${e.originalKey}**`);
+                        addedToResponse.add(dataString);
+                    }
+                });
+                if (responseParts.length > 1) { 
+                    responseParts.push("Por favor, intenta ser más específico o pregunta por una sola cosa a la vez.");
+                    return responseParts.join('\n');
+                }
+            }
+            
+            if(!usingContext) {
+                lastPersonContext = null; lastLocationContext = null; lastPuestoContext = null;
+            }
+            return 'Lo siento, no he entendido bien tu pregunta. Prueba a reformularla o escribe "ayuda" para ver ejemplos.';
+        }
+
+        function appendMessage(sender, text) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('message-wrapper', sender === 'user' ? 'user-message-wrapper' : 'bot-message-wrapper');
+
+            const avatarImg = document.createElement('img');
+            avatarImg.alt = sender === 'user' ? 'User Avatar' : 'Bot Avatar';
+            avatarImg.classList.add('message-avatar');
+            avatarImg.src = sender === 'user' ? USER_AVATAR_URL : BOT_AVATAR_URL;
+
+            const messageContentDiv = document.createElement('div');
+            messageContentDiv.classList.add('message-content');
+            
+            let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+            htmlText = htmlText.replace(/\n/g, '<br>'); 
+            htmlText = htmlText.replace(/(https?:\/\/maps\.app\.goo\.gl\/[a-zA-Z0-9]+)/g, '<a href="$1" target="_blank" class="text-blue-600 hover:underline">$1</a>');
+            
+            messageContentDiv.innerHTML = htmlText;
+
+            if (sender === 'user') {
+                messageWrapper.appendChild(messageContentDiv); 
+                messageWrapper.appendChild(avatarImg);      
+            } else {
+                messageWrapper.appendChild(avatarImg);      
+                messageWrapper.appendChild(messageContentDiv); 
+            }
+            
+            chatBox.appendChild(messageWrapper);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        function showTypingIndicator() { 
+            if (!isTyping) {
+                const typingWrapper = document.createElement('div');
+                typingWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
+                typingWrapper.id = 'typingIndicatorWrapper'; 
+                const avatarImg = document.createElement('img');
+                avatarImg.src = BOT_AVATAR_URL;
+                avatarImg.alt = 'Bot Avatar';
+                avatarImg.classList.add('message-avatar');
+                typingWrapper.appendChild(avatarImg);
+                typingWrapper.appendChild(typingIndicatorElement); 
+                
+                chatBox.appendChild(typingWrapper);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                isTyping = true;
+            }
+        }
+        function hideTypingIndicator() { 
+            const typingWrapper = document.getElementById('typingIndicatorWrapper');
+            if (isTyping && typingWrapper) { 
+                chatBox.removeChild(typingWrapper); 
+                isTyping = false;
+            }
+        }
+        function displayHelpBubbles() {
+            helpBubblesContainer.innerHTML = '';
+            const helpQuestions = [
+                "Teléfono de Mario García Aguado", "Correo de Javier Gambin", "y su ubicacion", 
+                "Puesto de Lourdes Mirasierra", "Ubicación de Esther Lorente",
+                "Quién es el Jefe de Área", "Personas en BM Villarrubia", "Personal de Madrid Sur",
+                "Ámbito de BM Gabaldón", "Dirección de BM Requena", "Jefe de Base en Monforte",
+                "Lista de Técnicos de Energía", "Lista de todas las ubicaciones",
+                "Lista de todos los puestos", "¿Qué hace Samuel García Chaparro?",
+                "¿Quiénes son los Operadores CSI en CRC Albacete?", "Operadores CSI",
+                "Contacto de PTE NOMBRAMIENTO en BM Villarrubia", "PTE NOMBRAMIENTO",
+                "¿Hay algún Técnico II.SS.?", 
+                "Informacion sobre Madrid Sur", "Madrid Sur ambito", "Madrid Sur direccion"
+            ];
+            helpQuestions.sort(() => Math.random() - 0.5); 
+            helpQuestions.slice(0, 10).forEach(question => { 
+                const bubble = document.createElement('span');
+                bubble.classList.add('help-bubble', 'px-3', 'py-1', 'bg-blue-100', 'border', 'border-blue-300', 'text-blue-800', 'rounded-full', 'cursor-pointer');
+                bubble.textContent = question;
+                bubble.addEventListener('click', () => {
+                    userInput.value = question;
+                    hideHelpBubbles();
+                    handleUserInput(); 
+                });
+                helpBubblesContainer.appendChild(bubble);
+            });
+            helpBubblesContainer.classList.remove('hidden');
+         }
+        function hideHelpBubbles() { 
+             helpBubblesContainer.classList.add('hidden');
+        }
+        async function handleUserInput() { 
+            const input = userInput.value.trim();
+            if (!input) return;
+            appendMessage('user', input);
+            userInput.value = '';
+            showTypingIndicator();
+            setTimeout(() => {
+                const botResponse = processInput(input);
+                hideTypingIndicator();
+                appendMessage('bot', botResponse);
+            }, 300);
+        }
+
+        sendButton.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleUserInput();
+            }
+        });
+        
+        loadData();
+
+    </script>
+</body>
+</html>
