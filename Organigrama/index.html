@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         header {
-            background: linear-gradient(to right, #ffffff, #f0f9f9, #ffffff); /* Fondo degradado extremadamente suave */
+            background: linear-gradient(180deg, #E0F2F1, #E6F5F5); /* Gradiente vertical de verde muy claro a azul muy claro */
             color: #333; /* Color de texto oscuro por defecto para mejor contraste */
             padding: 20px; /* Añadir padding */
             text-align: center; /* Centrar texto */
@@ -29,6 +29,70 @@
             background-color: #f5f5dc;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Nuevo estilo para las unidades principales del Nivel 2 */
+        .main-unit {
+            background-color: #fff;
+            border: 2px solid #008080;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            padding: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .bm-unit {
+            background-color: #f9e79f; /* Amarillo más oscuro */
+            border: 2px solid #008080;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            padding: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-unit {
+            background-color: #f8d7da; /* Rojo más oscuro */
+            border: 2px solid #008080;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            padding: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .support-unit {
+            background-color: #ffe4b5; /* Anaranjado más claro */
+            border: 2px solid #008080;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            padding: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .crc-unit {
+            background-color: #f8d7da; /* Rojo más oscuro */
+            border: 2px solid #008080;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            padding: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .main-unit:hover,
+        .bm-unit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            border-color: #005293;
+        }
+
+        .main-unit .font-bold,
+        .bm-unit .font-bold {
+            font-size: 1.1rem;
+            color: #005293;
         }
         .person-adif {
             background-color: #2E7D32;
@@ -169,7 +233,7 @@
                     </button>
                     <!-- Botón PREGUNTAME añadido aquí -->
                     <button onclick="window.location.href='preguntame.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">
-                        💬 PREGUNTAME
+                        🤖 ESTE-LA
                     </button>
                 </div>
             </div>
@@ -205,8 +269,8 @@
                 <div class="flex justify-center gap-4 mb-8 items-start">
                     <!-- Soporte y Gestión Central -->
                     <div class="flex flex-col items-center flex-1 min-w-[200px]">
-                        <div class="org-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg w-full">
-                            <div class="font-bold">Soporte y Gestión Central</div>
+                            <div class="support-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                            <div class="font-bold">SOPORTE Y GESTIÓN</div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 w-full">
                             <div class="person-ineco p-2 text-center connector mb-3 animate-fade-in duration-1000 delay-200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg w-full">
@@ -230,8 +294,8 @@
 
                     <!-- Control Central (CRC Albacete) -->
                     <div class="flex flex-col items-center flex-1 min-w-[400px] animate-fade-in duration-1000 delay-600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg px-4 ml-8">
-                        <div class="org-unit p-3 text-center w-full mb-4">
-                            <div class="font-bold">CRC Albacete</div>
+                        <div class="crc-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                            <div class="font-bold">CRC ALBACETE</div>
                         </div>
                         <!-- GTM and its members -->
                         <div class="flex flex-col items-center mb-8 animate-fade-in duration-1000 delay-700 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -293,8 +357,8 @@
 
                     <!-- BM Villarrubia -->
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-2800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg ml-15">
-                        <div class="org-unit p-3 text-center w-full mb-4">
-                            <div class="font-bold">BM Villarrubia</div>
+                        <div class="bm-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-2800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                            <div class="font-bold">BM VILLARRUBIA</div>
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif vacant p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-2900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -337,8 +401,8 @@
 
                     <!-- BM Gabaldón -->
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-4200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="org-unit p-3 text-center w-full mb-4">
-                            <div class="font-bold">BM Gabaldón</div>
+                        <div class="bm-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-4200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                            <div class="font-bold">BM GABALDÓN</div>
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-4300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -384,8 +448,8 @@
 
                     <!-- BM Requena -->
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-5800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="org-unit p-3 text-center w-full mb-4">
-                            <div class="font-bold">BM Requena</div>
+                        <div class="bm-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-5800 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                            <div class="font-bold">BM REQUENA</div>
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-5900 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -428,8 +492,8 @@
 
                     <!-- BM Monforte -->
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-7200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="org-unit p-3 text-center w-full mb-4">
-                            <div class="font-bold">BM Monforte</div>
+                        <div class="bm-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-7200 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                            <div class="font-bold">BM MONFORTE</div>
                         </div>
                         <div class="flex flex-col items-center w-full">
                             <div class="person-adif p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-7300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
@@ -472,7 +536,7 @@
 
                     <!-- Áreas Funcionales Técnicas -->
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-8600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="org-unit p-3 text-center w-full mb-4">
+                        <div class="tech-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-8600 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                             <div class="font-bold">ENERGÍA</div>
                         </div>
                         <div class="flex flex-col items-center w-full">
@@ -496,7 +560,7 @@
                     </div>
 
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-9300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="org-unit p-3 text-center w-full mb-4">
+                        <div class="tech-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-9300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                             <div class="font-bold">II.SS.</div>
                         </div>
                         <div class="flex flex-col items-center w-full">
@@ -516,8 +580,8 @@
                                     <div class="team-member p-1 text-xs animate-fade-in duration-1000 delay-9900">PASCUAL TEROL</div>
                                 </div>
                             </div>
-                            <div class="org-unit p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-10000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                                <div class="font-semibold mb-1">Protección y Seguridad (PyS)</div>
+                            <div class="tech-unit p-2 text-center w-full mb-4 animate-fade-in duration-1000 delay-10000 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
+                                <div class="font-semibold mb-1">PROTECCIÓN Y SEGURIDAD</div>
                             </div>
                             <div class="person-ineco p-2 text-center w-full mb-3 connector animate-fade-in duration-1000 delay-10100 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                                 <div class="font-semibold mb-1">DAVID GARCIA</div>
@@ -527,7 +591,7 @@
                     </div>
 
                     <div class="flex flex-col items-center flex-1 min-w-[200px] animate-fade-in duration-1000 delay-10300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
-                        <div class="org-unit p-3 text-center w-full mb-4">
+                        <div class="tech-unit p-3 text-center mb-4 animate-fade-in duration-1000 delay-10300 transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg">
                             <div class="font-bold">TELECOMUNICACIONES</div>
                         </div>
                         <div class="flex flex-col items-center w-full">

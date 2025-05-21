@@ -18,7 +18,7 @@
             font-family: 'Montserrat', sans-serif;
         }
         header {
-            background-color: #f8fcfc; /* Fondo casi blanco con un toque azul verdoso */
+            background: linear-gradient(180deg, #E0F2F1, #E6F5F5); /* Gradiente vertical de verde muy claro a azul muy claro */
             color: #333; /* Color de texto oscuro por defecto para mejor contraste */
             padding: 20px; /* Añadir padding */
             text-align: center; /* Centrar texto */
@@ -472,7 +472,7 @@
                     </button>
                     <!-- Botón PREGUNTAME añadido aquí -->
                     <button onclick="window.location.href='preguntame.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">
-                        💬 PREGUNTAME
+                        🤖 ESTE-LA
                     </button>
                 </div>
             </div>
@@ -809,16 +809,78 @@
                                     </div>
                                 </div>
                             </div>
-                            ${['BM Monforte', 'BM Requena'].includes(centro.nombre_centro) ? `
-                            <div class="space-y-2">
-                                <div class="flex items-center space-x-2 text-gray-700">
-                                    <i class="fas fa-building text-green-500"></i>
-                                    <h3 class="text-lg font-semibold">UTE Mantenimiento IyV</h3>
+                            <div class="space-y-6">
+                                <!-- UTE Mantenimiento IyV -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-gray-700">
+                                        <i class="fas fa-building text-green-500"></i>
+                                        <h3 class="text-lg font-semibold">6. UTE Mantenimiento IyV</h3>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">
+                                        ${['BM Villarrubia', 'BM Gabaldón'].includes(centro.nombre_centro) ? 'UTE BASES VILLARRUBIA-GABALDÓN' : 'MANTENIMIENTO LAV ESTE UTE'}
+                                    </p>
+                                    <img src="${['BM Villarrubia', 'BM Gabaldón'].includes(centro.nombre_centro) ? 'img/uteacciona.png' : 'img/logo-ute-mantenimiento.jpg'}" 
+                                         alt="${['BM Villarrubia', 'BM Gabaldón'].includes(centro.nombre_centro) ? 'Logo UTE BASES VILLARRUBIA-GABALDÓN' : 'Logo UTE Mantenimiento IyV'}" 
+                                         class="w-48 h-auto mt-2"
+                                         onerror="this.style.display='none'">
                                 </div>
-                               <p class="text-gray-600 mb-2">MANTENIMIENTO LAV ESTE UTE</p>
-                               <img src="img/logo-ute-mantenimiento.jpg" alt="Logo UTE Mantenimiento" class="w-48 h-auto mt-2">
-                           </div>
-                           ` : ''}
+
+                                <!-- UTE Mantenimiento Energía -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-gray-700">
+                                        <i class="fas fa-bolt text-yellow-500"></i>
+                                        <h3 class="text-lg font-semibold">7. UTE Mantenimiento Energía</h3>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">UTE MANTENIMIENTO AVE ENERGIA</p>
+                                    <img src="img/uteenergia.png" alt="Logo UTE MANTENIMIENTO AVE ENERGIA" class="w-48 h-auto mt-2" onerror="this.style.display='none'">
+                                </div>
+
+                                ${centro.nombre_centro === 'BM Monforte' ? `
+                                <!-- UTE Mantenimiento IISS/TELECO combinado para BM Monforte -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-gray-700">
+                                        <div class="flex space-x-1">
+                                            <i class="fas fa-traffic-light text-blue-500"></i>
+                                            <i class="fas fa-satellite-dish text-purple-500 ml-1"></i>
+                                        </div>
+                                        <h3 class="text-lg font-semibold">8. UTE Mantenimiento IISS/TELECO</h3>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">UTE SALAVE</p>
+                                    <img src="img/utesalave.png" 
+                                         alt="Logo UTE SALAVE" 
+                                         class="w-48 h-auto mt-2"
+                                         onerror="this.style.display='none'">
+                                </div>` : `
+                                <!-- UTE Mantenimiento IISS para otras BM -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-gray-700">
+                                        <i class="fas fa-traffic-light text-blue-500"></i>
+                                        <h3 class="text-lg font-semibold">8. UTE Mantenimiento IISS</h3>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">
+                                        ${['BM Villarrubia', 'BM Requena'].includes(centro.nombre_centro) ? 'UTE MALEV' : 'MANTENIMIENTO DE INSTALACIONES DE SEGURIDAD'}
+                                    </p>
+                                    <img src="${['BM Villarrubia', 'BM Requena'].includes(centro.nombre_centro) ? 'img/utemalev.png' : 'img/logo-ute-iiss.jpg'}" 
+                                         alt="${['BM Villarrubia', 'BM Requena'].includes(centro.nombre_centro) ? 'Logo UTE MALEV' : 'Logo UTE IISS'}" 
+                                         class="w-24 h-auto mt-2" 
+                                         onerror="this.style.display='none'">
+                                </div>
+
+                                <!-- UTE Mantenimiento TELECO para otras BM -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2 text-gray-700">
+                                        <i class="fas fa-satellite-dish text-purple-500"></i>
+                                        <h3 class="text-lg font-semibold">9. UTE Mantenimiento TELECO</h3>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">
+                                        ${['BM Villarrubia', 'BM Requena'].includes(centro.nombre_centro) ? 'HITACHI' : 'MANTENIMIENTO DE TELECOMUNICACIONES'}
+                                    </p>
+                                    <img src="${['BM Villarrubia', 'BM Requena'].includes(centro.nombre_centro) ? 'img/hitachi.png' : 'img/logo-ute-teleco.jpg'}" 
+                                         alt="${['BM Villarrubia', 'BM Requena'].includes(centro.nombre_centro) ? 'Logo HITACHI' : 'Logo UTE TELECO'}" 
+                                         class="w-48 h-auto mt-2" 
+                                         onerror="this.style.display='none'">
+                                </div>`}
+                            </div>
                        `;
 
                         // La sección de ámbitos de mantenimiento se ha movido arriba, junto con el HTML principal

@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
     <style>
         header {
-            background: linear-gradient(to right, #ffffff, #f0f9f9, #ffffff); /* Fondo degradado extremadamente suave */
+            background: linear-gradient(180deg, #E0F2F1, #E6F5F5); /* Gradiente vertical de verde muy claro a azul muy claro */
             color: #333; /* Color de texto oscuro por defecto para mejor contraste */
             padding: 20px; /* Añadir padding */
             text-align: center; /* Centrar texto */
@@ -224,6 +224,19 @@
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out forwards;
         }
+
+        /* Estilos para las etiquetas de ubicación */
+        .contact-badge {
+            @apply px-3 py-1 rounded-full text-sm font-medium;
+        }
+
+        .badge-adif {
+            @apply bg-[#008080] text-white;
+        }
+
+        .badge-ineco {
+            @apply bg-[#2196F3] text-white;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -248,7 +261,7 @@
                 </button>
                 <!-- Botón PREGUNTAME añadido aquí -->
                 <button onclick="window.location.href='preguntame.html'" class="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#005293] transition-colors">
-                    💬 PREGUNTAME
+                    🤖 ESTE-LA
                 </button>
             </div>
         </div>
@@ -267,6 +280,13 @@
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
+                </div>
+                <div class="w-full md:w-auto mt-0.5">
+                    <label for="groupBy" class="block text-sm font-medium text-gray-700 mb-1">Agrupar por:</label>
+                    <select id="groupBy" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#005293] focus:border-[#005293] transition">
+                        <option value="ubicacion">Ubicación</option>
+                        <option value="puesto">Puesto</option>
+                    </select>
                 </div>
                 <div class="w-full md:w-auto">
                     <label for="locationFilter" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por ubicación:</label>
@@ -399,88 +419,307 @@
         document.body.style.zoom = '90%';
 
         // Función para determinar la empresa del trabajador
-        function getEmpresa(correo) {
+        function getEmpresa(correo, nombre) {
+            // Caso especial: Lourdes Mirasierra Pérez es de INECO aunque tenga correo de ADIF
+            if (nombre && nombre.toLowerCase() === 'lourdes mirasierra pérez') return 'ineco';
+            
             if (correo.includes('@ineco.com')) return 'ineco';
             if (correo.includes('@adif.es')) return 'adif';
             return 'adif'; // Por defecto ADIF si no se especifica
+        }
+
+        // Lista de ubicaciones en el orden deseado
+        const ORDERED_LOCATIONS = [
+            "Madrid - Paseo del Rey",
+            "Villaverde",
+            "Madrid Sur",
+            "BM Villarrubia",
+            "BM Requena",
+            "BM Gabaldón",
+            "BM Monforte",
+            "ET Albacete",
+            "ET Valencia",
+            "CRC Albacete",
+            "Estación Valencia"
+        ];
+
+        // Función para obtener la prioridad del puesto
+        function getPuestoPrioridad(puesto) {
+            if (!puesto) return 999;
+            
+            const puestoLower = puesto.toLowerCase().trim();
+            const prioridades = [
+                'jefe de área',
+                'jefe de base',
+                'c.t. ingeniería civil', 'ct ingeniería civil', 'coordinador técnico ingeniería civil',
+                'c.t. ingeniería industrial', 'ct ingeniería industrial', 'coordinador técnico ingeniería industrial',
+                'técnico energía',
+                'técnico ii.ss.', 'técnico iiss', 'técnico seguridad',
+                'técnico telecomunicaciones',
+                'técnico de protección civil',
+                'coordinador de línea',
+                'secretaria', 'secretario',
+                'técnico infra y vía línea',
+                'técnico análisis incidencias',
+                'jefe de unidad',
+                'técnico de infra y vía',
+                'técnico proyectos y explicaciones',
+                'técnico de inversiones',
+                'técnico documentalista',
+                'gtm',
+                'operador csi',
+                'operador tme'
+            ];
+
+            // Primero buscamos coincidencias exactas
+            const index = prioridades.findIndex(p => puestoLower === p);
+            if (index !== -1) return index;
+
+            // Luego buscamos coincidencias parciales
+            for (let i = 0; i < prioridades.length; i++) {
+                if (puestoLower.includes(prioridades[i])) {
+                    return i;
+                }
+            }
+            return prioridades.length; // Los puestos no listados van al final
+        }
+
+        // Función para renderizar una tarjeta de contacto
+        function renderContactCard(container, contact) {
+            const contactCard = document.createElement('div');
+            const empresa = getEmpresa(contact.correo, contact.nombre);
+            contactCard.className = `contact-card ${empresa} bg-white p-6 rounded-lg shadow-sm animate-fade-in`;
+            contactCard.innerHTML = `
+                <div class="flex items-start">
+                    <div class="rounded-full w-12 h-12 flex items-center justify-center mr-4 ${empresa === 'adif' ? 'bg-[#008080]' : 'bg-[#2196F3]'}">
+                        <i class="fas fa-user text-xl text-white"></i>
+                    </div>
+                    <div class="company-logo ${empresa === 'adif' ? 'adif-logo' : 'ineco-logo'}"></div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.nombre}</div>
+                        <div class="contact-position">${contact.puesto}</div>
+                        <div class="contact-details">
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="contact-badge ${empresa === 'adif' ? 'badge-adif' : 'badge-ineco'}">${empresa.toUpperCase()}</span>
+                                <span class="contact-badge ${empresa === 'adif' ? 'badge-adif' : 'badge-ineco'}">${contact.ubicacion}</span>
+                            </div>
+                            <div class="mt-2">
+                                <i class="fas fa-envelope text-gray-500 mr-1"></i>
+                                <a href="mailto:${contact.correo}" class="text-blue-600 hover:text-blue-800">${contact.correo}</a>
+                            </div>
+                            <div>
+                                <i class="fas fa-phone text-gray-500 mr-1"></i>
+                                <span>${contact.telefono}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(contactCard);
         }
 
         // Función para renderizar los contactos
         function renderContacts(filteredContacts = contacts) {
             const container = document.getElementById('contactsContainer');
             container.innerHTML = '';
-
-            // Agrupar contactos por ubicación
-            const groupedContacts = filteredContacts.reduce((acc, contact) => {
-                if (!acc[contact.ubicacion]) {
-                    acc[contact.ubicacion] = [];
-                }
-                // Si es Mario García Aguado, lo insertamos al principio
-                if (contact.nombre === "Mario García Aguado") {
-                    acc[contact.ubicacion].unshift(contact);
-                } else {
-                    acc[contact.ubicacion].push(contact);
-                }
-                return acc;
-            }, {});
-
-            const sortedLocations = Object.keys(groupedContacts).sort();
-
-            sortedLocations.forEach(location => {
-                const locationHeader = document.createElement('div');
-                locationHeader.className = 'location-header p-4 rounded-lg shadow-md mb-6 cursor-pointer';
-                locationHeader.innerHTML = `
-                    <h3 class="text-xl font-bold text-white">${location}</h3>
-                    <p class="text-white opacity-80">${groupedContacts[location].length} contacto${groupedContacts[location].length !== 1 ? 's' : ''}</p>
-                `;
-                container.appendChild(locationHeader);
-
-                const contactsGrid = document.createElement('div');
-                contactsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10';
-
-                // Ordenar contactos por nombre, manteniendo a Mario al principio si existe
-                if (groupedContacts[location][0]?.nombre === "Mario García Aguado") {
-                    const mario = groupedContacts[location].shift();
-                    const sortedContacts = groupedContacts[location].sort((a, b) => a.nombre.localeCompare(b.nombre));
-                    groupedContacts[location].unshift(mario);
-                } else {
-                    groupedContacts[location].sort((a, b) => a.nombre.localeCompare(b.nombre));
-                }
-
-                groupedContacts[location].forEach(contact => {
-                    const contactCard = document.createElement('div');
-                    contactCard.className = `contact-card ${getEmpresa(contact.correo)} bg-white p-6 rounded-lg shadow-sm animate-fade-in`;
-                    contactCard.innerHTML = `
-                        <div class="flex items-start">
-                            <div class="rounded-full w-12 h-12 flex items-center justify-center mr-4 ${getEmpresa(contact.correo) === 'adif' ? 'bg-[#008080]' : 'bg-[#2196F3]'}">
-                                <i class="fas fa-user text-xl text-white"></i>
-                            </div>
-                            <div class="company-logo ${getEmpresa(contact.correo) === 'adif' ? 'adif-logo' : 'ineco-logo'}"></div>
-                            <div class="contact-info">
-                                <div class="contact-name">${contact.nombre}</div>
-                                <div class="contact-position">${contact.puesto}</div>
-                                <div class="contact-details">
-                                    <div class="flex flex-wrap gap-2 mt-2">
-                                        <span class="contact-badge ${getEmpresa(contact.correo) === 'adif' ? 'badge-adif' : 'badge-ineco'}">${getEmpresa(contact.correo).toUpperCase()}</span>
-                                        <span class="contact-badge badge-ineco">${contact.ubicacion}</span>
-                                    </div>
-                                    <div class="mt-2">
-                                        <i class="fas fa-envelope text-gray-500 mr-1"></i>
-                                        <a href="mailto:${contact.correo}" class="text-blue-600 hover:text-blue-800">${contact.correo}</a>
-                                    </div>
-                                    <div>
-                                        <i class="fas fa-phone text-gray-500 mr-1"></i>
-                                        <span>${contact.telefono}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    contactsGrid.appendChild(contactCard);
+            
+            const groupBy = document.getElementById('groupBy').value;
+            
+            if (groupBy === 'puesto') {
+                // Agrupar por puesto
+                const groupedByPuesto = filteredContacts.reduce((acc, contact) => {
+                    const puesto = contact.puesto || 'Sin especificar';
+                    if (!acc[puesto]) {
+                        acc[puesto] = [];
+                    }
+                    acc[puesto].push(contact);
+                    return acc;
+                }, {});
+                
+                // Ordenar los puestos según la prioridad
+                const sortedPuestos = Object.keys(groupedByPuesto).sort((a, b) => {
+                    return getPuestoPrioridad(a) - getPuestoPrioridad(b);
                 });
+                
+                // Mostrar los contactos agrupados por puesto
+                sortedPuestos.forEach(puesto => {
+                    const puestoHeader = document.createElement('div');
+                    puestoHeader.className = 'location-header p-4 rounded-lg shadow-md mb-6 cursor-pointer';
+                    puestoHeader.innerHTML = `
+                        <h3 class="text-xl font-bold text-white">${puesto}</h3>
+                        <p class="text-white opacity-80">${groupedByPuesto[puesto].length} contacto${groupedByPuesto[puesto].length !== 1 ? 's' : ''}</p>
+                    `;
+                    container.appendChild(puestoHeader);
+                    
+                    const contactsGrid = document.createElement('div');
+                    contactsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10';
+                    
+                    // Ordenar contactos alfabéticamente dentro de cada grupo de puesto
+                    groupedByPuesto[puesto]
+                        .sort((a, b) => a.nombre.localeCompare(b.nombre))
+                        .forEach(contact => {
+                            renderContactCard(contactsGrid, contact);
+                        });
+                    
+                    container.appendChild(contactsGrid);
+                });
+                
+            } else {
+                // Agrupación por ubicación (comportamiento original)
+                const groupedContacts = filteredContacts.reduce((acc, contact) => {
+                    if (!acc[contact.ubicacion]) {
+                        acc[contact.ubicacion] = [];
+                    }
+                    // Si es Mario García Aguado, lo insertamos al principio
+                    if (contact.nombre === "Mario García Aguado") {
+                        acc[contact.ubicacion].unshift(contact);
+                    } else {
+                        acc[contact.ubicacion].push(contact);
+                    }
+                    return acc;
+                }, {});
 
-                container.appendChild(contactsGrid);
-            });
+                // Ordenar ubicaciones según ORDERED_LOCATIONS
+                const sortedLocations = ORDERED_LOCATIONS.filter(location => location in groupedContacts);
+
+                // Agregar ubicaciones que no están en ORDERED_LOCATIONS pero sí en los datos
+                const additionalLocations = Object.keys(groupedContacts)
+                    .filter(location => !ORDERED_LOCATIONS.includes(location));
+                sortedLocations.push(...additionalLocations.sort());
+
+                sortedLocations.forEach(location => {
+                    const locationHeader = document.createElement('div');
+                    locationHeader.className = 'location-header p-4 rounded-lg shadow-md mb-6 cursor-pointer';
+                    locationHeader.innerHTML = `
+                        <h3 class="text-xl font-bold text-white">${location}</h3>
+                        <p class="text-white opacity-80">${groupedContacts[location].length} contacto${groupedContacts[location].length !== 1 ? 's' : ''}</p>
+                    `;
+                    container.appendChild(locationHeader);
+
+                    // Ordenar contactos según prioridades específicas
+                    const sortedContacts = groupedContacts[location].sort((a, b) => {
+                        // Extraer la empresa de cada contacto
+                        const empresaA = getEmpresa(a.correo, a.nombre);
+                        const empresaB = getEmpresa(b.correo, b.nombre);
+                        
+                        // Si son de diferentes empresas, ADIF va primero
+                        if (empresaA !== empresaB) {
+                            return empresaA === 'adif' ? -1 : 1;
+                        }
+
+                        // Si es CRC Albacete
+                        if (location === 'CRC Albacete') {
+                            const puestoA = a.puesto?.toLowerCase() || '';
+                            const puestoB = b.puesto?.toLowerCase() || '';
+                            
+                            // Lista de prioridades para CRC Albacete
+                            const prioridadesCRC = [
+                                'gtm',
+                                'operador csi',
+                                'operador tme'
+                            ];
+
+                            // Obtener la posición en la lista de prioridades
+                            const getPrioridad = (puesto) => {
+                                const normalizedPuesto = puesto.toLowerCase();
+                                // Buscar en todas las prioridades
+                                for (let i = 0; i < prioridadesCRC.length; i++) {
+                                    if (normalizedPuesto.includes(prioridadesCRC[i])) {
+                                        return i;
+                                    }
+                                }
+                                // Si no es ninguna de las prioridades específicas, devolver un valor mayor
+                                return prioridadesCRC.length;
+                            };
+
+                            const prioridadA = getPrioridad(puestoA);
+                            const prioridadB = getPrioridad(puestoB);
+
+                            // Ordenar por prioridad (menor número = mayor prioridad)
+                            return prioridadA - prioridadB;
+                        }
+
+
+                        // Si es una Base Móvil (prefijo BM)
+                        if (location.startsWith('BM ')) {
+                            const puestoA = a.puesto?.toLowerCase() || '';
+                            const puestoB = b.puesto?.toLowerCase() || '';
+                            
+                            // Prioridad para Jefe de Base (solo ADIF)
+                            const isJefeBaseA = puestoA.includes('jefe de base');
+                            const isJefeBaseB = puestoB.includes('jefe de base');
+                            
+                            // Si uno es Jefe de Base y el otro no, el Jefe de Base va primero
+                            if (isJefeBaseA !== isJefeBaseB) {
+                                return isJefeBaseA ? -1 : 1;
+                            }
+
+                            // Si son INECO, aplicar orden específico
+                            if (empresaA === 'ineco') {
+                                // Lista de prioridades en orden correcto (menor número = mayor prioridad)
+                                const prioridadesINECO = [
+                                    'jefe de unidad',
+                                    'técnico de infra y vía',
+                                    'técnico proyectos y explicaciones',
+                                    'técnico de inversiones',
+                                    'técnico documentalista'
+                                ];
+
+                                // Obtener la posición en la lista de prioridades
+                                const getPrioridad = (puesto) => {
+                                    const normalizedPuesto = puesto.toLowerCase();
+                                    // Buscar en todas las prioridades
+                                    for (let i = 0; i < prioridadesINECO.length; i++) {
+                                        if (normalizedPuesto.includes(prioridadesINECO[i])) {
+                                            return i;
+                                        }
+                                    }
+                                    // Si no es ninguna de las prioridades específicas, devolver un valor mayor
+                                    return prioridadesINECO.length;
+                                };
+
+                                const prioridadA = getPrioridad(puestoA);
+                                const prioridadB = getPrioridad(puestoB);
+
+                                // Ordenar por prioridad (menor número = mayor prioridad)
+                                return prioridadA - prioridadB;
+                            }
+                            
+                            // Si son ADIF, prioridad para C.T.
+                            if (empresaA === 'adif') {
+                                const isCTA = puestoA.includes('c.t.') || puestoA.includes('c.t');
+                                const isCTB = puestoB.includes('c.t.') || puestoB.includes('c.t');
+                                
+                                // Si uno es C.T. y el otro no, el C.T. va después del Jefe de Base
+                                if (isCTA !== isCTB && !isJefeBaseA && !isJefeBaseB) {
+                                    return isCTA ? -1 : 1;
+                                }
+                            }
+                        }
+                        
+                        // Si son de la misma empresa y no tienen prioridad especial
+                        return a.nombre.localeCompare(b.nombre);
+                    });
+
+                    // Mantener a Mario García Aguado al principio si existe
+                    const marioIndex = sortedContacts.findIndex(contact => contact.nombre === "Mario García Aguado");
+                    if (marioIndex > -1) {
+                        const mario = sortedContacts.splice(marioIndex, 1)[0];
+                        sortedContacts.unshift(mario);
+                    }
+
+                    // Crear el contenedor de la cuadrícula de contactos
+                    const contactsGrid = document.createElement('div');
+                    contactsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10';
+
+                    // Renderizar las tarjetas de contacto
+                    sortedContacts.forEach(contact => {
+                        renderContactCard(contactsGrid, contact);
+                    });
+                    
+                    container.appendChild(contactsGrid);
+                });
+            }
 
             // Mostrar u ocultar el mensaje de "No se encontraron resultados"
             const noResultsDiv = document.getElementById('noResults');
@@ -522,6 +761,11 @@
         // Añadir event listeners para búsqueda y filtro
         searchInput.addEventListener('input', filterContacts);
         locationFilter.addEventListener('change', filterContacts);
+        
+        // Añadir event listener para cambiar la agrupación
+        document.getElementById('groupBy').addEventListener('change', () => {
+            filterContacts();
+        });
 
         // Añadir event listeners para los botones de sugerencia
         document.querySelectorAll('.search-suggestion').forEach(button => {
