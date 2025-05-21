@@ -11,7 +11,7 @@
     <style>
         body { scroll-behavior: smooth; }
         header {
-            background: linear-gradient(to right, #ffffff, #f0f9f9, #ffffff);
+            background: linear-gradient(180deg, #E0F2F1, #E6F5F5); /* Gradiente vertical de verde muy claro a azul muy claro */
             color: #333; padding: 20px; text-align: center;
         }
         header h1 { font-family: 'Montserrat', sans-serif; }
@@ -35,11 +35,13 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             background-size: cover;
             background-position: center;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
         }
         .message-content {
             padding: 10px 15px; border-radius: 18px;
@@ -97,6 +99,17 @@
         }
         .input-area button:hover { background-color: #003d6f; }
         .input-area button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #helpButton {
+            background-color: white !important;
+            color: #ef4444 !important;
+            border: 2px solid #ef4444 !important;
+        }
+        #helpButton:hover {
+            background-color: #fecaca !important;
+        }
+        #helpButton i {
+            color: #ef4444 !important;
+        }
 
         #clearChatButton .button-text, #helpButton .button-text {
             display: none; margin-left: 5px;
@@ -176,7 +189,7 @@
             </div>
             <div id="helpBubblesContainer" class="help-bubbles-container flex flex-wrap gap-2 bg-gray-50 hidden"></div>
             <div class="input-area">
-                <button id="helpButton" title="Ayuda" class="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-700 transition-colors text-lg mr-2">
+                <button id="helpButton" title="Ayuda" class="bg-white text-red-500 border-2 border-red-500 rounded-full w-10 h-10 flex items-center justify-center hover:bg-red-50 transition-colors text-lg mr-2">
                     <i class="fas fa-question"></i> <span class="button-text">Ayuda</span>
                 </button>
                 <button id="clearChatButton" title="Limpiar chat" class="bg-gray-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition-colors text-lg mr-2">
@@ -218,7 +231,7 @@
 
         const USER_AVATAR_EMOJI = "👤";
         const BOT_AVATAR_EMOJI = "🤖";
-        const INITIAL_BOT_MESSAGE = "¡Hola! 👋 Soy tu asistente virtual para el Mantenimiento LAV ESTE. Pregúntame lo que necesites o escribe 'ayuda' para ver ejemplos.";
+        const INITIAL_BOT_MESSAGE = "¡Hola! 👋 Soy **ESTE-LA** tu asistente virtual para el Mantenimiento LAV ESTE. Pregúntame lo que necesites, escribe 'ayuda' o pulsa el botón ❓ para ver ejemplos.";
 
         let CONFIG_TYPO_CORRECTIONS = {};
         let CONFIG_INTENT_SYNONYMS = {};
@@ -294,6 +307,7 @@
             telefono: ["teléfono", "telefono", "contacto telefonico", "llamar", "numero de telefono", "móvil", "movil", "phone", "celular", "fono", "num"],
             correo: ["correo", "email", "e-mail", "direccion de correo", "dirección de correo", "contactar por email", "mail"],
             puesto: ["puesto", "cargo", "rol", "funcion", "función", "ocupacion", "ocupación", "que hace", "qué hace", "a que se dedica", "a qué se dedica", "trabajo de", "labor", "responsabilidad de", "cometido", "posicion", "posición"],
+            telecomunicaciones: ["telecomunicaciones", "comunicaciones", "comunicación", "telecomunicación", "redes", "red"],
             ubicacion: ["ubicación", "ubicacion", "centro", "lugar", "donde esta", "dónde está", "donde trabaja", "dónde trabaja", "localizacion", "localización", "sede", "emplazamiento", "sitio", "localidad", "base", "estacion"],
             quien_es: ["quién es", "quien es", "info de", "informacion sobre", "dame datos de", "datos sobre", "cuentame de", "cuéntame de", "detalles de", "saber de", "quien se encarga de", "informacion de", "info sobre"],
             personas_en_loc: ["personas", "personal", "equipo", "gente", "trabajadores", "quienes trabajan", "quiénes trabajan", "cuantos hay", "cuántos hay", "listado de personal", "plantilla", "nomina de", "quien esta en", "quién está en", "empleados en", "miembros en", "trabaja en", "cuanta gente hay en"],
@@ -322,7 +336,7 @@
         }
 
         async function loadData() {
-            appendMessage('bot', 'Cargando datos y configuraciones, por favor espera...');
+            appendMessage('bot', '¡Hola! Soy ESTE-LA, tu asistente virtual de LAV ESTE. Estoy cargando los datos de la organización para ayudarte. ¿En qué puedo asistirte hoy?');
             try {
                 await loadExternalConfigs();
                 const response = await fetch('./unified_data.json');
@@ -457,14 +471,44 @@
                 }
             });
 
+            // Primero indexamos las ubicaciones completas con sus prefijos
             allLocations.forEach(location => {
-                addEntity(location.nombre_centro, location, 'location_full', location.nombre_centro, 1.0);
-                if (location.nombre_centro.toLowerCase().startsWith("bm ")) addEntity(location.nombre_centro.substring(3), location, 'location_shortname', location.nombre_centro, 0.8);
-                if (location.nombre_centro.toLowerCase().startsWith("et ")) addEntity(location.nombre_centro.substring(3), location, 'location_shortname', location.nombre_centro, 0.8);
-                if (location.nombre_centro.toLowerCase().startsWith("crc ")) addEntity(location.nombre_centro.substring(4), location, 'location_shortname', location.nombre_centro, 0.8);
-
-                const keywords = location.nombre_centro.split(/[\s-]+/).filter(kw => kw.length > 2 && !["de", "la", "el", "los", "las", "paseo"].includes(kw.toLowerCase()));
-                keywords.forEach(kw => addEntity(kw, location, 'location_keyword', location.nombre_centro, 0.6));
+                const nombreCompleto = location.nombre_centro.trim();
+                const nombreMinusculas = nombreCompleto.toLowerCase();
+                
+                // Añadimos el nombre completo con alta relevancia
+                addEntity(nombreCompleto, location, 'location_full', nombreCompleto, 1.0);
+                
+                // Si la ubicación tiene un prefijo conocido, lo indexamos por separado
+                const prefijos = [
+                    { prefijo: 'bm ', longitud: 3 },
+                    { prefijo: 'et ', longitud: 3 },
+                    { prefijo: 'crc ', longitud: 4 },
+                    { prefijo: 'estación ', longitud: 8 },
+                    { prefijo: 'estacion ', longitud: 8 },
+                    { prefijo: 'base de mantenimiento ', longitud: 21 },
+                    { prefijo: 'base mantenimiento ', longitud: 19 }
+                ];
+                
+                let prefijoEncontrado = false;
+                for (const {prefijo, longitud} of prefijos) {
+                    if (nombreMinusculas.startsWith(prefijo)) {
+                        const nombreSinPrefijo = nombreCompleto.substring(longitud);
+                        // Añadimos el nombre sin prefijo con alta relevancia
+                        addEntity(nombreSinPrefijo, location, 'location_shortname', nombreCompleto, 0.9);
+                        // Añadimos una entrada con el prefijo como palabra clave para búsquedas exactas
+                        addEntity(nombreCompleto, location, 'location_full', nombreCompleto, 1.1);
+                        prefijoEncontrado = true;
+                        break;
+                    }
+                }
+                
+                // Si no tiene un prefijo conocido, indexamos palabras clave
+                if (!prefijoEncontrado) {
+                    const keywords = nombreCompleto.split(/[\s-]+/)
+                        .filter(kw => kw.length > 2 && !["de", "la", "el", "los", "las", "paseo", "y", "e", "o", "u", "a", "en", "con", "por", "para", "al", "se", "su", "sus", "un", "una", "unos", "unas"].includes(kw.toLowerCase()));
+                    keywords.forEach(kw => addEntity(kw, location, 'location_keyword', nombreCompleto, 0.7));
+                }
             });
 
             addEntity(PENDING_NOM_LOWER, { nombre: PENDING_NOM_LOWER, puesto: PENDING_NOM_LOWER }, 'person_pending', PENDING_NOM_LOWER, 0.9);
@@ -483,6 +527,29 @@
                 .split(' ')
                 .filter(w => w.length > 0 && !COMMON_WORDS.has(w.toLowerCase()));
 
+            // Primero buscamos coincidencias exactas de ubicaciones completas
+            if (entityIndex.has(normalizedInput)) {
+                entityIndex.get(normalizedInput).forEach(entity => {
+                    if (entity.type.startsWith('location_')) {
+                        const existingIndex = foundEntities.findIndex(fe => 
+                            fe.type === entity.type && 
+                            JSON.stringify(fe.data) === JSON.stringify(entity.data)
+                        );
+                        if (existingIndex === -1) {
+                            foundEntities.push({ 
+                                ...entity, 
+                                matchedKey: normalizedInput, 
+                                matchType: 'exact_location', 
+                                length: normalizedInput.split(' ').length,
+                                relevance: (entity.relevance || 1.0) * 1.2  // Aumentamos la relevancia
+                            });
+                        }
+                    }
+                });
+            }
+
+
+            // Luego buscamos por partes
             for (let len = Math.min(inputWords.length, 7); len >= 1; len--) {
                 for (let i = 0; i <= inputWords.length - len; i++) {
                     const phrase = inputWords.slice(i, i + len).join(' ');
@@ -491,17 +558,41 @@
 
                     if (entityIndex.has(normalizedPhrase)) {
                         entityIndex.get(normalizedPhrase).forEach(entity => {
-                            const existingIndex = foundEntities.findIndex(fe => JSON.stringify(fe.data) === JSON.stringify(entity.data) && fe.type === entity.type);
+                            const existingIndex = foundEntities.findIndex(fe => 
+                                JSON.stringify(fe.data) === JSON.stringify(entity.data) && 
+                                fe.type === entity.type
+                            );
+                            
+                            // Ajustamos la relevancia según el tipo de entidad
+                            let relevance = entity.relevance || 1.0;
+                            let matchType = 'exact_phrase';
+                            
+                            // Aumentamos la relevancia para ubicaciones completas
+                            if (entity.type.startsWith('location_full')) {
+                                relevance *= 1.1;
+                                matchType = 'location_full';
+                            } 
+                            // Disminuimos la relevancia para palabras clave sueltas
+                            else if (entity.type === 'location_keyword') {
+                                relevance *= 0.8;
+                                matchType = 'location_keyword';
+                            }
+                            
+                            const newEntity = { 
+                                ...entity, 
+                                matchedKey: normalizedPhrase, 
+                                matchType,
+                                length: len,
+                                relevance
+                            };
+                            
                             if (existingIndex !== -1) {
-                                if (len > foundEntities[existingIndex].length ||
-                                   (len === foundEntities[existingIndex].length && entity.type.includes('_full') && !foundEntities[existingIndex].type.includes('_full')) ||
-                                   (len === foundEntities[existingIndex].length && (entity.relevance || 0) > (foundEntities[existingIndex].relevance || 0) ) ||
-                                   (len === foundEntities[existingIndex].length && entity.type === 'person_phone' && foundEntities[existingIndex].type !== 'person_phone')
-                                ) {
-                                    foundEntities.splice(existingIndex, 1, { ...entity, matchedKey: normalizedPhrase, matchType: 'exact_phrase', length: len });
+                                // Mantenemos la entidad con mayor relevancia
+                                if (relevance > (foundEntities[existingIndex].relevance || 1.0)) {
+                                    foundEntities.splice(existingIndex, 1, newEntity);
                                 }
                             } else {
-                                 foundEntities.push({ ...entity, matchedKey: normalizedPhrase, matchType: 'exact_phrase', length: len });
+                                foundEntities.push(newEntity);
                             }
                         });
                     }
@@ -1111,7 +1202,7 @@
                                     originalAction = "Mapa de";
                                 }
                                 
-                                const sortedLocations = [...locations].sort((a,b) => {
+                                let sortedLocations = [...locations].sort((a,b) => {
                                     const nameA = normalize(a.data.nombre_centro, true);
                                     const nameB = normalize(b.data.nombre_centro, true);
                                     let queryPart = ni;
@@ -1126,7 +1217,19 @@
                                     return (b.relevance || 0) - (a.relevance || 0);
                                 });
 
-                                if (originalAction || (sortedLocations.length > 0 && ent[0].type.startsWith('location_'))) {
+                                // Verificar si hay una coincidencia exacta con alguna ubicación
+                                const exactMatch = sortedLocations.find(loc => 
+                                    normalize(loc.data.nombre_centro, true) === normalize(originalInputString, true) ||
+                                    loc.data.nombre_centro.toLowerCase().includes(originalInputString.toLowerCase()) ||
+                                    originalInputString.toLowerCase().includes(loc.data.nombre_centro.toLowerCase())
+                                );
+
+                                if (exactMatch) {
+                                    // Si hay una coincidencia exacta, usamos esa ubicación directamente
+                                    ent = [exactMatch];
+                                    sortedLocations = [exactMatch];
+                                } else if (originalAction || (sortedLocations.length > 0 && ent[0].type.startsWith('location_'))) {
+                                    // Si no hay coincidencia exacta y hay múltiples ubicaciones, mostramos opciones
                                     let responseText = `Encontré varias ubicaciones que podrían coincidir con "**${originalInputString}**". ¿A cuál te refieres?`;
                                     const locationBubbles = sortedLocations.slice(0, 3).map(locEntity => {
                                         let queryValue;
@@ -1414,8 +1517,8 @@
             messageWrapper.classList.add('message-wrapper', sender === 'user' ? 'user-message-wrapper' : 'bot-message-wrapper');
 
             const avatarElement = document.createElement('div');
-            avatarElement.classList.add('message-avatar', 'flex', 'items-center', 'justify-center', 'text-2xl', 'bg-gray-200', 'rounded-full');
-            avatarElement.textContent = sender === 'user' ? USER_AVATAR_EMOJI : BOT_AVATAR_EMOJI;
+            avatarElement.classList.add('message-avatar');
+            avatarElement.textContent = sender === 'user' ? '👤' : '🤖';
 
             const messageContentDiv = document.createElement('div');
             messageContentDiv.classList.add('message-content');
@@ -1527,7 +1630,7 @@
                 { t: "Puesto de {persona}", needs: ['persona'] },
                 { t: "Ubicación de {persona}", needs: ['persona'] },
                 { t: "Quién es {persona}", needs: ['persona'] },
-                { t: "Quién es el {puesto} en {ubicacion}", needs: ['puesto', 'ubicacion'] },
+                //{ t: "Quién es el {puesto} en {ubicacion}", needs: ['puesto', 'ubicacion'] },
                 { t: "Personal en {ubicacion}", needs: ['ubicacion'] },
                 { t: "Ámbito de {ubicacion}", needs: ['ubicacion'] },
                 { t: "Dirección de {ubicacion}", needs: ['ubicacion'] },
@@ -1538,12 +1641,12 @@
                 { t: "Información de {persona}", needs: ['persona'] },
                 { t: "¿Quiénes son los Operadores CSI en CRC Albacete?", static: true },
                 { t: "Operadores TME", static: true },
-                { t: "Telemando", static: true },
+                //{ t: "Telemando", static: true },
                 { t: "CSI", static: true },
-                { t: "¿Hay algún Técnico II.SS.?", static: true },
+                { t: "¿Quienes son los Técnicos de II.SS.?", static: true },
                 { t: "610165651", static: true },
-                { t: "¿Qué base tiene más personal?", static: true },
-                { t: "¿Hay más Técnicos de Energía o Técnicos II.SS.?", static: true }
+                //{ t: "¿Qué base tiene más personal?", static: true },
+                //{ t: "¿Hay más Técnicos de Energía o Técnicos II.SS.?", static: true }
             ];
 
             let attempts = 0;
