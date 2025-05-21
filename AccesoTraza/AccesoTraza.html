@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocolo de Acceso a la Traza AV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #323232;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(26,68,136,0.9) 70%, rgba(203,24,35,0.2));
+        }
+        .phase-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #1a4488;
+        }
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .phase-number {
+            background-color: #1a4488;
+        }
+        .contact-card {
+            /* border-top handled by Tailwind classes in HTML */
+        }
+        .contact-card:hover {
+            border-top-color: #cb1823;
+        }
+        .btn-primary {
+            background-color: #1a4488;
+        }
+        .btn-primary:hover {
+            background-color: #143a75;
+        }
+        .btn-secondary {
+            background-color: #cb1823;
+        }
+        .btn-secondary:hover {
+            background-color: #b0151f;
+        }
+        h1, h2, h3 {
+            font-weight: 600;
+        }
+        h1 {
+            font-size: 2.5rem;
+        }
+        h2 {
+            font-size: 2rem;
+        }
+        h3 {
+            font-size: 1.5rem;
+        }
+        .text-lead {
+            font-size: 1.25rem;
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #cb1823;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+        .active-nav:after {
+            width: 100%;
+        }
+.contact-card:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s ease;
+        }
+/* .contact-card li p + p rule removed due to HTML structure change */
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <a href="#" class="text-2xl font-bold text-blue-ineco">Protocolo de Acceso a la Traza AV</a>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="nav-link text-gray-700 hover:text-blue-ineco">Inicio</a>
+                <a href="#" class="nav-link active-nav text-blue-ineco">Protocolos</a>
+                <a href="#" class="nav-link text-gray-700 hover:text-blue-ineco">Seguridad</a>
+                <a href="#" class="nav-link text-gray-700 hover:text-blue-ineco">Contacto</a>
+            </nav>
+            <button class="md:hidden text-gray-700 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white py-20">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">Protocolo de Acceso a la Traza</h1>
+                <p class="text-xl md:text-2xl mb-8">Control de accesos para preservar la circulación, integridad de instalaciones y seguridad del personal.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#protocolo" class="btn-primary px-8 py-3 rounded-full font-medium text-white">Ver Protocolo</a>
+                    <a href="#contactos" class="btn-secondary px-8 py-3 rounded-full font-medium text-white">Contactos</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Protocol Section -->
+    <section id="protocolo" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-blue-ineco mb-4">Proceso de Acceso a la Traza</h2>
+                <div class="w-24 h-1 bg-red-ineco mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Phase 10 -->
+                <div class="phase-card bg-white rounded-lg shadow-md p-6">
+                    <div class="phase-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">1</div>
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-3">Solicitud de autorización</h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt text-red-ineco mt-1 mr-3"></i>
+                            <span>Llamada al CPS identificándose y especificando punto de acceso</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-tools text-red-ineco mt-1 mr-3"></i>
+                            <span>Condiciones para trabajos: no afectar zonas de peligro, circulación o instalaciones</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-red-ineco mt-1 mr-3"></i>
+                            <span>Uso excepcional de salidas de emergencia</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Phase 20 -->
+                <div class="phase-card bg-white rounded-lg shadow-md p-6">
+                    <div class="phase-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">2</div>
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-3">Autorización de acceso</h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-red-ineco mt-1 mr-3"></i>
+                            <span>CPS verifica autorización en PIDAME y concede acceso</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-broadcast-tower text-red-ineco mt-1 mr-3"></i>
+                            <span>Avisar a Supervisor si afecta BTS o salida de emergencia</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt text-red-ineco mt-1 mr-3"></i>
+                            <span>Comunicar acceso a Subestación/Autotransformador al Supervisor de Energía</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Phase 30 -->
+                <div class="phase-card bg-white rounded-lg shadow-md p-6">
+                    <div class="phase-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">3</div>
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-3">Acceso a zona de peligro</h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fas fa-hard-hat text-red-ineco mt-1 mr-3"></i>
+                            <span>Requiere autorización adicional del Responsable de Circulación</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-clipboard-check text-red-ineco mt-1 mr-3"></i>
+                            <span>Debe estar en Acta Semanal de Trabajos (PIDAME)</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-user-shield text-red-ineco mt-1 mr-3"></i>
+                            <span>Realizado por personal habilitado según protocolos</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Phase 40 -->
+                <div class="phase-card bg-white rounded-lg shadow-md p-6">
+                    <div class="phase-number w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">4</div>
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-3">Salida de la traza</h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fas fa-sign-out-alt text-red-ineco mt-1 mr-3"></i>
+                            <span>Comunicar salida al CPS y Supervisores notificados</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-database text-red-ineco mt-1 mr-3"></i>
+                            <span>CPS registra salida en PIDAME</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-clipboard-list text-red-ineco mt-1 mr-3"></i>
+                            <span>Registro completo del proceso</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Protocol -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold text-blue-ineco mb-6">Descripción detallada del proceso</h2>
+                    <p class="text-gray-700 mb-6">El objetivo de este protocolo es controlar los accesos a la traza y a las instalaciones asociadas, preservando la circulación, la integridad de las instalaciones y la seguridad del personal.</p>
+                </div>
+
+                <div class="space-y-12">
+                    <!-- Phase 10 Details -->
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-ineco mb-4 flex items-center">
+                            <span class="phase-number w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">1</span>
+                            Fase 1: Solicitud de autorización
+                        </h3>
+                        <div class="ml-14 space-y-4">
+                            <p>El personal (Solicitante) que necesite acceder a la traza, ya sea a través del vallado, desde una salida de emergencia de un túnel, o a instalaciones con cierre perimetral (como subestaciones, autotransformadores, BTS, antenas, casetas o edificios técnicos), debe realizar una llamada al CPS (Centro de Protección y Seguridad) de la línea correspondiente.</p>
+                            <p>En esta llamada, el solicitante debe:</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>Identificarse</li>
+                                <li>Solicitar la autorización de acceso</li>
+                                <li>Especificar el punto exacto de acceso (punto kilométrico, puerta, etc.)</li>
+                                <li>Detallar los motivos del acceso, relacionándolos con su autorización en la herramienta PIDAME si es necesario</li>
+                            </ul>
+                            <p>Esta solicitud centralizada permite a los CPS tener conocimiento del personal que accede a la traza por cada punto y comunicarlo a las patrullas móviles.</p>
+                            <div class="bg-blue-50 border-l-4 border-blue-ineco p-4 my-4">
+                                <h4 class="font-semibold text-blue-ineco mb-2">Condiciones para trabajos:</h4>
+                                <ul class="list-disc pl-6 space-y-1">
+                                    <li>No pueden afectar la Zona de peligro/riesgo ni la Zona de peligro eléctrico</li>
+                                    <li>Deben ser compatibles con la circulación de trenes en todo momento</li>
+                                    <li>No deben afectar las instalaciones de seguridad ni la comunicación GSMR con los trenes</li>
+                                    <li>El personal debe asegurarse de que las instalaciones queden cerradas al finalizar y reportar cualquier anomalía</li>
+                                </ul>
+                            </div>
+                            <p>Generalmente, las salidas de emergencia no deben usarse como acceso o salida de túneles, salvo excepciones como mantenimiento de equipos en la salida, atención a incidencias graves sin otro acceso cercano, o trabajos específicos autorizados en PIDAME.</p>
+                            <p>El responsable del acceso debe informar al personal sobre el uso correcto de las instalaciones y es responsable de su estado al finalizar.</p>
+                            <p>Para trabajos en la zona de peligro/riesgo, instalaciones de seguridad o que afecten al GSMR, se aplica lo prescrito en la Fase 30.</p>
+                            <p class="text-sm text-gray-500"><strong>Registro:</strong> Este paso se registra en PIDAME, y los responsables son el CPS y el Solicitante.</p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 20 Details -->
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-ineco mb-4 flex items-center">
+                            <span class="phase-number w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">2</span>
+                            Fase 2: Autorización de acceso a la traza
+                        </h3>
+                        <div class="ml-14 space-y-4">
+                            <p>El CPS, tras verificar en PIDAME que el solicitante tiene autorización, concederá el acceso y lo registrará en la herramienta.</p>
+                            <p>Una vez autorizado, el solicitante puede acceder a la traza. Además:</p>
+                            <ul class="list-disc pl-6 space-y-2">
+                                <li>Debe avisar al Supervisor de Instalaciones si accede a una BTS que pueda afectar la comunicación GSMR o a una salida de emergencia</li>
+                                <li>Si accede a una Subestación o autotransformador, debe comunicarlo al Supervisor de Energía del CRC correspondiente</li>
+                            </ul>
+                            <p class="text-sm text-gray-500"><strong>Registro:</strong> Este paso se registra en PIDAME, y los responsables son el CPS, el Supervisor de Instalaciones o Supervisor de Energía del CRC, y el Solicitante.</p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 30 Details -->
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-ineco mb-4 flex items-center">
+                            <span class="phase-number w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">3</span>
+                            Fase 3: Acceso a la traza dentro de la zona de peligro/riesgo y trabajos en instalaciones de seguridad
+                        </h3>
+                        <div class="ml-14 space-y-4">
+                            <p>El acceso y los trabajos en la zona de peligro/riesgo (espacio alrededor de la vía donde hay riesgo de arrollamiento o peligro por la corriente de aire, definido hasta 2 metros de la cabeza del carril a cada lado) o en la zona de riesgo (entre la zona de peligro y los 3 metros de la vía), así como los trabajos en instalaciones de seguridad (incluyendo sistemas de comunicación GSMR con trenes), siempre requieren la autorización del Responsable de Circulación del ámbito correspondiente, además de la autorización de la Fase 20.</p>
+                            <p>Estos trabajos deben estar reflejados en el Acta Semanal de Trabajos (aplicación PIDAME), excepto en casos de incidencia, anormalidad o imprevistos urgentes, que también requieren autorización en PIDAME (mediante ficha complementaria o reparación urgente). Antes de iniciar, deben ser autorizados por el Responsable de Circulación del CRC.</p>
+                            <p>La realización de estos trabajos debe cumplir los procedimientos y protocolos reglamentarios vigentes por personal habilitado.</p>
+                            <p class="text-sm text-gray-500"><strong>Registro:</strong> Este paso se registra en PIDAME, y los responsables son el Responsable de Circulación, el Encargado de trabajos y el Piloto de seguridad habilitado.</p>
+                        </div>
+                    </div>
+
+                    <!-- Phase 40 Details -->
+                    <div>
+                        <h3 class="text-2xl font-semibold text-blue-ineco mb-4 flex items-center">
+                            <span class="phase-number w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">4</span>
+                            Fase 4: Salida de la traza
+                        </h3>
+                        <div class="ml-14 space-y-4">
+                            <p>Al abandonar el recinto vallado, el Solicitante debe comunicar su salida al CPS y a los Supervisores a los que notificó su entrada.</p>
+                            <p>El CPS registrará la salida de la traza en la herramienta PIDAME.</p>
+                            <p class="text-sm text-gray-500"><strong>Registro:</strong> Este paso se registra en PIDAME, y los responsables son el CPS, el Supervisor de Instalaciones o Energía, y el Solicitante.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contactos" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-blue-ineco mb-4">Teléfonos de contacto</h2>
+                <div class="w-24 h-1 bg-red-ineco mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- CRC Albacete -->
+                <div class="contact-card bg-white rounded-lg shadow-lg p-6 border-t-4 border-blue-ineco">
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-4 flex items-center">
+                        <i class="fas fa-building mr-3"></i> CRC Albacete
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Regulador:</h4>
+                            <p class="text-gray-700">Interior 745022</p>
+                            <p class="text-gray-700">Exterior 967539505</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Operador Banda 1 (Bif. Torrejón-Monteagudo S.):</h4>
+                            <p class="text-gray-700">Interior 745940</p>
+                            <p class="text-gray-700">Exterior 967539500</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Operador Banda 2 (Bif. Albacete-Valencia-Albacete):</h4>
+                            <p class="text-gray-700">Interior 745941</p>
+                            <p class="text-gray-700">Exterior 967539502</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Operador Banda 3 (Chinchilla AV-Alacant T.-Beniel):</h4>
+                            <p class="text-gray-700">Interior 745017</p>
+                            <p class="text-gray-700">Exterior 967539532</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">⚡ Supervisor de Energía:</h4>
+                            <p class="text-gray-700">Interior 745021</p>
+                            <p class="text-gray-700">Exterior 967539503</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">💻 Supervisor de instalaciones:</h4>
+                            <p class="text-gray-700">Interior 745020</p>
+                            <p class="text-gray-700">Exterior 967539504</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CPS Valencia -->
+                <div class="contact-card bg-white rounded-lg shadow-lg p-6 border-t-4 border-red-ineco">
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-4 flex items-center">
+                        <i class="fas fa-phone-alt mr-3"></i> CPS Valencia
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Teléfono Interior:</h4>
+                            <p class="text-gray-700">749044</p>
+                            <p class="text-gray-700">749046</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Teléfono Exterior:</h4>
+                            <p class="text-gray-700">963131735</p>
+                            <p class="text-gray-700">963131737</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CPS Madrid -->
+                <div class="contact-card bg-white rounded-lg shadow-lg p-6 border-t-4 border-blue-ineco">
+                    <h3 class="text-xl font-semibold text-blue-ineco mb-4 flex items-center">
+                        <i class="fas fa-phone-alt mr-3"></i> CPS Madrid
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Teléfono Interior:</h4>
+                            <p class="text-gray-700">108066</p>
+                            <p class="text-gray-700">108633</p>
+                            <p class="text-gray-700">108641</p>
+                            <p class="text-gray-700">108643</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Teléfono Exterior:</h4>
+                            <p class="text-gray-700">913008066</p>
+                            <p class="text-gray-700">917488633</p>
+                            <p class="text-gray-700">917448641</p>
+                            <p class="text-gray-700">917448643</p>
+                        </div>
+                        <div class="contact-item-card bg-white rounded-md p-4 shadow-md">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Centro Autoprotección y Seg.24H. (CASH24) en Atocha:</h4>
+                            <p class="text-gray-700">Interior: 108080, 150673, 150674</p>
+                            <p class="text-gray-700">Exterior: 913008080, 917744673, 917744674</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-blue-ineco text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <a href="#" class="text-2xl font-bold">Protocolo de Acceso a la Traza AV</a>
+                    <p class="mt-2 text-blue-100">Protocolos de seguridad y acceso</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="hover:text-red-ineco transition-colors">
+                        <i class="fab fa-linkedin-in text-xl"></i>
+                    </a>
+                    <a href="#" class="hover:text-red-ineco transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="hover:text-red-ineco transition-colors">
+                        <i class="fas fa-envelope text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-blue-800 mt-8 pt-8 text-sm text-blue-200">
+                <p>© 2025. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple script for mobile menu toggle (would be expanded in a real implementation)
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.querySelector('.md\\:hidden');
+            // In a real implementation, this would toggle a mobile menu
+            mobileMenuButton.addEventListener('click', function() {
+                alert('En una implementación real, esto mostraría/ocultaría el menú móvil');
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
