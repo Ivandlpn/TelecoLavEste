@@ -13,7 +13,11 @@
     },
     {
         "fecha": "2021-01-09",
-        "evento": "Temporal"
+        "evento": "Temporal Filomena"
+      },
+      {
+        "fecha": "2021-01-10",
+        "evento": "Temporal Filomena"
       },
       {
       "fecha": "2022-12-20",
@@ -34,5 +38,17 @@
        {
         "fecha": "2023-10-13",
         "evento": "Incidencia Catenaria entre Monteagudo de las Salinas y Bif. Albacete"
+      },
+      {
+        "fecha": "2024-10-19",
+        "evento": "Descarrilamiento CHATO"
+      },
+      {
+        "fecha": "2024-10-20",
+        "evento": "Descarrilamiento CHATO"
+      },
+      {
+        "fecha": "2025-04-28",
+        "evento": "Apagón Red Eléctrica"
       }
   ]

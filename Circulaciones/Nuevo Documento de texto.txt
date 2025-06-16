@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eje Cronológico Alta Velocidad Albacete-Alicante</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f8ff; /* Light bluish background */
+            color: #333;
+            padding: 20px;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .timeline-container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 40px auto;
+            position: relative;
+            padding-bottom: 60px; /* Adjusted padding at the bottom for the larger arrow */
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            width: 4px;
+            background-color: #4682b4; /* Steel blue */
+            top: 40px; /* Alineado con el margin-top del contenedor */
+            bottom: 0;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        /* Indicador de fin de línea (Flecha de continuidad más estilizada) */
+        .timeline-line::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -20px; /* Position slightly below the end of the line, adjusted for size */
+            transform: translateX(-50%); /* Center horizontally */
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent; /* Increase size of left side of arrow */
+            border-right: 15px solid transparent; /* Increase size of right side of arrow */
+            border-top: 15px solid #4682b4; /* Increase size of the arrow point, color matches line */
+            z-index: 3; /* Ensure it's above other elements */
+        }
+
+        /* Keyframes for fade-in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline-event {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 80px;
+            position: relative;
+            /* Apply fade-in animation */
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0; /* Start invisible */
+        }
+
+        /* Add animation delay for each event */
+        .timeline-event:nth-child(1) { animation-delay: 0.1s; }
+        .timeline-event:nth-child(2) { animation-delay: 0.3s; }
+        .timeline-event:nth-child(3) { animation-delay: 0.5s; }
+        .timeline-event:nth-child(4) { animation-delay: 0.7s; }
+        .timeline-event:nth-child(5) { animation-delay: 0.9s; }
+        .timeline-event:nth-child(6) { animation-delay: 1.1s; }
+        /* Add more delays if you add more events */
+
+
+        .timeline-event:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+        /* Remove width and padding from timeline-date as it's now inside content */
+        .timeline-date {
+            font-weight: 700;
+            color: #1e3a8a; /* Darker blue */
+            font-size: 1.2rem;
+            margin-bottom: 10px; /* Space between date and card */
+            /* Default alignment for date inside content */
+            text-align: left;
+        }
+
+        /* Adjust text alignment for date on the right side events */
+        .timeline-event:nth-child(odd) .timeline-date {
+             text-align: right;
+        }
+
+        .timeline-content {
+            width: 50%;
+            padding-left: 30px;
+            position: relative;
+            z-index: 1;
+            /* Adjust padding to accommodate the date inside */
+            padding-top: 0;
+        }
+         .timeline-event:nth-child(odd) .timeline-content {
+            padding-left: 0;
+            padding-right: 30px;
+        }
+        .timeline-card {
+            background-color: #ffffff;
+            border: 1px solid #a0c4ff; /* Light blue border */
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .timeline-card:hover {
+            transform: translateY(-8px); /* Slightly more pronounced lift */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+        }
+        .timeline-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1e3a8a; /* Darker blue */
+        }
+        .timeline-card p {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #555;
+        }
+        .timeline-icon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-55%, -50%); /* Adjusted slightly to center better with different icons */
+            width: 30px;
+            height: 30px;
+            background-color: #4682b4; /* Steel blue */
+            border: 4px solid #f0f8ff; /* Match background */
+            border-radius: 50%;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 20px; /* Move line to the left */
+                transform: translateX(0);
+                 top: 40px; /* Ajuste para móvil */
+            }
+             .timeline-line::after {
+                left: 20px; /* Align with the line on mobile */
+                transform: translateX(-50%);
+             }
+            .timeline-event {
+                flex-direction: column; /* Stack elements */
+                align-items: flex-start;
+            }
+            .timeline-event:nth-child(odd) {
+                flex-direction: column; /* Stack elements */
+                align-items: flex-start;
+            }
+            .timeline-date,
+            .timeline-content,
+            .timeline-event:nth-child(odd) .timeline-date,
+            .timeline-event:nth-child(odd) .timeline-content {
+                width: 100%;
+                padding: 0 20px 0 40px; /* Adjust padding for left line */
+                text-align: left; /* Ensure date is left-aligned on mobile */
+            }
+            .timeline-date {
+                 margin-bottom: 10px;
+                 font-size: 1rem;
+                 color: #555; /* Less emphasis on date on mobile */
+            }
+             .timeline-card {
+                margin-bottom: 20px;
+             }
+            .timeline-icon {
+                left: 20px; /* Align icon with the line */
+                transform: translate(-50%, -50%);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="text-center mb-12">
+        <h1 class="text-3xl font-bold text-blue-900 mb-4">Eje Cronológico de la Alta Velocidad Ferroviaria</h1>
+        <h2 class="text-2xl font-semibold text-blue-800 mb-6">Albacete - Alicante y Conexiones Clave</h2>
+        <p class="text-gray-700 max-w-2xl mx-auto">
+            Este eje cronológico presenta los hitos principales en la puesta en servicio de la infraestructura y los operadores de alta velocidad que conectan Albacete y Alicante, incluyendo el servicio Avant con Murcia y la futura conexión con Xátiva.
+        </p>
+    </header>
+
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-event">
+            <div class="timeline-icon">🚄</div>
+            <div class="timeline-content">
+                <div class="timeline-date">17 de junio de 2013</div>
+                <div class="timeline-card">
+                    <h3>Inauguración y Renfe AVE</h3>
+                    <p>Se inaugura el tramo Albacete-Alicante de la Línea de Alta Velocidad Madrid-Levante. Renfe (AVE) comienza a operar, siendo el primer operador en este trayecto.</p>
+                    </div>
+            </div>
+        </div>
+
+        <div class="timeline-event">
+             <div class="timeline-icon">🚆</div>
+            <div class="timeline-content">
+                <div class="timeline-date">20 de diciembre de 2022</div>
+                 <div class="timeline-card">
+                    <h3>Renfe Avant Murcia-Alicante</h3>
+                    <p>Inicio del servicio de trenes Avant de Renfe entre Murcia y Alicante, utilizando la infraestructura de alta velocidad.</p>
+                     </div>
+            </div>
+        </div>
+
+        <div class="timeline-event">
+            <div class="timeline-icon">💜</div> <div class="timeline-content">
+                <div class="timeline-date">27 de marzo de 2023</div>
+                <div class="timeline-card">
+                    <h3>Renfe Avlo</h3>
+                    <p>Comienzo de las operaciones de Renfe (Avlo), el servicio de alta velocidad de bajo coste, en la ruta Madrid-Alicante con paradas en Albacete.</p>
+                    </div>
+            </div>
+        </div>
+
+        <div class="timeline-event">
+            <div class="timeline-icon">💖</div> <div class="timeline-content">
+                <div class="timeline-date">27 de abril de 2023</div>
+                <div class="timeline-card">
+                    <h3>Ouigo</h3>
+                    <p>Ouigo inicia sus operaciones de alta velocidad de bajo coste en la ruta Madrid-Albacete-Alicante.</p>
+                    </div>
+            </div>
+        </div>
+
+        <div class="timeline-event">
+            <div class="timeline-icon">❤️</div> <div class="timeline-content">
+                <div class="timeline-date">2 de junio de 2023</div>
+                 <div class="timeline-card">
+                    <h3>Iryo</h3>
+                    <p>Iryo comienza a operar servicios de alta velocidad en el corredor que conecta Madrid, Albacete y Alicante.</p>
+                     </div>
+            </div>
+        </div>
+
+         <div class="timeline-event">
+            <div class="timeline-icon">🏗️</div> <div class="timeline-content">
+                <div class="timeline-date">2026</div>
+                 <div class="timeline-card">
+                    <h3>Apertura de la Línea AV La Encina-Bif. Xátiva</h3>
+                    <p>Fecha prevista para la puesta en servicio de la conexión de alta velocidad entre La Encina y la Bifurcación Xátiva, completando un tramo clave del Corredor Mediterráneo.</p>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    <footer class="text-center mt-12 text-gray-600 text-sm">
+        <p>Este eje muestra la evolución de los servicios de alta velocidad en la región, destacando la liberalización del sector y las nuevas conexiones.</p>
+    </footer>
+
+</body>
+</html>

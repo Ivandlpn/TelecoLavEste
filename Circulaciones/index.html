@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Circulaciones AV Albacete-Alicante</title>
+    
+    <!-- Favicon - Ícono de tren azul sobre círculo blanco -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='12' fill='white'/><path d='M12 4c-4 0-7.5.63-7.5 5v7.5c0 .95.38 1.81 1 2.44V22c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h7v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-3.06c.62-.63 1-1.49 1-2.44V9c0-4.37-3.08-5-7.5-5zM8.5 18c-.83 0-1.5-.67-1.5-1.5S7.67 15 8.5 15s1.5.67 1.5 1.5S9.33 18 8.5 18zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-8h-11V9h11v1z' fill='%232196F3'/></svg>" type="image/svg+xml">
+    <link rel="alternate icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='12' fill='white'/><path d='M12 4c-4 0-7.5.63-7.5 5v7.5c0 .95.38 1.81 1 2.44V22c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h7v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-3.06c.62-.63 1-1.49 1-2.44V9c0-4.37-3.08-5-7.5-5zM8.5 18c-.83 0-1.5-.67-1.5-1.5S7.67 15 8.5 15s1.5.67 1.5 1.5S9.33 18 8.5 18zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-8h-11V9h11v1z' fill='%232196F3'/></svg>" type="image/svg+xml">
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='12' fill='white'/><path d='M12 4c-4 0-7.5.63-7.5 5v7.5c0 .95.38 1.81 1 2.44V22c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h7v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-3.06c.62-.63 1-1.49 1-2.44V9c0-4.37-3.08-5-7.5-5zM8.5 18c-.83 0-1.5-.67-1.5-1.5S7.67 15 8.5 15s1.5.67 1.5 1.5S9.33 18 8.5 18zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2.5-8h-11V9h11v1z' fill='%232196F3'/></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -20,14 +25,18 @@
             <img src="ineco_logo.png" alt="Logo de Ineco" class="logo-ineco">
         </div>
 
-        <!-- Tarjeta de botones de vistas -->
-        <div class="view-buttons-card">
-            <button id="toggle-view-btn">Mostrar Gráficas</button>
-            <button id="toggle-single-view-btn">Vista única</button>
-            <button id="toggle-time-axis-btn">EJE TIEMPO</button>
-            <button id="toggle-counter-btn">CONTADOR</button>
-<button id="toggle-chatbot-btn">CHATBOT</button>
-        </div>
+        <!-- Barra de navegación principal -->
+        <nav id="main-navigation">
+            <ul>
+                <li><button class="nav-btn" data-view="calendar">📅 Calendario</button></li>
+                <li><button class="nav-btn" data-view="charts">📊 Gráficos</button></li>
+                <li><button class="nav-btn active" data-view="single">📋 Vista Única</button></li>
+                <li><button class="nav-btn" data-view="time">⏱️ Eje Tiempo</button></li>
+                <li><button class="nav-btn" data-view="counter">🔢 Contador</button></li>
+                <li><button class="nav-btn" data-view="files">🗂️ Archivos</button></li>
+                <li><button class="nav-btn" data-view="chatbot">🤖 Chatbot</button></li>
+            </ul>
+        </nav>
 
         <!-- Contenedor de filtros -->
         <div class="filters-container">
@@ -208,11 +217,43 @@
         </div>
 
         <!-- Contenedor para la vista Contador (inicialmente oculto) -->
-<div id="chatbot-container" class="visualization-view hidden">
-    <!-- Aquí se renderizará la vista del chatbot -->
-</div>
         <div id="counter-container" class="visualization-view hidden">
             <!-- Aquí se renderizará la vista del contador -->
+        </div>
+        
+        <!-- Contenedor para la vista de Archivos (inicialmente oculto) -->
+        <div id="files-container" class="visualization-view hidden">
+            <h2 class="files-title">Archivos</h2>
+            <div class="files-grid">
+                <!-- Tarjeta de Excel -->
+                <div class="file-card">
+                    <div class="card-content">
+                        <div class="file-preview">
+                            <img src="img/excel-icon.png" alt="Vista previa Excel" class="file-image">
+                        </div>
+                        <button class="download-btn" id="download-excel">
+                            <span class="btn-icon">📥</span> DESCARGAR DATOS
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tarjeta de Informe -->
+                <div class="file-card">
+                    <div class="card-content">
+                        <div class="file-preview">
+                            <img src="img/report-icon.png" alt="Vista previa Informe" class="file-image">
+                        </div>
+                        <button class="download-btn" id="download-report">
+                            <span class="btn-icon">📥</span> DESCARGAR INFORME
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenedor para la vista del Chatbot (inicialmente oculto) -->
+        <div id="chatbot-container" class="visualization-view hidden">
+            <!-- Aquí se renderizará la vista del chatbot -->
         </div>
 
         <div id="legend" class="legend">

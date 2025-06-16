@@ -87,6 +87,7 @@ async function initializeVisualization() {
         console.log("Datos cargados y listos para procesamiento.");
 
         const dailyData = processRawData(rawData);
+        window.dailyData = dailyData; // Hacer los datos disponibles globalmente
         console.log("Datos diarios transformados:", dailyData.length, "entradas.");
 
         monthlyTotalData = aggregateMonthlyTotals(dailyData);
@@ -111,7 +112,7 @@ async function initializeVisualization() {
 
         const colorScale = d3.scaleLinear()
             .domain([minCirc, (minCirc + maxCirc) / 2, maxCirc])
-            .range(['#e0e0e0', '#ffeb84', '#c0392b']) // Rango de color más pronunciado (gris claro a rojo oscuro)
+            .range(['#4CAF50', '#ffeb84', '#c0392b']) // Rango de color más pronunciado (verde a rojo oscuro)
             .clamp(true);
 
         colorScale.unknown(EMPTY_COLOR);
@@ -130,101 +131,135 @@ async function initializeVisualization() {
 
         renderSpecialDatesSection(specialDatesSection, specialDatesByContractualYear, dataByContractualYear, dateOnlyParser, summaryDateFormatter);
 
-        setupViewToggle(toggleViewButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, toggleChatbotButton, visualizationContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, chatbotContainer, {
-           calendar: () => {
-               visualizationContainer.classed('hidden', false);
-               chartsContainer.classed('hidden', true);
-               singleViewContainer.classed('hidden', true);
-               timeAxisContainer.classed('hidden', true);
-               counterContainer.classed('hidden', true);
-               quickFiltersContainer.classed('hidden', true); // Hide quick filters
-               specialDatesSection.classed('hidden', false); // Show special dates section
-               renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap);
-           },
-           charts: () => {
-               visualizationContainer.classed('hidden', true);
-               chartsContainer.classed('hidden', false);
-               singleViewContainer.classed('hidden', true);
-               timeAxisContainer.classed('hidden', true);
-               counterContainer.classed('hidden', true);
-               quickFiltersContainer.classed('hidden', false); // Show quick filters
-               specialDatesSection.classed('hidden', true); // Hide special dates section
-               renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap);
-           },
-           single: () => {
-               visualizationContainer.classed('hidden', true);
-               chartsContainer.classed('hidden', true);
-               singleViewContainer.classed('hidden', false);
-               timeAxisContainer.classed('hidden', true);
-               counterContainer.classed('hidden', true);
-               quickFiltersContainer.classed('hidden', true); // Hide quick filters
-               specialDatesSection.classed('hidden', true); // Hide special dates section
-               renderSingleViewTable(singleViewContainer, dailyData, dataByContractualYear, colorScale, specialDatesMap);
-           },
-           time: () => {
-               visualizationContainer.classed('hidden', true);
-               chartsContainer.classed('hidden', true);
-               singleViewContainer.classed('hidden', true);
-               timeAxisContainer.classed('hidden', false);
-               counterContainer.classed('hidden', true);
-               quickFiltersContainer.classed('hidden', true); // Hide quick filters
-               specialDatesSection.classed('hidden', true); // Hide special dates section
-               updateCurrentDateDisplay();
-               updateTimelineLinePosition();
-           },
-           counter: () =>  {
-               visualizationContainer.classed('hidden', true);
-               chartsContainer.classed('hidden', true);
-               singleViewContainer.classed('hidden', true);
-               timeAxisContainer.classed('hidden', true);
-               counterContainer.classed('hidden', false);
-               chatbotContainer.classed('hidden', true);
-               quickFiltersContainer.classed('hidden', true); // Hide quick filters
-               specialDatesSection.classed('hidden', true); // Hide special dates section
-               renderCounterView(counterContainer);
-           },
-           chatbot: () => {
-               visualizationContainer.classed('hidden', true);
-               chartsContainer.classed('hidden', true);
-               singleViewContainer.classed('hidden', true);
-               timeAxisContainer.classed('hidden', true);
-               counterContainer.classed('hidden', true);
-               chatbotContainer.classed('hidden', false);
-               quickFiltersContainer.classed('hidden', true); // Hide quick filters
-               specialDatesSection.classed('hidden', true); // Hide special dates section
-               // Aquí puedes añadir la lógica para renderizar el chatbot
-               renderChatbotView(chatbotContainer);
-           }
-       }, dailyData, monthlySpecialDates, colorScale);
-
-   // Ocultar todas las vistas excepto la vista única al inicio
-   visualizationContainer.classed('hidden', true);
-   chartsContainer.classed('hidden', true);
-   timeAxisContainer.classed('hidden', true);
-   counterContainer.classed('hidden', true);
-   singleViewContainer.classed('hidden', false);
-   toggleSingleViewButton.classed('active', true);
-
-        // Configurar el filtro de fecha (esto aplicará el filtro automáticamente)
-        // Configurar el filtro de fechas
-        setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates);
-                // Setup quick filters
-                setupQuickFilters(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDateInput, endDateInput, applyDateFilterAndRender);
-        
-                // Renderizar las gráficas con las fechas por defecto (18/06/2013 a la fecha más reciente)
-                const defaultStartDate = new Date(2013, 5, 18);
-                // Find the last date with non-zero circulation
-                let lastNonZeroCirculationDate = new Date(); // Default to current date if no data found
-                for (let i = dailyData.length - 1; i >= 0; i--) {
-                    if (dailyData[i].circulaciones !== null && dailyData[i].circulaciones > 0) {
-                        lastNonZeroCirculationDate = dailyData[i].date;
-                        break;
-                    }
+        // Configurar la navegación por pestañas
+        setupTabNavigation({
+            calendar: visualizationContainer,
+            charts: chartsContainer,
+            single: singleViewContainer,
+            time: timeAxisContainer,
+            counter: counterContainer,
+            files: d3.select('#files-container'),
+            chatbot: chatbotContainer
+        }, {
+            calendar: () => {
+                quickFiltersContainer.classed('hidden', true);
+                specialDatesSection.classed('hidden', false);
+                renderCalendar(visualizationContainer, dataByContractualYear, colorScale, specialDatesMap);
+            },
+            charts: () => {
+                quickFiltersContainer.classed('hidden', false);
+                specialDatesSection.classed('hidden', true);
+                renderCharts(chartsContainer, dailyData, monthlyTotalData, dailyAvgByWeekday, monthlyAvgByMonth, monthlySpecialDates, colorScale, specialDatesMap);
+                
+                // Aplicar el filtro de fecha actual
+                const startDate = startDateInput.node().value;
+                const endDate = endDateInput.node().value;
+                if (startDate && endDate) {
+                    applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
                 }
-                const defaultEndDate = lastNonZeroCirculationDate;
-                applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, defaultStartDate, defaultEndDate);
-        
-                // No es necesario llamar a renderCharts aquí ya que applyDateFilterAndRender ya se encarga de renderizar las gráficas
+            },
+            single: () => {
+                quickFiltersContainer.classed('hidden', true);
+                specialDatesSection.classed('hidden', true);
+                renderSingleViewTable(singleViewContainer, dailyData, dataByContractualYear, colorScale, specialDatesMap);
+            },
+            time: () => {
+                quickFiltersContainer.classed('hidden', true);
+                specialDatesSection.classed('hidden', true);
+                updateCurrentDateDisplay();
+                updateTimelineLinePosition();
+            },
+            counter: () => {
+                quickFiltersContainer.classed('hidden', true);
+                specialDatesSection.classed('hidden', true);
+                renderCounterView(counterContainer);
+            },
+            chatbot: () => {
+                quickFiltersContainer.classed('hidden', true);
+                specialDatesSection.classed('hidden', true);
+                renderChatbotView(chatbotContainer);
+            }
+        }, dailyData, monthlySpecialDates, colorScale);
+
+   // Configurar el rango de fechas completo por defecto
+   const defaultStartDate = new Date(2013, 5, 18); // Fecha de inicio fija
+   // Encontrar la última fecha con circulación no nula
+   let lastNonZeroCirculationDate = new Date(2013, 5, 18); // Empezar desde la fecha de inicio
+   for (let i = 0; i < dailyData.length; i++) {
+       if (dailyData[i].circulaciones !== null && dailyData[i].circulaciones > 0) {
+           lastNonZeroCirculationDate = dailyData[i].date;
+       }
+   }
+   const defaultEndDate = lastNonZeroCirculationDate;
+
+   // Formatear fechas para los inputs
+   const formatDateForInput = (date) => {
+       const d = new Date(date);
+       const year = d.getFullYear();
+       const month = String(d.getMonth() + 1).padStart(2, '0');
+       const day = String(d.getDate()).padStart(2, '0');
+       return `${year}-${month}-${day}`;
+   };
+
+   // Establecer los valores iniciales de los inputs de fecha
+   const startDateStr = formatDateForInput(defaultStartDate);
+   const endDateStr = formatDateForInput(defaultEndDate);
+   
+   startDateInput.property('value', startDateStr);
+   endDateInput.property('value', endDateStr);
+
+   // Configurar el filtro de fechas con los valores por defecto
+   setupDateFilter(dailyData, chartsContainer, colorScale, monthlySpecialDates);
+   
+   // Configurar los filtros rápidos
+   setupQuickFilters(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDateInput, endDateInput, applyDateFilterAndRender);
+   
+   // Configurar el manejador para el botón de aplicar filtro
+   const applyFilter = () => {
+       // Asegurarse de que tenemos las fechas correctas
+       const startDate = new Date(startDateInput.node().value);
+       const endDate = new Date(endDateInput.node().value);
+       
+       // Asegurarse de que las fechas son válidas
+       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+           console.error('Fechas inválidas:', startDate, endDate);
+           return;
+       }
+       
+       // Aplicar el filtro
+       applyDateFilterAndRender(
+           dailyData, 
+           chartsContainer, 
+           colorScale, 
+           monthlySpecialDates, 
+           startDate, 
+           endDate
+       );
+   };
+   
+   // Configurar el evento click del botón de aplicar filtro
+   d3.select('#apply-date-filter-btn').on('click', applyFilter);
+   
+   // Activar la pestaña de vista única por defecto
+   d3.select('.nav-btn[data-view="single"]').classed('active', true);
+   
+   // Función para hacer clic en el botón
+   const clickApplyButton = () => {
+       console.log('Buscando botón de aplicar filtro...');
+       const button = document.querySelector('button#apply-date-filter-btn');
+       if (button) {
+           console.log('Botón encontrado, haciendo clic...');
+           button.click();
+           console.log('Clic realizado');
+       } else {
+           console.error('Botón no encontrado, reintentando...');
+           setTimeout(clickApplyButton, 500);
+       }
+   };
+
+   // Iniciar el proceso de clic con múltiples intentos
+   console.log('Iniciando proceso de clic automático...');
+   clickApplyButton();
                 
                 // Inicializar el procesador del chatbot con los datos cargados
                 console.log('Inicializando chatbot con datos:', dailyData ? dailyData.length : 'null', 'registros');
@@ -742,10 +777,15 @@ function renderCharts(container, dailyData, monthlyTotalData, dailyAvgByWeekday,
     // Se han eliminado las llamadas a renderWeekdayAvgChart y renderMonthAvgChart según la solicitud del usuario.
 }
 
-function renderTrendChart(container, data, specialDates, margin, width, height) { // Renombrar y aceptar daily data
-    container.selectAll('*').remove(); // Limpiar contenedor
+function renderTrendChart(container, data, specialDates, margin, width, height) {
+    console.log('renderTrendChart - Iniciando renderizado...');
+    console.log('Datos recibidos:', data ? data.length : 0, 'elementos');
+    
+    // Limpiar contenedor
+    container.selectAll('*').remove();
 
     if (!data || data.length === 0) {
+        console.error('No se recibieron datos para renderizar la gráfica');
         container.html('<p class="no-data">No hay datos suficientes para mostrar la gráfica de tendencia.</p>');
         return;
     }
@@ -759,29 +799,66 @@ function renderTrendChart(container, data, specialDates, margin, width, height) 
     // Asegurarse de que las fechas estén ordenadas
     const sortedData = [...data].sort((a, b) => a.date - b.date);
 
+    // Filtrar datos para asegurar que tengan valores numéricos válidos
+    const validData = sortedData.filter(d => {
+        const value = d.circulaciones || d.total;
+        const isValid = value !== null && value !== undefined && !isNaN(value) && isFinite(value);
+        if (!isValid) {
+            console.warn('Dato inválido encontrado:', d);
+        }
+        return isValid;
+    });
+
+    console.log('Datos válidos después de filtrar:', validData.length, 'de', sortedData.length);
+
+    if (validData.length === 0) {
+        const errorMsg = 'No hay datos numéricos válidos para mostrar la gráfica de tendencia. ' +
+                       `Total de datos: ${sortedData.length}, Datos inválidos: ${sortedData.length - validData.length}`;
+        console.error(errorMsg);
+        container.html(`<p class="no-data">${errorMsg}</p>`);
+        return;
+    }
+
+    // Obtener fechas mínima y máxima
+    const dateExtent = d3.extent(validData, d => d.date);
+    console.log('Extensión de fechas:', dateExtent[0], 'a', dateExtent[1]);
+    
     const x = d3.scaleTime()
-        .domain(d3.extent(sortedData, d => d.date))
+        .domain(dateExtent)
         .range([0, width]);
 
     // Calcular el dominio Y con un margen del 10% en la parte superior
-    const yMin = d3.min(sortedData, d => d.circulaciones || d.total);
-    const yMax = d3.max(sortedData, d => d.circulaciones || d.total);
+    const yValues = validData.map(d => d.circulaciones || d.total);
+    const yMin = d3.min(yValues);
+    const yMax = d3.max(yValues);
     const yPadding = (yMax - yMin) * 0.1; // 10% de padding
+    
+    console.log('Valores Y - min:', yMin, 'max:', yMax, 'padding:', yPadding);
     
     const y = d3.scaleLinear()
         .domain([Math.max(0, yMin - yPadding), yMax + yPadding])
         .nice()
         .range([height, 0]);
+        
+    console.log('Dominio Y final:', y.domain());
 
     const line = d3.line()
         .x(d => x(d.date))
-        .y(d => y(d.circulaciones || d.total)) // Usar circulaciones o total, lo que esté disponible
+        .y(d => y(d.circulaciones || d.total))
+        .defined(d => {
+            const value = d.circulaciones || d.total;
+            return value !== null && value !== undefined && !isNaN(value) && isFinite(value);
+        });
 
     // Agregar área debajo de la línea
     const area = d3.area()
         .x(d => x(d.date))
         .y0(height)
-        .y1(d => y(d.circulaciones || d.total));
+        .y1(d => y(d.circulaciones || d.total))
+        .defined(d => {
+            const value = d.circulaciones || d.total;
+            return value !== null && value !== undefined && !isNaN(value) && isFinite(value);
+        });
 
     // Área con degradado
     svg.append('defs').append('linearGradient')
@@ -1103,60 +1180,63 @@ function renderSpecialDatesSection(container, specialDatesByContractualYear, dat
      });
 }
 
-function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeAxisButton, toggleCounterButton, toggleChatbotButton, calendarContainer, chartsContainer, singleViewContainer, timeAxisContainer, counterContainer, chatbotContainer, renderFunctions, dailyData, monthlySpecialDates, colorScale) {
+/**
+ * Configura la navegación por pestañas para cambiar entre las diferentes vistas de la aplicación
+ * @param {Object} containers - Objeto que contiene los contenedores de las vistas
+ * @param {Object} renderFunctions - Funciones de renderizado para cada vista
+ * @param {Array} dailyData - Datos diarios para la aplicación
+ * @param {Array} monthlySpecialDates - Fechas especiales mensuales
+ * @param {Function} colorScale - Función de escala de colores
+ */
+function setupTabNavigation(containers, renderFunctions, dailyData, monthlySpecialDates, colorScale) {
+    const {
+        calendar: calendarContainer,
+        charts: chartsContainer,
+        single: singleViewContainer,
+        time: timeAxisContainer,
+        counter: counterContainer,
+        files: filesContainer,
+        chatbot: chatbotContainer
+    } = containers;
+
     let currentView = 'single';
 
+    /**
+     * Actualiza la visibilidad de los elementos de la interfaz según la vista actual
+     */
     const updateViewVisibility = () => {
-        // Ocultar todas las vistas
+        // Ocultar todos los contenedores de vista
         calendarContainer.classed('hidden', true);
         chartsContainer.classed('hidden', true);
         singleViewContainer.classed('hidden', true);
         timeAxisContainer.classed('hidden', true);
         counterContainer.classed('hidden', true);
+        filesContainer.classed('hidden', true);
         chatbotContainer.classed('hidden', true);
 
-        // Ocultar todos los botones de vista inicialmente
-        toggleChartsButton.style('display', 'none');
-        toggleSingleViewButton.style('display', 'none');
-        toggleTimeAxisButton.style('display', 'none');
-        toggleCounterButton.style('display', 'none');
-        toggleChatbotButton.style('display', 'none');
-
-        // Ocultar el filtro de fecha, el selector de año y la leyenda por defecto
+        // Ocultar elementos de la interfaz por defecto
         dateFilterContainer.style('display', 'none');
         yearSelectorContainer.style('display', 'none');
-        d3.select('#legend').style('display', 'none'); // Ocultar la leyenda por defecto
+        d3.select('#legend').style('display', 'none');
 
+        // Actualizar la pestaña activa
+        d3.selectAll('.nav-btn').classed('active', false);
+        d3.select(`.nav-btn[data-view="${currentView}"]`).classed('active', true);
+
+        // Configurar la vista actual
         switch (currentView) {
             case 'calendar':
                 calendarContainer.classed('hidden', false);
-                toggleChartsButton.style('display', 'inline-block').text('GRAFICOS');
-                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
-                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
-                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
-                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
-                
-                // Mostrar el selector de año solo en la vista de calendario
                 yearSelectorContainer.style('display', 'block');
-                
-                // Mostrar la leyenda en la vista de calendario
                 d3.select('#legend').style('display', 'block');
-                
-                // Renderizar el calendario
                 renderFunctions.calendar();
                 break;
+
             case 'charts':
                 chartsContainer.classed('hidden', false);
-                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
-                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
-                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
-                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
-                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
-
-                // Mostrar el filtro de fecha solo en la vista de gráficas
                 dateFilterContainer.style('display', 'flex');
-
-                if (dailyData && dailyData.length > 0) {
+                
+                if (dailyData?.length > 0) {
                     const minDate = d3.min(dailyData, d => d.date);
                     const maxDate = d3.max(dailyData, d => d.date);
                     const startDate = startDateInput.node().value || (minDate ? esLocale.format('%Y-%m-%d')(minDate) : '');
@@ -1165,97 +1245,64 @@ function setupViewToggle(toggleChartsButton, toggleSingleViewButton, toggleTimeA
                     startDateInput.property('value', startDate);
                     endDateInput.property('value', endDate);
 
-                    // Aplicar el filtro de fecha actual
                     applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate);
                 }
                 break;
+
             case 'single':
                 singleViewContainer.classed('hidden', false);
-                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
-                toggleSingleViewButton.style('display', 'inline-block').text('GRAFICOS');
-                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
-                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
-                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
-                
-                // Mostrar la leyenda en la vista única
                 d3.select('#legend').style('display', 'block');
-                
-                // Renderizar la vista única
                 renderFunctions.single();
                 break;
+
             case 'time':
                 timeAxisContainer.classed('hidden', false);
-                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
-                toggleSingleViewButton.style('display', 'inline-block').text('GRAFICOS');
-                toggleTimeAxisButton.style('display', 'inline-block').text('VISTA UNICA');
-                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
-                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
-                
-                // No mostrar la leyenda en la vista de eje tiempo
-                d3.select('#legend').style('display', 'none');
                 break;
+
             case 'counter':
                 counterContainer.classed('hidden', false);
-                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
-                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
-                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
-                toggleCounterButton.style('display', 'inline-block').text('GRAFICOS');
-                toggleChatbotButton.style('display', 'inline-block').text('CHATBOT');
-                
-                // No mostrar la leyenda en la vista de contador
-                d3.select('#legend').style('display', 'none');
+                renderFunctions.counter();
                 break;
+                
+            case 'files':
+                filesContainer.classed('hidden', false);
+                // Aquí puedes agregar la lógica para cargar archivos si es necesario
+                break;
+
             case 'chatbot':
                 chatbotContainer.classed('hidden', false);
-                toggleChartsButton.style('display', 'inline-block').text('CALENDARIO');
-                toggleSingleViewButton.style('display', 'inline-block').text('VISTA UNICA');
-                toggleTimeAxisButton.style('display', 'inline-block').text('EJE TIEMPO');
-                toggleCounterButton.style('display', 'inline-block').text('CONTADOR');
-                toggleChatbotButton.style('display', 'inline-block').text('GRAFICOS');
-                
-                // No mostrar la leyenda en la vista de chatbot
-                d3.select('#legend').style('display', 'none');
+                renderFunctions.chatbot();
                 break;
         }
     };
 
-    const handleViewButtonClick = function() {
-        const buttonText = d3.select(this).text();
-        let targetView;
-
-        switch (buttonText) {
-            case 'CALENDARIO':
-                targetView = 'calendar';
-                break;
-            case 'GRAFICOS':
-                targetView = 'charts';
-                break;
-            case 'VISTA UNICA':
-                targetView = 'single';
-                break;
-            case 'EJE TIEMPO':
-                targetView = 'time';
-                break;
-            case 'CONTADOR':
-                targetView = 'counter';
-                break;
-            case 'CHATBOT':
-                targetView = 'chatbot';
-                break;
-        }
-
-        if (targetView !== currentView) {
+    /**
+     * Maneja el evento de clic en una pestaña de navegación
+     */
+    const handleTabClick = function() {
+        const targetView = d3.select(this).attr('data-view');
+        
+        if (targetView && targetView !== currentView) {
             currentView = targetView;
             updateViewVisibility();
-            renderFunctions[targetView]();
+            
+            // Llamar a la función de renderizado correspondiente si existe
+            if (renderFunctions[targetView]) {
+                renderFunctions[targetView]();
+            }
         }
     };
 
-    toggleChartsButton.on('click', handleViewButtonClick);
-    toggleSingleViewButton.on('click', handleViewButtonClick);
-    toggleTimeAxisButton.on('click', handleViewButtonClick);
-    toggleCounterButton.on('click', handleViewButtonClick);
-    toggleChatbotButton.on('click', handleViewButtonClick);
+    // Configurar los manejadores de eventos para las pestañas
+    d3.selectAll('.nav-btn')
+        .on('click', handleTabClick)
+        .on('keydown', function(event) {
+            // Permitir la navegación con teclado (Enter o Espacio)
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                handleTabClick.call(this);
+            }
+        });
 
     // Inicializar la vista
     updateViewVisibility();
@@ -1474,21 +1521,51 @@ const chatbotProcessor = {
         
         // Consultas sobre máximos y mínimos
         if (lowerQuery.includes('máximo') || lowerQuery.includes('máxima') || lowerQuery.includes('más')) {
-            if (lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) {
+            if ((lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) && 
+                (lowerQuery.includes('día') || lowerQuery.includes('días'))) {
+                const max = this.getMaxCirculationsDay();
+                return `El día con más circulaciones fue el ${max.date}, con ${max.count} trenes.`;
+            } else if ((lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) && 
+                      (lowerQuery.includes('mes') || lowerQuery.includes('meses'))) {
+                const maxMonth = this.getMaxCirculationsMonth();
+                return `El mes con más circulaciones fue ${maxMonth.monthName} de ${maxMonth.year} con un total de ${maxMonth.total} circulaciones.`;
+            } else if (lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) {
+                // Por defecto, si no se especifica, mostrar el día con más circulaciones
                 const max = this.getMaxCirculationsDay();
                 return `El día con más circulaciones fue el ${max.date}, con ${max.count} trenes.`;
             }
         }
         
         if (lowerQuery.includes('mínimo') || lowerQuery.includes('mínima') || lowerQuery.includes('menos')) {
-            if (lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes')) {
-                const min = this.getMinCirculationsDay();
-                return `El día con menos circulaciones (excluyendo días sin servicio) fue el ${min.date}, con ${min.count} trenes.`;
+            if ((lowerQuery.includes('circulaciones') || lowerQuery.includes('trenes'))) {
+                if (lowerQuery.includes('mes')) {
+                    const minMonth = this.getMinCirculationsMonth();
+                    return `El mes con menos circulaciones en promedio fue ${minMonth.monthName} de ${minMonth.year} con un promedio de ${minMonth.average.toFixed(2)} trenes por día (total: ${minMonth.total} trenes).`;
+                } else {
+                    const min = this.getMinCirculationsDay();
+                    return `El día con menos circulaciones (excluyendo días sin servicio) fue el ${min.date}, con ${min.count} trenes.`;
+                }
             }
         }
         
-        // Consultas sobre fechas específicas
+        // Consultas sobre fechas específicas (formato: "circulaciones el 15 de junio de 2023")
         const dateMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:el|del|en el|en)\s+(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?/);
+        
+        // Consultas sobre fechas en formato DD/MM/YYYY o DD-MM-YYYY (ej: 15/06/2023)
+        const directDateMatch = !dateMatch && lowerQuery.match(/(\d{1,2})[\/\s-](\d{1,2})[\/\s-](\d{4})/);
+        if (directDateMatch) {
+            const [_, day, month, year] = directDateMatch;
+            const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const monthIndex = parseInt(month) - 1;
+            const dateInfo = this.getCirculationsForDate(parseInt(day), monthIndex, parseInt(year));
+            
+            if (dateInfo) {
+                return `El ${day}/${month}/${year} hubo ${dateInfo.count} circulaciones.`;
+            } else {
+                return `No tengo información sobre circulaciones para la fecha ${day}/${month}/${year}.`;
+            }
+        }
         if (dateMatch) {
             const day = parseInt(dateMatch[1]);
             const monthName = dateMatch[2];
@@ -1505,15 +1582,29 @@ const chatbotProcessor = {
             if (dateInfo) {
                 return `El ${day} de ${monthName} de ${year} hubo ${dateInfo.count} circulaciones.`;
             } else {
+                // Intentar con el formato de fecha directo (para consultas como '15/06/2023')
+                const dateParts = query.match(/(\d{1,2})[\/\s-](\d{1,2})[\/\s-](\d{4})/);
+                if (dateParts) {
+                    const [_, queryDay, queryMonth, queryYear] = dateParts;
+                    const altDateInfo = this.getCirculationsForDate(parseInt(queryDay), parseInt(queryMonth) - 1, parseInt(queryYear));
+                    if (altDateInfo) {
+                        return `El ${queryDay}/${queryMonth}/${queryYear} hubo ${altDateInfo.count} circulaciones.`;
+                    }
+                }
                 return `No tengo información sobre circulaciones para el ${day} de ${monthName} de ${year}.`;
             }
         }
         
         // Consultas sobre meses específicos
-        const monthMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:en|de|durante)\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?/);
+        const monthMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:en|de|durante\s+el?)?\s*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+(?:de\s+)?(\d{4}))?/);
         if (monthMatch) {
             const monthName = monthMatch[1];
-            const year = monthMatch[2] ? parseInt(monthMatch[2]) : new Date().getFullYear();
+            let year = monthMatch[2] ? parseInt(monthMatch[2]) : new Date().getFullYear();
+            
+            // Asegurarse de que el año sea un número válido
+            if (isNaN(year) || year < 2000 || year > 2100) {
+                year = new Date().getFullYear();
+            }
             
             const monthMap = {
                 'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
@@ -1530,17 +1621,56 @@ const chatbotProcessor = {
             }
         }
         
-        // Consultas sobre años específicos
-        const yearMatch = lowerQuery.match(/(?:circulaciones|trenes)\s+(?:en|de|durante)\s+(?:el año|el|año)?\s+(\d{4})/);
-        if (yearMatch) {
-            const year = parseInt(yearMatch[1]);
-            const yearInfo = this.getCirculationsForYear(year);
-            
-            if (yearInfo && yearInfo.total > 0) {
-                return `En el año ${year} hubo un total de ${yearInfo.total} circulaciones, con un promedio mensual de ${yearInfo.monthlyAverage.toFixed(2)} trenes.`;
-            } else {
-                return `No tengo información sobre circulaciones para el año ${year}.`;
-            }
+        // Consultas sobre años específicos - versión simplificada
+        console.log('=== INICIO BÚSQUEDA DE AÑO ===');
+        console.log('Consulta original:', query);
+        
+        // Buscar cualquier número de 4 dígitos en el texto
+        const yearMatch = query.match(/(20\d{2})/);
+        
+        if (!yearMatch) {
+            console.log('No se encontró ningún año en la consulta');
+            return 'Por favor, especifica un año (por ejemplo: "circulaciones en 2023")';
+        }
+        
+        const year = parseInt(yearMatch[1]);
+        console.log('Año extraído:', year);
+        
+        // Validar que el año sea razonable
+        if (year < 2000 || year > 2100) {
+            console.log('Año fuera de rango:', year);
+            return `El año ${year} está fuera del rango permitido (2000-2100).`;
+        }
+        
+        console.log('Verificando datos para el año:', year);
+        
+        // Verificar si hay datos disponibles
+        if (!this.data || this.data.length === 0) {
+            console.log('No hay datos de circulaciones disponibles');
+            return 'No hay datos de circulaciones disponibles para mostrar.';
+        }
+        
+        // Verificar si hay datos para el año específico
+        const yearData = this.data.filter(d => d.date.getFullYear() === year);
+        console.log(`Datos encontrados para ${year}:`, yearData.length, 'registros');
+        
+        if (yearData.length === 0) {
+            console.log(`No hay datos para el año ${year}`);
+            return `No tengo información sobre circulaciones para el año ${year}.`;
+        }
+        
+        // Obtener la información del año
+        console.log('Obteniendo información del año...');
+        const yearInfo = this.getCirculationsForYear(year);
+        console.log('Información del año obtenida:', yearInfo);
+        
+        if (yearInfo && yearInfo.total > 0) {
+            const response = `En el año ${year} hubo un total de ${yearInfo.total} circulaciones, con un promedio mensual de ${yearInfo.monthlyAverage.toFixed(2)} trenes.`;
+            console.log('Respuesta generada:', response);
+            return response;
+        } else {
+            console.log('No se encontraron datos válidos para el año', year);
+            return `No se encontraron datos de circulaciones para el año ${year}.`;
         }
         
         // Consultas sobre fechas destacadas
@@ -1565,16 +1695,17 @@ const chatbotProcessor = {
     },
     
     getAverageCirculationsPerMonth: function() {
-        // Agrupar por mes y año
-        const monthlyData = d3.nest()
-            .key(d => d.date.getFullYear() + '-' + (d.date.getMonth() + 1))
-            .rollup(values => d3.sum(values, d => d.circulaciones))
-            .entries(this.data);
+        // Agrupar por mes y año usando d3.rollup
+        const monthlyData = d3.rollup(
+            this.data,
+            v => d3.sum(v, d => d.circulaciones), // Sumar las circulaciones por mes
+            d => `${d.date.getFullYear()}-${d.date.getMonth() + 1}` // Agrupar por año-mes
+        );
         
         // Calcular el promedio
-        const totalMonths = monthlyData.length;
+        const totalMonths = monthlyData.size;
         const totalCirculations = this.getTotalCirculations();
-        return totalCirculations / totalMonths;
+        return totalMonths > 0 ? totalCirculations / totalMonths : 0;
     },
     
     getMaxCirculationsDay: function() {
@@ -1593,31 +1724,139 @@ const chatbotProcessor = {
     },
     
     getMinCirculationsDay: function() {
-        // Filtrar días con circulaciones > 0
-        const daysWithService = this.data.filter(d => d.circulaciones > 0);
-        const minDay = d3.min(daysWithService, d => d.circulaciones);
-        const minDayData = daysWithService.find(d => d.circulaciones === minDay);
+        // Filtrar días con al menos una circulación para no considerar días sin servicio
+        const daysWithCirculations = this.data.filter(d => d.circulaciones > 0);
+        if (daysWithCirculations.length === 0) return { date: 'desconocido', count: 0 };
         
-        if (minDayData) {
-            const dateFormatter = d3.timeFormat('%d de %B de %Y');
+        let minDay = daysWithCirculations[0];
+        daysWithCirculations.forEach(day => {
+            if (day.circulaciones < minDay.circulaciones) {
+                minDay = day;
+            }
+        });
+        
+        const dateFormatter = d3.timeFormat('%d de %B de %Y');
+        return {
+            date: dateFormatter(minDay.date),
+            count: minDay.circulaciones
+        };
+    },
+    
+    getMinCirculationsMonth: function() {
+        // Agrupar por mes y año
+        const monthlyData = {};
+        const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        
+        this.data.forEach(day => {
+            const year = day.date.getFullYear();
+            const month = day.date.getMonth();
+            const key = `${year}-${month}`;
+            
+            if (!monthlyData[key]) {
+                monthlyData[key] = {
+                    year: year,
+                    month: month,
+                    monthName: monthNames[month],
+                    total: 0,
+                    days: 0
+                };
+            }
+            
+            monthlyData[key].total += day.circulaciones;
+            monthlyData[key].days++;
+        });
+        
+        // Encontrar el mes con menos circulaciones
+        let minMonth = null;
+        let minAverage = Infinity;
+        
+        Object.values(monthlyData).forEach(monthData => {
+            const average = monthData.total / monthData.days;
+            if (average < minAverage) {
+                minAverage = average;
+                minMonth = monthData;
+            }
+        });
+        
+        if (minMonth) {
             return {
-                date: dateFormatter(minDayData.date),
-                count: minDayData.circulaciones
+                year: minMonth.year,
+                month: minMonth.month,
+                monthName: minMonth.monthName,
+                total: minMonth.total,
+                average: minAverage
             };
         }
         
-        return { date: 'desconocido', count: 0 };
+        return { year: 0, month: 0, monthName: 'desconocido', total: 0, average: 0 };
+    },
+    
+    getMaxCirculationsMonth: function() {
+        // Agrupar por mes y año
+        const monthlyData = {};
+        const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        
+        this.data.forEach(day => {
+            const year = day.date.getFullYear();
+            const month = day.date.getMonth();
+            const key = `${year}-${month}`;
+            
+            if (!monthlyData[key]) {
+                monthlyData[key] = {
+                    year: year,
+                    month: month,
+                    monthName: monthNames[month],
+                    total: 0,
+                    days: 0
+                };
+            }
+            
+            monthlyData[key].total += day.circulaciones;
+            monthlyData[key].days++;
+        });
+        
+        // Encontrar el mes con más circulaciones
+        let maxMonth = null;
+        Object.values(monthlyData).forEach(monthData => {
+            if (!maxMonth || monthData.total > maxMonth.total) {
+                maxMonth = monthData;
+            }
+        });
+        
+        if (maxMonth) {
+            return {
+                year: maxMonth.year,
+                month: maxMonth.month,
+                monthName: maxMonth.monthName,
+                total: maxMonth.total,
+                average: maxMonth.total / maxMonth.days
+            };
+        }
+        
+        return { year: 0, month: 0, monthName: 'desconocido', total: 0, average: 0 };
     },
     
     getCirculationsForDate: function(day, month, year) {
-        const targetDate = new Date(year, month, day);
-        const dateFormatter = d3.timeFormat('%Y-%m-%d');
-        const targetDateStr = dateFormatter(targetDate);
+        // Asegurarse de que el mes esté en el rango correcto (0-11)
+        month = parseInt(month);
+        year = parseInt(year);
+        day = parseInt(day);
         
-        const dayData = this.data.find(d => dateFormatter(d.date) === targetDateStr);
+        // Buscar en los datos una coincidencia exacta de día, mes y año
+        const dayData = this.data.find(d => {
+            const dDate = d.date;
+            return dDate.getDate() === day && 
+                   dDate.getMonth() === month && 
+                   dDate.getFullYear() === year;
+        });
+        
+        console.log(`Buscando fecha: ${day}/${month + 1}/${year}`, 'Resultado:', dayData);
         
         if (dayData) {
             return {
+                date: d3.timeFormat('%d/%m/%Y')(dayData.date),
                 count: dayData.circulaciones
             };
         }
@@ -1649,13 +1888,14 @@ const chatbotProcessor = {
         if (yearData.length > 0) {
             const total = yearData.reduce((sum, d) => sum + d.circulaciones, 0);
             
-            // Calcular promedio mensual
-            const monthlyData = d3.nest()
-                .key(d => d.date.getMonth())
-                .rollup(values => d3.sum(values, d => d.circulaciones))
-                .entries(yearData);
+            // Calcular promedio mensual usando d3.rollup
+            const monthlyData = d3.rollup(
+                yearData,
+                values => d3.sum(values, d => d.circulaciones), // Suma de circulaciones por mes
+                d => d.date.getMonth() // Agrupar por mes
+            );
             
-            const monthlyAverage = total / monthlyData.length;
+            const monthlyAverage = monthlyData.size > 0 ? total / monthlyData.size : 0;
             
             return {
                 total: total,
@@ -1733,7 +1973,10 @@ function renderChatbotView(container) {
                 
             userMessageDiv.append('div')
                 .attr('class', 'chat-avatar user-avatar')
-                .html('U');
+                .html('🧑')
+                .style('font-size', '20px')
+                .style('background-color', '#e3f2fd')
+                .style('color', '#1976d2');
                 
             userMessageDiv.append('div')
                 .attr('class', 'message-content')
@@ -1742,28 +1985,31 @@ function renderChatbotView(container) {
             // Limpiar input
             chatInput.property('value', '');
             
+            // Hacer scroll hacia abajo
+            const messagesContainer = document.querySelector('.chat-messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
             // Mostrar indicador de escritura
             const typingIndicator = chatMessages.append('div')
-                .attr('class', 'chat-message bot-message typing-message');
+                .attr('class', 'chat-message bot-message typing-indicator');
                 
             typingIndicator.append('div')
                 .attr('class', 'chat-avatar bot-avatar')
                 .html('🤖');
                 
-            const typingContent = typingIndicator.append('div')
-                .attr('class', 'message-content');
+            typingIndicator.append('div')
+                .attr('class', 'message-content')
+                .html('<div class="typing"><span></span><span></span><span></span></div>');
                 
-            typingContent.append('div')
-                .attr('class', 'typing-indicator')
-                .html('<span></span><span></span><span></span>');
-            
-            // Hacer scroll hacia abajo para mostrar el indicador de escritura
-            const messagesContainer = document.querySelector('.chat-messages');
+            // Hacer scroll hacia abajo para mostrar el indicador
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             
-            // Procesar la consulta y obtener la respuesta
+            // Actualizar sugerencias después de enviar
+            renderSuggestions();
+            
+            // Simular tiempo de respuesta
             setTimeout(() => {
-                // Eliminar el indicador de escritura
+                // Eliminar indicador de escritura
                 typingIndicator.remove();
                 
                 // Obtener respuesta del procesador de chatbot
@@ -1783,9 +2029,81 @@ function renderChatbotView(container) {
                 
                 // Hacer scroll hacia abajo para mostrar el último mensaje
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Actualizar sugerencias después de la respuesta
+                renderSuggestions();
             }, 2000);
         }
     }
+    
+    // Preguntas de ejemplo compatibles con el chatbot
+    const allExampleQuestions = [
+        'Total de circulaciones',
+        'Promedio diario de circulaciones',
+        'Promedio mensual de circulaciones',
+        'Día con más circulaciones',
+        'Día con menos circulaciones',
+        'Circulaciones el 15/06/2023',
+        'Circulaciones en enero 2024',
+        'Fechas especiales',
+        'Circulaciones en 2023',
+        'Mes con más circulaciones',
+        'Mes con menos circulaciones',
+        '¿Qué puedes hacer?'
+    ];
+    
+    // Crear contenedor para las sugerencias
+    const suggestionsContainer = container.append('div')
+        .attr('class', 'suggestions-container');
+        
+    // Función para renderizar las sugerencias
+    function renderSuggestions() {
+        // Limpiar sugerencias existentes
+        const existingRow = suggestionsContainer.select('.suggestions-row');
+        if (!existingRow.empty()) {
+            existingRow.remove();
+        }
+        
+        // Seleccionar 4 preguntas aleatorias
+        const shuffled = [...allExampleQuestions]
+            .filter(q => q !== chatInput.property('value')) // No mostrar la pregunta actual
+            .sort(() => 0.5 - Math.random());
+        const selectedQuestions = shuffled.slice(0, 4);
+        
+        // Añadir burbujas de sugerencias
+        const suggestionsRow = suggestionsContainer.insert('div', ':first-child')
+            .attr('class', 'suggestions-row');
+            
+        selectedQuestions.forEach(question => {
+            suggestionsRow.append('div')
+                .attr('class', 'suggestion-bubble')
+                .text(question)
+                .on('click', function() {
+                    // Establecer la pregunta en el input
+                    chatInput.property('value', question);
+                    // Enfocar el input
+                    chatInput.node().focus();
+                });
+        });
+    }
+    
+    // Inicializar sugerencias
+    renderSuggestions();
+    
+    // Botón para actualizar sugerencias manualmente
+    suggestionsContainer.append('div')
+        .attr('class', 'refresh-suggestions')
+        .html('🔄 Otras preguntas')
+        .on('click', renderSuggestions);
+        
+    // Actualizar sugerencias después de enviar un mensaje
+    const originalSendMessage = sendMessage;
+    sendMessage = function() {
+        const result = originalSendMessage.apply(this, arguments);
+        // Pequeño retraso para asegurar que el mensaje se haya procesado
+        setTimeout(renderSuggestions, 100);
+        return result;
+    };
     
     // Event listeners
     sendButton.on('click', sendMessage);
@@ -1798,10 +2116,21 @@ function renderChatbotView(container) {
             sendMessage();
         }
     });
+    
+    // Las sugerencias permanecen visibles en todo momento
 }
 
 function renderCounterView(container) {
     container.selectAll('*').remove(); // Limpiar contenedor
+
+    // Obtener los datos ya cargados en lugar de hacer una nueva petición
+    const dailyData = window.dailyData || [];
+    
+    if (dailyData.length === 0) {
+        container.html('<p class="error">No se han podido cargar los datos. Por favor, recargue la página.</p>');
+        console.error('No hay datos disponibles para mostrar el contador');
+        return;
+    }
 
     // Fecha de inauguración
     const inaugurationDate = new Date(2013, 5, 17); // 17 de junio de 2013 (mes 5 porque en JavaScript los meses empiezan en 0)
@@ -1809,6 +2138,10 @@ function renderCounterView(container) {
     
     // Calcular días de servicio
     const daysInService = Math.floor((currentDate - inaugurationDate) / (1000 * 60 * 60 * 24));
+    
+    // Calcular total de circulaciones
+    const totalCirculations = dailyData.reduce((sum, day) => sum + (day.circulaciones || 0), 0);
+    const averageDaily = totalCirculations / dailyData.length;
 
     // Crear el SVG para el contador
     const svg = container.append('svg')
@@ -1892,8 +2225,8 @@ function renderCounterView(container) {
             .attr('height', 120)
             .attr('rx', 15)
             .attr('ry', 15)
-            .attr('fill', '#d1d5db')
-            .attr('stroke', '#64748b')
+            .attr('fill', '#e3f2fd')
+            .attr('stroke', '#90caf9')
             .attr('stroke-width', 2)
             .attr('filter', 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))')
             .style('transition', 'transform 0.2s ease-in-out')
@@ -1965,8 +2298,8 @@ function renderCounterView(container) {
             .attr('height', 120)
             .attr('rx', 15)
             .attr('ry', 15)
-            .attr('fill', '#d1d5db')
-            .attr('stroke', '#64748b')
+            .attr('fill', '#e8f5e9')
+            .attr('stroke', '#a5d6a7')
             .attr('stroke-width', 2)
                         .attr('filter', 'drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4))')
                         .style('transition', 'transform 0.2s ease-in-out')
@@ -2069,13 +2402,48 @@ const handleViewButtonClick = function() {
 
 // Función para aplicar el filtro de fecha y renderizar las gráficas
 function applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthlySpecialDates, startDate, endDate) {
+    console.log('applyDateFilterAndRender - Iniciando...');
+    
+    // Asegurarse de que las fechas sean objetos Date
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    console.log('Fechas recibidas - Inicio:', start, 'Fin:', end);
+    console.log('Total de datos diarios recibidos:', dailyData.length);
+    
     // Ajustar la fecha de fin para incluir todo el día seleccionado
-    const adjustedEndDate = d3.timeDay.offset(endDate, 1);
+    const adjustedEndDate = d3.timeDay.offset(end, 1);
+
+    // Normalizar las fechas para comparación (establecer a mediodía para evitar problemas de zona horaria)
+    const normalizeDate = (date) => {
+        const d = new Date(date);
+        d.setHours(12, 0, 0, 0);
+        return d;
+    };
+
+    const normalizedStart = normalizeDate(start);
+    const normalizedEnd = normalizeDate(adjustedEndDate);
+    
+    console.log('Rango normalizado - Inicio:', normalizedStart, 'Fin:', normalizedEnd);
 
     // Filtrar los datos diarios por el rango de fechas
-    const filteredDailyData = dailyData.filter(d => d.date >= startDate && d.date < adjustedEndDate);
+    const filteredDailyData = dailyData.filter(d => {
+        const date = normalizeDate(d.date);
+        return date >= normalizedStart && date < normalizedEnd;
+    });
+    
+    console.log('Datos filtrados en el rango:', filteredDailyData.length);
+    
+    // Si no hay datos, mostrar los primeros 10 registros para depuración
+    if (filteredDailyData.length === 0 && dailyData.length > 0) {
+        console.log('Muestra de los primeros 10 registros disponibles:');
+        dailyData.slice(0, 10).forEach((d, i) => {
+            console.log(`[${i}]`, d.date, 'circulaciones:', d.circulaciones);
+        });
+    }
 
     if (filteredDailyData.length > 0) {
+        console.log('Datos válidos encontrados, procediendo a renderizar...');
         // Recalcular agregaciones mensuales para la gráfica de tendencia con los datos filtrados
         const filteredMonthlyTotals = aggregateMonthlyTotals(filteredDailyData);
 
@@ -2089,6 +2457,14 @@ function applyDateFilterAndRender(dailyData, chartsContainer, colorScale, monthl
         const containerWidth = containerNode ? parseInt(containerNode.getBoundingClientRect().width) : 960;
         const width = containerWidth - margin.left - margin.right;
         let height = 300;
+
+        console.log('Llamando a renderTrendChart con ancho:', width, 'y alto:', height);
+        console.log('Selector del contenedor de la gráfica:', chartsContainer.select('#chart-trend').size() > 0 ? 'Encontrado' : 'No encontrado');
+        
+        // Verificar que los datos tengan la estructura esperada
+        if (filteredDailyData.length > 0) {
+            console.log('Primer elemento de datos:', filteredDailyData[0]);
+        }
 
         renderTrendChart(chartsContainer.select('#chart-trend'), filteredDailyData, filteredSpecialDates, margin, width, height); // Pasar filteredDailyData y filteredSpecialDates
 
@@ -2210,8 +2586,44 @@ function setupQuickFilters(dailyData, chartsContainer, colorScale, monthlySpecia
 }
 
 
+// Función para manejar la descarga de archivos
+function setupFileDownloads() {
+    // Botón de descarga de Excel
+    document.getElementById('download-excel')?.addEventListener('click', function() {
+        // Crear un enlace temporal para la descarga
+        const link = document.createElement('a');
+        link.href = 'Circulaciones ALBALI.xlsm';
+        link.download = 'Circulaciones ALBALI.xlsm';
+        
+        // Simular clic para iniciar la descarga
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('Iniciando descarga de: Circulaciones ALBALI.xlsm');
+    });
+
+    // Botón de descarga de Informe
+    document.getElementById('download-report')?.addEventListener('click', function() {
+        // Crear un enlace temporal para la descarga
+        const link = document.createElement('a');
+        link.href = 'Informe Circulaciones ALBALI.pdf';
+        link.download = 'Informe Circulaciones ALBALI.pdf';
+        
+        // Simular clic para iniciar la descarga
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('Iniciando descarga de: Informe Circulaciones ALBALI.pdf');
+    });
+}
+
 // Iniciar la aplicación al cargar el script
-initializeVisualization();
+document.addEventListener('DOMContentLoaded', function() {
+    initializeVisualization();
+    setupFileDownloads();
+});
 
 // Script for Time Axis View animation and responsiveness
 document.addEventListener('DOMContentLoaded', function() {
@@ -2241,23 +2653,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const timelineLine = document.querySelector('.timeline-line');
         const events = document.querySelectorAll('.timeline-event');
 
-        if (window.innerWidth <= 768) {
-            timelineLine.style.left = '40px';
-            events.forEach(event => {
-                const icon = event.querySelector('.event-icon');
-                icon.style.left = '40px';
-            });
-        } else {
-            timelineLine.style.left = '50%';
-            events.forEach(event => {
-                const icon = event.querySelector('.event-icon');
-                icon.style.left = '50%';
-            });
+        if (timelineLine) {
+            if (window.innerWidth <= 768) {
+                timelineLine.style.left = '40px';
+                events.forEach(event => {
+                    const icon = event?.querySelector('.event-icon');
+                    if (icon) icon.style.left = '40px';
+                });
+            } else {
+                timelineLine.style.left = '50%';
+                events.forEach(event => {
+                    const icon = event?.querySelector('.event-icon');
+                    if (icon) icon.style.left = '50%';
+                });
+            }
         }
     }
 
-    window.addEventListener('resize', handleResize);
-    handleResize();
+    // Solo agregar el event listener si estamos en la vista de timeline
+    if (document.querySelector('.timeline-line')) {
+        window.addEventListener('resize', handleResize);
+        // Usar setTimeout para asegurar que el DOM esté listo
+        setTimeout(handleResize, 100);
+    }
 });
 
 // Función para actualizar la fecha actual en el eje de tiempo
