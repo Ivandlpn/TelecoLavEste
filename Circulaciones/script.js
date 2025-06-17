@@ -1016,65 +1016,91 @@ function renderTrendChart(container, data, specialDates, margin, width, height) 
 
 function renderLegend(container, colorScale, minCirc, maxCirc) {
     container.selectAll('*').remove(); // Limpiar contenedor
+    container.style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center')
+        .style('width', '100%');
 
-    container.append('h3').text('Circulaciones Diarias');
+    container.append('h3')
+        .text('Circulaciones Diarias')
+        .style('margin', '2px 0 5px 0')  // Márgenes reducidos
+        .style('font-size', '13px')  // Tamaño de fuente reducido
+        .style('line-height', '1.2');  // Interlineado reducido
 
-    const legendWidth = LEGEND_SCALE_WIDTH;
-    const legendHeight = 60; // Aumentar la altura para asegurar que las etiquetas del eje sean visibles
+    // Crear contenedor para la escala
+    const scaleContainer = container.append('div')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center')
+        .style('width', '100%')
+        .style('max-width', '700px')
+        .style('margin', '0 auto');
 
-    const legendSvg = container.append('svg')
-        .attr('width', legendWidth)
-        .attr('height', legendHeight);
+    const legendWidth = Math.min(LEGEND_SCALE_WIDTH, window.innerWidth * 0.9); // Ajustar al ancho de pantalla
+    const legendHeight = 50; // Reducida la altura de la leyenda
+
+    // Crear SVG con margen para el eje
+    const margin = {top: 5, right: 10, bottom: 20, left: 10}; // Reducidos los márgenes
+    const svgWidth = legendWidth + margin.left + margin.right;
+    const svgHeight = legendHeight + margin.top + margin.bottom;
+
+    const legendSvg = scaleContainer.append('svg')
+        .attr('width', '100%')
+        .attr('height', svgHeight)
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMin meet')
+        .style('max-width', `${legendWidth}px`);
+
+    const legendGroup = legendSvg.append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     const legendScale = d3.scaleLinear()
         .domain([minCirc, maxCirc])
         .range([0, legendWidth]);
 
-    const legendAxis = d3.axisBottom(legendScale)
-        .ticks(7) // Aumentar el número de ticks para mostrar más números
-        .tickFormat(d3.format('d'));
+    // Crear gradiente
+    const defs = legendSvg.append('defs');
+    const gradient = defs.append('linearGradient')
+        .attr('id', 'legend-gradient')
+        .attr('x1', '0%')
+        .attr('x2', '100%')
+        .attr('y1', '0%')
+        .attr('y2', '0%');
 
-    legendSvg.append('g')
-        .attr('transform', `translate(0, 0)`)
-        .call(legendAxis);
-
-    // Crear un gradiente para la escala de color
-    const linearGradient = legendSvg.append("defs")
-        .append("linearGradient")
-        .attr("id", "linear-gradient")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%");
-
-    linearGradient.selectAll("stop")
+    // Añadir paradas de color al gradiente
+    gradient.selectAll('stop')
         .data(colorScale.range())
-        .enter().append("stop")
-        .attr("offset", (d, i) => i / (colorScale.range().length - 1))
-        .attr("stop-color", d => d);
+        .enter().append('stop')
+        .attr('offset', (d, i) => i / (colorScale.range().length - 1))
+        .attr('stop-color', d => d);
 
-    // Añadir un rectángulo para mostrar el gradiente
-    legendSvg.append("rect")
-        .attr("x", 0)
-        .attr("y", 0) // Ajustar posición Y para que no se solape con el eje
-        .attr("width", legendWidth)
-        .attr("height", legendHeight / 2) // Reducir altura para dejar espacio al eje
-        .style("fill", "url(#linear-gradient)");
+    // Añadir rectángulo con gradiente
+    legendGroup.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', legendWidth)
+        .attr('height', 15)  // Reducida la altura del rectángulo
+        .style('fill', 'url(#legend-gradient)')
+        .attr('rx', 3)
+        .attr('ry', 3);
 
-     // Ajustar la posición del eje para que esté debajo del gradiente
-     legendSvg.select('g')
-         .attr('transform', `translate(0, ${legendHeight - 30})`); // Ajustar Y para dejar más espacio para las etiquetas
-         // .style('border', '1px solid black'); // Borde temporal para depuración
+    // Configurar y añadir eje
+    const axis = d3.axisBottom(legendScale)
+        .ticks(5)
+        .tickFormat(d3.format('d'))
+        .tickSizeOuter(0);
 
-     // Añadir etiqueta para 0 circulaciones
-     container.append('div')
-         .style('display', 'flex')
-         .style('align-items', 'center')
-         .style('margin-top', '10px')
-         .html(`
-             <span style="display: inline-block; width: 15px; height: 15px; background-color: ${EMPTY_COLOR}; margin-right: 5px; border-radius: 3px;"></span>
-             <span>0 circulaciones</span>
-         `);
+    const axisGroup = legendGroup.append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(0, 15)`)  // Ajustado para la nueva altura del rectángulo
+        .style('font-size', '10px')  // Reducido el tamaño de fuente
+        .call(axis);
+
+    // Ajustar estilos del eje
+    axisGroup.selectAll('path, line')
+        .attr('stroke', '#666');
+
+    // Se ha eliminado la etiqueta '0 circulaciones' según lo solicitado
 }
 // Función eliminada: renderBoxPlotMonthChart no se utiliza
 
