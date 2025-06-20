@@ -1,1 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardias Teleco Año 2025 - INECO (Colaborativo)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- CSS (Sin cambios) -->
+    <style>
+        :root {
+            --color-primary: #1A4488; --color-accent: #CB1823; --color-white: #FFFFFF;
+            --color-text-dark: #323232; --color-divider-light: #E6E6E6; --color-header-text: #FFFFFF;
+            --color-raul: #d9ead3; --color-ivan: #fce5cd; --color-carlos: #fff2cc;
+            --font-main: 'Poppins', sans-serif; --border-radius: 8px; --transition-speed: 0.3s;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 14px; scroll-behavior: smooth; }
+        body { font-family: var(--font-main); background-color: #f0f2f5; color: var(--color-text-dark); line-height: 1.5; }
+        .main-container { max-width: 1800px; margin: 0 auto; padding: 2rem; }
+        .header { display: flex; align-items: center; justify-content: space-between; background-color: var(--color-primary); color: var(--color-header-text); padding: 1rem 2rem; margin-bottom: 2rem; border-radius: var(--border-radius); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header-logo { width: 120px; }
+        .header-title h1 { font-size: 2rem; font-weight: 700; }
+        .header-controls { display: flex; align-items: center; gap: 1.5rem; }
+        .technician-legend { background-color: rgba(255, 255, 255, 0.1); padding: 0.75rem 1rem; border-radius: var(--border-radius); }
+        .technician-legend h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.3); padding-bottom: 0.5rem; }
+        .legend-list { list-style: none; }
+        .legend-item { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; }
+        .legend-color { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); }
+        .save-button { background-color: var(--color-accent); color: var(--color-white); border: none; padding: 0.8rem 1.5rem; font-family: var(--font-main); font-weight: 600; font-size: 1rem; border-radius: var(--border-radius); cursor: pointer; transition: background-color var(--transition-speed), transform var(--transition-speed); }
+        .save-button:hover { background-color: #A5141C; transform: translateY(-2px); }
+        #saveFeedback { color: var(--color-white); font-weight: 500; opacity: 0; transition: opacity var(--transition-speed); margin-right: 1rem; }
+        .calendar-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 2rem; }
+        .month-block { background: var(--color-white); border-radius: var(--border-radius); box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        .month-header { background-color: var(--color-primary); color: var(--color-header-text); padding: 0.75rem; text-align: center; font-size: 1.2rem; font-weight: 600; }
+        .calendar-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .calendar-table th, .calendar-table td { border: 1px solid #ddd; padding: 0.5rem; text-align: center; min-width: 40px; }
+        .calendar-table thead th { background-color: #e9ecef; font-weight: 600; }
+        .calendar-table tbody tr { cursor: pointer; transition: background-color 0.2s; }
+        .calendar-table tbody tr:hover { background-color: #f5f5f5; }
+        .assignee-cell { font-weight: 600; width: 80px; background-color: #f8f9fa; }
+        .week-number-cell { font-weight: 500; color: #6c757d; background-color: #f8f9fa; }
+        .day-cell.empty { background-color: #f8f9fa; }
+        .day-cell.today { background-color: var(--color-accent) !important; color: white; font-weight: 700; border-radius: 50%; }
+        tr.assigned-raul .day-cell { background-color: var(--color-raul); }
+        tr.assigned-ivan .day-cell { background-color: var(--color-ivan); }
+        tr.assigned-carlos .day-cell { background-color: var(--color-carlos); }
+        tr.assigned-raul .assignee-cell { color: #38761d; }
+        tr.assigned-ivan .assignee-cell { color: #b45f06; }
+        tr.assigned-carlos .assignee-cell { color: #b45f06; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: var(--color-white); padding: 2.5rem; border-radius: var(--border-radius); box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 90%; max-width: 500px; text-align: center; transform: scale(0.9); opacity: 0; transition: transform var(--transition-speed) ease-out, opacity var(--transition-speed) ease-out; }
+        .modal-overlay.active { display: flex; }
+        .modal-overlay.active .modal-content { transform: scale(1); opacity: 1; }
+        .modal-content h2 { font-weight: 600; font-size: 1.75rem; color: var(--color-primary); margin-bottom: 1.5rem; }
+        .modal-buttons { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+        .modal-buttons .btn { background-color: var(--color-primary); color: var(--color-white); border: 2px solid var(--color-primary); padding: 1rem; font-family: var(--font-main); font-weight: 500; font-size: 1.1rem; border-radius: var(--border-radius); cursor: pointer; width: 100%; transition: all var(--transition-speed); }
+        .modal-buttons .btn:hover { background-color: var(--color-accent); border-color: var(--color-accent); transform: scale(1.02); }
+        .btn-clear { background: transparent; color: var(--color-text-dark); border: 2px solid var(--color-divider-light); }
+        .btn-clear:hover { background: var(--color-divider-light); border-color: var(--color-divider-light); color: var(--color-text-dark); }
+        .btn-close { background: transparent; color: var(--color-text-dark); opacity: 0.7; border: none; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+        .btn-close:hover { opacity: 1; text-decoration: underline; }
+        @media (max-width: 1200px) { .calendar-container { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); } }
+        @media (max-width: 768px) { .header { flex-direction: column; gap: 1.5rem; } .main-container { padding: 1rem; } .calendar-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <header class="header">
+             <img src="https://upload.wikimedia.org/wikipedia/commons/2/2b/Ineco_logo.svg" alt="Ineco Logo" class="header-logo" />
+            <div class="header-title">
+                <h1>GUARDIAS TELECO AÑO <span id="calendarYear">2025</span></h1>
+            </div>
+            <div class="header-controls">
+                <div class="technician-legend">
+                    <h3>TÉCNICOS</h3>
+                    <ul class="legend-list">
+                        <li class="legend-item"><div class="legend-color" style="background-color: var(--color-raul);"></div><span>Raúl</span></li>
+                        <li class="legend-item"><div class="legend-color" style="background-color: var(--color-ivan);"></div><span>Iván</span></li>
+                        <li class="legend-item"><div class="legend-color" style="background-color: var(--color-carlos);"></div><span>Carlos</span></li>
+                    </ul>
+                </div>
+                <div>
+                     <span id="saveFeedback">Guardando...</span>
+                    <button id="saveButton" class="save-button">Guardar Cambios</button>
+                </div>
+            </div>
+        </header>
+
+        <main id="calendarContainer" class="calendar-container"></main>
+    </div>
+
+    <div class="modal-overlay" id="assignmentModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Asignar Semana</h2>
+            <div class="modal-buttons" id="modalButtons"></div>
+            <button class="btn btn-clear" id="clearAssignmentButton">Limpiar Asignación</button>
+            <button class="btn-close" id="closeModalButton">Cerrar</button>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+
+    <script>
+    // =================================================================================
+    //         CÓDIGO DE CONFIGURACIÓN DE FIREBASE
+    // =================================================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsRf3_ZYJrCfTGhbXeHPowQX07YTdmqdQ",
+      authDomain: "guardias-teleco-ineco.firebaseapp.com",
+      projectId: "guardias-teleco-ineco",
+      storageBucket: "guardias-teleco-ineco.appspot.com",
+      messagingSenderId: "325106740683",
+      appId: "1:325106740683:web:c271e4737ce13f7a809a4e",
+      measurementId: "G-BZ43SPQTQL"
+    };
+    // =================================================================================
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const YEAR = 2025;
+        const TEAM = [
+            { id: 'raul', name: 'Raúl', colorClass: 'assigned-raul' },
+            { id: 'ivan', name: 'Iván', colorClass: 'assigned-ivan' },
+            { id: 'carlos', name: 'Carlos', colorClass: 'assigned-carlos' }
+        ];
+
+        const initialAssignments2025 = {
+            '1':'ivan','2':'carlos','3':'raul','4':'ivan','5':'carlos','6':'raul','7':'ivan','8':'carlos','9':'raul','10':'ivan','11':'carlos','12':'ivan','13':'raul','14':'carlos','15':'ivan','16':'raul','17':'carlos','18':'ivan','19':'raul','20':'carlos','21':'ivan','22':'raul','23':'carlos','24':'ivan','25':'raul','26':'carlos','27':'ivan','28':'raul','29':'carlos','30':'ivan','31':'carlos','32':'ivan','33':'carlos','34':'ivan','35':'carlos','36':'raul','37':'ivan','38':'carlos','39':'raul','40':'ivan','41':'carlos','42':'raul','43':'ivan','44':'carlos','45':'raul','46':'carlos','47':'raul','48':'ivan','49':'raul','50':'ivan','51':'raul'
+        };
+
+        let assignments = {};
+        let currentWeekToAssign = null;
+        const docRef = db.collection('guardias').doc(String(YEAR));
+        const calendarContainer = document.getElementById('calendarContainer');
+        const saveButton = document.getElementById('saveButton');
+        const saveFeedback = document.getElementById('saveFeedback');
+        
+        async function loadAssignments() {
+            try {
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    assignments = doc.data().assignments;
+                } else {
+                    console.log("No existe el documento. Creando con datos iniciales...");
+                    assignments = initialAssignments2025;
+                    await saveAssignments(true);
+                }
+                updateAllUI();
+            } catch (error) {
+                console.error("Error al cargar las guardias:", error);
+                alert("No se pudieron cargar los datos. Revisa la conexión y la configuración de Firebase.");
+            }
+        }
+
+        async function saveAssignments(isInitial = false) {
+            saveFeedback.style.opacity = '1';
+            try {
+                await docRef.set({ assignments: assignments });
+                if (!isInitial) {
+                    saveFeedback.textContent = "¡Guardado!";
+                }
+                setTimeout(() => {
+                    saveFeedback.style.opacity = '0';
+                    saveFeedback.textContent = "Guardando...";
+                }, 2000);
+            } catch (error) {
+                console.error("Error al guardar las guardias: ", error);
+                alert("Error al guardar los datos. Revisa la consola para más detalles.");
+                saveFeedback.textContent = "Error al guardar";
+            }
+        }
+
+        function updateAllUI() {
+            Object.keys(assignments).forEach(weekId => {
+                updateWeekRowUI(weekId, assignments[weekId]);
+            });
+        }
+        
+        function generateFullCalendar(){const monthNames=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];for(let month=0;month<12;month++){const monthBlock=document.createElement('div');monthBlock.className='month-block';let tableHTML=`<div class="month-header">${monthNames[month].toUpperCase()}</div><table class="calendar-table"><thead><tr><th></th><th>S</th><th>Lu</th><th>Ma</th><th>Mi</th><th>Ju</th><th>Vi</th><th>Sá</th><th>Do</th></tr></thead><tbody>`;const firstDay=new Date(YEAR,month,1);const lastDay=new Date(YEAR,month+1,0);let currentDate=new Date(firstDay);currentDate.setDate(currentDate.getDate()-(firstDay.getDay()===0?6:firstDay.getDay()-1));while(currentDate<=lastDay||currentDate.getDay()!==1){const weekNum=getWeekNumber(currentDate);tableHTML+=`<tr data-week-id="${weekNum}"><td class="assignee-cell" id="assignee-cell-${weekNum}"></td><td class="week-number-cell">${weekNum}</td>`;for(let i=0;i<7;i++){const isCurrentMonth=currentDate.getMonth()===month;const isToday=new Date().toDateString()===currentDate.toDateString();if(isCurrentMonth){tableHTML+=`<td class="day-cell ${isToday?'today':''}">${currentDate.getDate()}</td>`}else{tableHTML+=`<td class="day-cell empty"></td>`}currentDate.setDate(currentDate.getDate()+1)}tableHTML+=`</tr>`;if(currentDate.getMonth()>month&&currentDate.getFullYear()===YEAR)break;if(currentDate.getFullYear()>YEAR)break}tableHTML+=`</tbody></table>`;monthBlock.innerHTML=tableHTML;calendarContainer.appendChild(monthBlock)}}
+        function getWeekNumber(d){d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));const weekNo=Math.ceil((((d-yearStart)/86400000)+1)/7);return weekNo}
+        function updateWeekRowUI(weekId,personId){const weekRows=document.querySelectorAll(`tr[data-week-id="${weekId}"]`);if(!weekRows.length)return;weekRows.forEach(row=>{const assigneeCell=row.querySelector('.assignee-cell');TEAM.forEach(p=>row.classList.remove(p.colorClass));assigneeCell.textContent='';if(personId){const person=TEAM.find(p=>p.id===personId);if(person){row.classList.add(person.colorClass);assigneeCell.textContent=person.name}}})}
+        function openAssignmentModal(weekId){currentWeekToAssign=weekId;const modalTitle=document.getElementById('modalTitle');modalTitle.textContent=`Asignar Semana ${weekId}`;const modalButtons=document.getElementById('modalButtons');modalButtons.innerHTML=TEAM.map(person=>`<button class="btn" data-person-id="${person.id}">${person.name}</button>`).join('');const assignmentModal=document.getElementById('assignmentModal');assignmentModal.classList.add('active')}
+        function closeAssignmentModal(){const assignmentModal=document.getElementById('assignmentModal');assignmentModal.classList.remove('active');currentWeekToAssign=null}
+        function handlePersonSelection(personId){if(currentWeekToAssign){assignments[currentWeekToAssign]=personId;updateWeekRowUI(currentWeekToAssign,personId);closeAssignmentModal()}}
+        function handleClearAssignment(){if(currentWeekToAssign){delete assignments[currentWeekToAssign];updateWeekRowUI(currentWeekToAssign,null);closeAssignmentModal()}}
+        calendarContainer.addEventListener('click',(e)=>{const weekRow=e.target.closest('tr[data-week-id]');if(weekRow){openAssignmentModal(weekRow.dataset.weekId)}});
+        const assignmentModal=document.getElementById('assignmentModal');const closeModalButton=document.getElementById('closeModalButton');const clearAssignmentButton=document.getElementById('clearAssignmentButton');const modalButtons=document.getElementById('modalButtons');closeModalButton.addEventListener('click',closeAssignmentModal);assignmentModal.addEventListener('click',(e)=>e.target===assignmentModal&&closeAssignmentModal());modalButtons.addEventListener('click',(e)=>e.target.matches('.btn')&&handlePersonSelection(e.target.dataset.personId));clearAssignmentButton.addEventListener('click',handleClearAssignment);saveButton.addEventListener('click',()=>saveAssignments(false));
+        generateFullCalendar();loadAssignments();
+    });
+    </script>
+</body>
+</html>
