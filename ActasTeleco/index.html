@@ -22,8 +22,22 @@
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
         .logo { font-weight: 600; font-size: 2rem; color: var(--azul-ineco); padding-right: 1.5rem; }
         .main-title { font-weight: 600; font-size: 1.75rem; color: var(--azul-ineco); text-align: right; flex-grow: 1; }
-        .app-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start; }
-        .tracking-section { background-color: var(--blanco); border-radius: var(--radius-main); padding: 2rem; box-shadow: var(--shadow-main); }
+        
+        /* CAMBIO CLAVE: Usamos Flexbox para el layout principal para poder reordenar en móvil */
+        .app-wrapper {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+        .tracking-section {
+            flex: 2; /* Ocupa 2/3 del espacio */
+            background-color: var(--blanco); border-radius: var(--radius-main); padding: 2rem; box-shadow: var(--shadow-main);
+        }
+        .display-section {
+            flex: 1; /* Ocupa 1/3 del espacio */
+            display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 2rem;
+        }
+
         .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
         .table-container .table-header { display: flex; justify-content: space-between; padding: 0.75rem 1rem; background-color: var(--azul-ineco); color: var(--blanco); font-weight: 600; border-top-left-radius: 12px; border-top-right-radius: 12px; }
         .table-body { border: 1px solid var(--gris-claro); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; overflow: hidden; }
@@ -48,15 +62,39 @@
         .table-row.is-editing { background-color: #eaf2ff; }
         .table-row.current-week-row { background-color: #dbeaff; font-weight: 600; }
         .table-row.current-week-row.is-editing { background-color: #c4d9ff; }
-        .display-section { display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 2rem; }
         .display-card { background-color: var(--blanco); border-radius: var(--radius-main); padding: 1.5rem; box-shadow: var(--shadow-main); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--azul-ineco); }
         .display-card .label { font-weight: 600; font-size: 1.1rem; color: var(--azul-ineco); }
         .display-card .value { font-weight: 600; font-size: 1.75rem; color: var(--blanco); background-color: var(--azul-claro); padding: 0.5rem 1rem; border-radius: 10px; min-width: 50px; text-align: center; }
         .main-display-card { background: linear-gradient(135deg, var(--azul-ineco) 70%, var(--azul-claro) 100%); padding: 2rem; text-align: center; color: var(--blanco); border-left: none; }
         .main-display-card .label { color: var(--blanco); font-size: 1.25rem; font-weight: 500; margin-bottom: 1rem; display: block; }
         .main-display-card .value { font-size: 6rem; font-weight: 600; background: none; padding: 0; line-height: 1; transition: var(--transition-main); }
-        @media (max-width: 992px) { .app-wrapper { grid-template-columns: 1fr; } .display-section { position: static; flex-direction: row; flex-wrap: wrap; } .display-card, .main-display-card { flex-grow: 1; } .main-display-card .value { font-size: 5rem; } }
-        @media (max-width: 768px) { body { padding: 1rem; } header { flex-direction: column; align-items: flex-start; gap: 0.5rem; } .main-title { text-align: left; font-size: 1.5rem; } .display-section { flex-direction: column; } .main-display-card .value { font-size: 4rem; } .tables-grid { grid-template-columns: 1fr; } }
+        
+        /* CAMBIO CLAVE: Media Query para Responsividad */
+        @media (max-width: 992px) {
+            .app-wrapper {
+                flex-direction: column; /* Apila los elementos verticalmente */
+            }
+            .display-section {
+                position: static; /* Desactiva el 'sticky' en móvil */
+                width: 100%;
+                order: 1; /* Pone esta sección PRIMERO */
+            }
+            .tracking-section {
+                order: 2; /* Pone esta sección SEGUNDO */
+            }
+            .main-display-card {
+                order: 1; /* Dentro del display, el acta va primero */
+            }
+            .current-week-card {
+                order: 2; /* La semana va después */
+            }
+        }
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .main-title { text-align: left; font-size: 1.5rem; }
+            .main-display-card .value { font-size: 4rem; }
+        }
     </style>
 </head>
 <body>
@@ -76,7 +114,8 @@
             </section>
             
             <aside class="display-section">
-                <div class="display-card">
+                <!-- CAMBIO CLAVE: Se añade una clase para poder reordenar -->
+                <div class="display-card current-week-card">
                     <span class="label">SEMANA ACTUAL</span>
                     <span class="value" id="current-week-value">--</span>
                 </div>
@@ -93,6 +132,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <script>
+    // --- CÓDIGO JAVASCRIPT SIN CAMBIOS ---
+    // (Pega aquí el script de la respuesta anterior que ya funcionaba)
     const firebaseConfig = {
       apiKey: "AIzaSyAp-yyjD_Du7mdmT5imq4wnH17tpyBZBzg",
       authDomain: "actas-ineco-lav4.firebaseapp.com",
@@ -206,7 +247,6 @@
             batch.commit().catch(error => console.error("Error al poblar la DB: ", error));
         }
 
-        // --- INICIALIZACIÓN DE LA APLICACIÓN ---
         actasCollection.orderBy('week').onSnapshot(snapshot => {
             if (snapshot.empty) {
                 console.log("Colección vacía. Poblando la base de datos...");
