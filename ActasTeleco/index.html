@@ -1,1 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actas Semanales - INECO (Firebase)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --azul-ineco: #1A4488; --rojo-ineco: #CB1823; --azul-claro: #3463AC;
+            --azul-muy-claro: #6B96CF; --gris-oscuro: #323232; --gris-claro: #E6E6E6;
+            --gris-fondo: #F4F6F9; --blanco: #FFFFFF; --font-main: 'Poppins', sans-serif;
+            --radius-main: 16px; --shadow-main: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --transition-main: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-main); background-color: var(--gris-fondo); color: var(--gris-oscuro); padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-weight: 600; font-size: 2rem; color: var(--azul-ineco); padding-right: 1.5rem; }
+        .main-title { font-weight: 600; font-size: 1.75rem; color: var(--azul-ineco); text-align: right; flex-grow: 1; }
+        .app-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start; }
+        .tracking-section { background-color: var(--blanco); border-radius: var(--radius-main); padding: 2rem; box-shadow: var(--shadow-main); }
+        .tables-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .table-container .table-header { display: flex; justify-content: space-between; padding: 0.75rem 1rem; background-color: var(--azul-ineco); color: var(--blanco); font-weight: 600; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+        .table-body { border: 1px solid var(--gris-claro); border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; overflow: hidden; }
+        .table-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; padding: 0.6rem 1rem; border-bottom: 1px solid var(--gris-claro); transition: background-color 0.3s ease; gap: 1rem; }
+        .table-row:last-child { border-bottom: none; }
+        .week-number { font-weight: 500; color: var(--azul-claro); }
+        .acta-cell { text-align: right; }
+        .acta-value { font-weight: 400; color: var(--gris-oscuro); }
+        .acta-input { border: 1px solid var(--azul-muy-claro); background: #f0f5ff; text-align: right; font-family: var(--font-main); font-size: 1rem; width: 100%; padding: 4px 8px; border-radius: 6px; }
+        .acta-input:focus { outline: 2px solid var(--azul-ineco); }
+        .action-icons { display: flex; gap: 0.5rem; }
+        .action-icons svg { width: 20px; height: 20px; cursor: pointer; transition: all 0.2s ease; }
+        .icon-edit { color: var(--azul-claro); opacity: 0; pointer-events: none; }
+        .table-row:hover:not(.is-editing) .icon-edit { opacity: 1; pointer-events: auto; }
+        .icon-edit:hover { color: var(--azul-ineco); transform: scale(1.1); }
+        .icon-save { color: #28a745; }
+        .icon-save:hover { color: #218838; transform: scale(1.1); }
+        .icon-cancel { color: #dc3545; }
+        .icon-cancel:hover { color: #c82333; transform: scale(1.1); }
+        .table-row:not(.is-editing) .acta-input, .table-row:not(.is-editing) .icon-save, .table-row:not(.is-editing) .icon-cancel { display: none; }
+        .table-row.is-editing .acta-value, .table-row.is-editing .icon-edit { display: none; }
+        .table-row.is-editing { background-color: #eaf2ff; }
+        .table-row.current-week-row { background-color: #dbeaff; font-weight: 600; }
+        .table-row.current-week-row.is-editing { background-color: #c4d9ff; }
+        .display-section { display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 2rem; }
+        .display-card { background-color: var(--blanco); border-radius: var(--radius-main); padding: 1.5rem; box-shadow: var(--shadow-main); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--azul-ineco); }
+        .display-card .label { font-weight: 600; font-size: 1.1rem; color: var(--azul-ineco); }
+        .display-card .value { font-weight: 600; font-size: 1.75rem; color: var(--blanco); background-color: var(--azul-claro); padding: 0.5rem 1rem; border-radius: 10px; min-width: 50px; text-align: center; }
+        .main-display-card { background: linear-gradient(135deg, var(--azul-ineco) 70%, var(--azul-claro) 100%); padding: 2rem; text-align: center; color: var(--blanco); border-left: none; }
+        .main-display-card .label { color: var(--blanco); font-size: 1.25rem; font-weight: 500; margin-bottom: 1rem; display: block; }
+        .main-display-card .value { font-size: 6rem; font-weight: 600; background: none; padding: 0; line-height: 1; transition: var(--transition-main); }
+        @media (max-width: 992px) { .app-wrapper { grid-template-columns: 1fr; } .display-section { position: static; flex-direction: row; flex-wrap: wrap; } .display-card, .main-display-card { flex-grow: 1; } .main-display-card .value { font-size: 5rem; } }
+        @media (max-width: 768px) { body { padding: 1rem; } header { flex-direction: column; align-items: flex-start; gap: 0.5rem; } .main-title { text-align: left; font-size: 1.5rem; } .display-section { flex-direction: column; } .main-display-card .value { font-size: 4rem; } .tables-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">ineco</div>
+            <h1 class="main-title">ACTAS SEMANALES INECO TELECO LAV 4 - 2025</h1>
+        </header>
 
+        <main class="app-wrapper">
+            <section class="tracking-section">
+                <div class="tables-grid">
+                    <div class="table-container" id="table-1-20"></div>
+                    <div class="table-container" id="table-21-40"></div>
+                    <div class="table-container" id="table-41-53"></div>
+                </div>
+            </section>
+            
+            <aside class="display-section">
+                <div class="display-card">
+                    <span class="label">SEMANA ACTUAL</span>
+                    <span class="value" id="current-week-value">--</span>
+                </div>
+                <div class="main-display-card">
+                    <span class="label">NÚMERO ACTA</span>
+                    <span class="value" id="current-acta-value">--</span>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- SDK de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp-yyjD_Du7mdmT5imq4wnH17tpyBZBzg",
+      authDomain: "actas-ineco-lav4.firebaseapp.com",
+      projectId: "actas-ineco-lav4",
+      storageBucket: "actas-ineco-lav4.appspot.com",
+      messagingSenderId: "1043968671762",
+      appId: "1:1043968671762:web:08cebe9ca7adbcaab658cb"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const CURRENT_WEEK = 25;
+        const TOTAL_WEEKS = 53;
+        let actasData = [];
+        const actasCollection = db.collection('actas-2025');
+        
+        const tableContainers = {
+            '1-20': document.getElementById('table-1-20'),
+            '21-40': document.getElementById('table-21-40'),
+            '41-53': document.getElementById('table-41-53')
+        };
+        const currentWeekValueEl = document.getElementById('current-week-value');
+        const currentActaValueEl = document.getElementById('current-acta-value');
+        const trackingSection = document.querySelector('.tracking-section');
+
+        function updateActaInDb(week, newValue) {
+            actasCollection.doc(String(week)).update({ acta: newValue })
+                .catch(error => console.error("Error al actualizar: ", error));
+        }
+
+        function renderUI() {
+            Object.values(tableContainers).forEach(c => c.innerHTML = '');
+            for (const key in tableContainers) {
+                const header = document.createElement('div');
+                header.className = 'table-header';
+                header.innerHTML = `<span>Semana</span><span>Acta</span>`;
+                tableContainers[key].appendChild(header);
+                const body = document.createElement('div');
+                body.className = 'table-body';
+                tableContainers[key].appendChild(body);
+            }
+
+            actasData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.dataset.week = item.week;
+                if (item.week === CURRENT_WEEK) row.classList.add('current-week-row');
+
+                row.innerHTML = `
+                    <span class="week-number">${item.week}</span>
+                    <div class="acta-cell">
+                        <span class="acta-value">${item.acta}</span>
+                        <input type="text" class="acta-input" value="${item.acta}">
+                    </div>
+                    <div class="action-icons">
+                        <svg class="icon-edit" viewBox="0 0 24 24"><path fill="currentColor" d="M17.25,7.47L16.53,6.75L13.75,9.53V10.25H14.47L17.25,7.47M20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.67,3C17.42,3 17.17,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63M3,17.25V21H6.75L17.81,9.94L14.06,6.19L3,17.25Z"></path></svg>
+                        <svg class="icon-save" viewBox="0 0 24 24"><path fill="currentColor" d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"></path></svg>
+                        <svg class="icon-cancel" viewBox="0 0 24 24"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"></path></svg>
+                    </div>
+                `;
+                
+                const targetContainer = item.week <= 20 ? '1-20' : item.week <= 40 ? '21-40' : '41-53';
+                tableContainers[targetContainer].querySelector('.table-body').appendChild(row);
+            });
+            updateDisplayPanel();
+        }
+
+        function updateDisplayPanel() {
+            const currentWeekData = actasData.find(d => d.week === CURRENT_WEEK);
+            currentWeekValueEl.textContent = CURRENT_WEEK;
+            currentActaValueEl.textContent = currentWeekData ? currentWeekData.acta : 'N/A';
+        }
+
+        function handleEditEvents(event) {
+            const icon = event.target.closest('svg');
+            if (!icon) return;
+            const row = icon.closest('.table-row');
+            const week = parseInt(row.dataset.week);
+            if (icon.classList.contains('icon-edit')) {
+                const currentlyEditing = document.querySelector('.table-row.is-editing');
+                if (currentlyEditing) currentlyEditing.classList.remove('is-editing');
+                row.classList.add('is-editing');
+                const input = row.querySelector('.acta-input');
+                input.focus();
+                input.select();
+            }
+            if (icon.classList.contains('icon-save')) {
+                const newValue = row.querySelector('.acta-input').value;
+                updateActaInDb(week, newValue);
+                row.classList.remove('is-editing');
+            }
+            if (icon.classList.contains('icon-cancel')) {
+                row.classList.remove('is-editing');
+            }
+        }
+
+        function getInitialSeedData() {
+             const initialData = [ { week: 1, acta: '*' }, { week: 2, acta: '*' }, { week: 3, acta: '67' }, { week: 4, acta: '77' }, { week: 5, acta: '24' }, { week: 6, acta: '4' }, { week: 7, acta: '4' }, { week: 8, acta: '4' }, { week: 9, acta: '4' }, { week: 10, acta: '4' }, { week: 11, acta: '21' }, { week: 12, acta: '19' }, { week: 13, acta: '19' }, { week: 14, acta: '20' }, { week: 15, acta: '10' }, { week: 16, acta: '2' }, { week: 17, acta: '2' }, { week: 18, acta: '2' }, { week: 19, acta: '2' }, { week: 20, acta: '2' }, { week: 21, acta: '152' }, { week: 22, acta: '21' }, { week: 23, acta: '18' }, { week: 24, acta: '17' }, { week: 25, acta: '9' }, { week: 26, acta: '2' }, { week: 27, acta: '2' }, { week: 28, acta: '2' }, { week: 29, acta: '2' }, { week: 30, acta: '2' }, ];
+             const fullData = Array.from({ length: TOTAL_WEEKS }, (_, i) => { const weekNum = i + 1; const existingEntry = initialData.find(d => d.week === weekNum); return existingEntry || { week: weekNum, acta: '' }; });
+             return fullData;
+        }
+
+        function seedDatabase() {
+            const batch = db.batch();
+            getInitialSeedData().forEach(item => {
+                const docRef = actasCollection.doc(String(item.week));
+                batch.set(docRef, item);
+            });
+            batch.commit().catch(error => console.error("Error al poblar la DB: ", error));
+        }
+
+        // --- INICIALIZACIÓN DE LA APLICACIÓN ---
+        actasCollection.orderBy('week').onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                console.log("Colección vacía. Poblando la base de datos...");
+                seedDatabase();
+                return;
+            }
+            actasData = snapshot.docs.map(doc => doc.data());
+            renderUI();
+        }, error => {
+            console.error("ERROR GRAVE DE FIREBASE: ", error);
+            alert("No se pudo conectar a la base de datos. Revisa la consola y asegúrate de que la API de Firestore está HABILITADA en tu proyecto de Google Cloud.");
+        });
+
+        trackingSection.addEventListener('click', handleEditEvents);
+    });
+    </script>
+</body>
+</html>
